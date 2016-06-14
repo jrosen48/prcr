@@ -1,10 +1,13 @@
 # primary_functions.R
 
-source("helper_functions.R")
+#' Pre-processing function to prepare data for subsequent analysis
+#'@param raw_data data frame or matrix of any dimensions with numeric data
+#'@param method_of_centering string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables
+#'@param grouping_vector a vector indicating how the cases are to be grouped for group mean centering
+#'@param to_standardize boolean indicating whether to standardize (TRUE) or not (FALSE)
+#'@export
 
-# Pre-processing function
-
-prepare_data <- function(raw_data, method_of_centering, grouping_vector, to_standardize){
+prepare_data <- function(raw_data, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F){
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
     print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
@@ -14,14 +17,12 @@ prepare_data <- function(raw_data, method_of_centering, grouping_vector, to_stan
     return(out)
 }
 
-#' Clustering wrapper function
-#'
-#'@param data The data frame comparing the text vector as the first column
-#'  and any metadata in subsequent columns
-#'@details Performs the clustering half of the process, including assembling
-#'  and cleaning the corpus, deviationalizing and clustering.
+#' Cluster data function
+#'@param prepared_data output from the prepare_data() function
+#'@param n_clusters the number of clusters; specified a priori
+#'@param distance_metric metric for calculating the distance matrix used in hierarchical clustering, options include "euclidean", "squared_euclidean", and others (see ?dist() for more details)
+#'@param linkage method for combining clusters in hierarchical clustering, options include "complete", "average", and others (see ?hclust() for details)
 #'@export
-#'
 
 cluster_data <- function(prepared_data,
                          n_clusters,
@@ -45,16 +46,12 @@ cluster_data <- function(prepared_data,
 
 }
 
-#' Function to calculate cluster solution statistics
-#'
-#'@param data The data frame comparing the text vector as the first column
-#'  and any metadata in subsequent columns
-#'@details Performs the clustering half of the process, including assembling
-#'  and cleaning the corpus, deviationalizing and clustering.
+#' Function to calculate statistics about cluster solution found via cluster_data()
+#'@param clustering_output output from cluster_data() function
+#'@param names_of_variables optional names for clusters, useful for interpreting findings
 #'@export
-#'
 
-calculate_stats <- function(clustering_output, names_of_variables = NULL){
+calculate_stats <- function(clustering_output, names_of_clusters = NULL){
     out <- list()
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
@@ -86,69 +83,49 @@ calculate_stats <- function(clustering_output, names_of_variables = NULL){
 
     invisible(out)
 }
+#
+# cross_validate <- function(x){
+#
+#     process()
+#
+# }
+#
+# compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
+#     args_tmp <- attributes(output)$args_attr
+#     if (is.null(vars_to_vary)) {
+#         out <- cluster_data(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
+#     }
+#     if (vars_to_vary == tolower("n_clusters")) {
+#         out <- data.frame(proportion_of_variance_explained = rep(0, 5),
+#                           dunn_index = rep(0, 5),
+#                           connectivity = rep(0, 5))
+#         for (i in 1:5){
+#             print(paste0("### Preparing ", i, "/", 5, " cluster solutions ###"))
+#             tmp <- cluster_data(args_tmp[[1]], (i + 3), args_tmp[[3]], args_tmp[[4]])
+#             tmp <- calculate_stats(tmp)
+#             out$proportion_of_variance_explained[i] <- tmp[[6]]
+#             out$dunn_index[i] <- tmp[[7]]
+#             out$connectivity[i] <- tmp[[11]]
+#         }
+#         tmp <- sapply(out, function(x) round(x, 3))
+#         row.names(tmp) <- paste0(4:8, " clusters")
+#     }
+#     out_list <- list()
+#     out_list[[1]] <- tmp
+#     out_list[[2]] <- NULL
+#     return(out_list)
+# }
 
-#' Function to conduct double split cross validation
-#'
-#'@param data The data frame comparing the text vector as the first column
-#'  and any metadata in subsequent columns
+#' Function to explore frequency of clusters across select factors
+#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
+#'@param cases_to_keep cases to keep from calculates_stats() function, in particular the attribute "cases_to_keep" from its output
+#'@param factor_data_frame data frame of select factors
+#'@param factor_to_explore specific factor to explore
+#'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
+#'@param cluster_names optional names for clusters, useful for interpreting findings
 #'@details Performs the clustering half of the process, including assembling
 #'  and cleaning the corpus, deviationalizing and clustering.
 #'@export
-#'
-
-cross_validate <- function(x){
-
-    process()
-
-}
-
-#' Function to compare statistics across multiple parameters entered to the cluster_data function
-#'
-#'@param data The data frame comparing the text vector as the first column
-#'  and any metadata in subsequent columns
-#'@details Performs the clustering half of the process, including assembling
-#'  and cleaning the corpus, deviationalizing and clustering.
-#'@export
-#'
-
-compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-    args_tmp <- attributes(output)$args_attr
-    if (is.null(vars_to_vary)) {
-        out <- cluster_data(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
-    }
-    if (vars_to_vary == tolower("n_clusters")) {
-        out <- data.frame(proportion_of_variance_explained = rep(0, 5),
-                          dunn_index = rep(0, 5),
-                          connectivity = rep(0, 5))
-        for (i in 1:5){
-            print(paste0("### Preparing ", i, "/", 5, " cluster solutions ###"))
-            tmp <- cluster_data(args_tmp[[1]], (i + 3), args_tmp[[3]], args_tmp[[4]])
-            tmp <- calculate_stats(tmp)
-            out$proportion_of_variance_explained[i] <- tmp[[6]]
-            out$dunn_index[i] <- tmp[[7]]
-            out$connectivity[i] <- tmp[[11]]
-        }
-        tmp <- sapply(out, function(x) round(x, 3))
-        row.names(tmp) <- paste0(4:8, " clusters")
-    }
-    out_list <- list()
-    out_list[[1]] <- tmp
-    out_list[[2]] <- NULL
-    return(out_list)
-}
-
-
-
-
-#' Function to compare cluster assignments across factors
-#'
-#'@param data The data frame comparing the text vector as the first column
-#'  and any metadata in subsequent columns
-#'@details Performs the clustering half of the process, including assembling
-#'  and cleaning the corpus, deviationalizing and clustering.
-#'@export
-#'
-#'
 
 explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame, factor_to_explore, variable_to_find_proportion = NULL, cluster_names = NULL){
     out <- list()
@@ -177,3 +154,36 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
 
     invisible(out)
 }
+
+
+# cross_validate <- function(x){
+#
+#     process()
+#
+# }
+#
+# compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
+#     args_tmp <- attributes(output)$args_attr
+#     if (is.null(vars_to_vary)) {
+#         out <- cluster_data(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
+#     }
+#     if (vars_to_vary == tolower("n_clusters")) {
+#         out <- data.frame(proportion_of_variance_explained = rep(0, 5),
+#                           dunn_index = rep(0, 5),
+#                           connectivity = rep(0, 5))
+#         for (i in 1:5){
+#             print(paste0("### Preparing ", i, "/", 5, " cluster solutions ###"))
+#             tmp <- cluster_data(args_tmp[[1]], (i + 3), args_tmp[[3]], args_tmp[[4]])
+#             tmp <- calculate_stats(tmp)
+#             out$proportion_of_variance_explained[i] <- tmp[[6]]
+#             out$dunn_index[i] <- tmp[[7]]
+#             out$connectivity[i] <- tmp[[11]]
+#         }
+#         tmp <- sapply(out, function(x) round(x, 3))
+#         row.names(tmp) <- paste0(4:8, " clusters")
+#     }
+#     out_list <- list()
+#     out_list[[1]] <- tmp
+#     out_list[[2]] <- NULL
+#     return(out_list)
+# }
