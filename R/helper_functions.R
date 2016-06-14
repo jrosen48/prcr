@@ -103,7 +103,7 @@ cluster_freq_function <- function(data, n_clusters, kfit, names_of_variables){
 
 cluster_plot_function <- function(cluster_freqs){
     cluster_freqs <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
-    clusters_p <- ggplot(cluster_freqs, aes(x = Cluster, y = Value, fill = Var)) +
+    clusters_p <- ggplot2::ggplot(cluster_freqs, aes(x = Cluster, y = Value, fill = Var)) +
         geom_bar(stat = "identity", position = "dodge", color = "black") +
         scale_fill_brewer(type = "qual", palette = 1) +
         ylab("") +
