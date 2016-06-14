@@ -83,14 +83,24 @@ prepared_data <- prepare_data(raw_data = raw_data_matrix,
                               )
 
 output <- cluster_data(prepared_data = prepared_data, # from the prepare_data function
-                          n_clusters = 8,
-                          distance_metric = "squared_euclidean", # can be euclidean, squared euclidean, manhattan, minkowski, and others (see ?dist())
-                          linkage = "complete" # can be single, complete, average, centroid, and others (see ?hclust())
-                          )
+                       n_clusters = 8,
+                       distance_metric = "squared_euclidean", # can be euclidean, squared euclidean, manhattan, minkowski, and others (see ?dist())
+                       linkage = "complete" # can be single, complete, average, centroid, and others (see ?hclust())
+                       )
 
-statistics <- calculate_statistics(clustering_output = output,
-                                   names_of_variables = c("Behavioral Engagement", "Cognitive Engagement", "Affective Engagement")
-                                   )
+statistics <- calculate_stats(clustering_output = output,
+                              names_of_variables = c("Behavioral Engagement", "Cognitive Engagement", "Affective Engagement")
+                              )
+
+cross_validation <- cross_validate()
+
+explored_factors <- explore_factors(cluster_assignments = statistics[[5]],
+                                    cases_to_keep = attributes(statistics)$cases_to_keep,
+                                    factor_data_frame = factor_data_frame,
+                                    factor_to_explore = "race",
+                                    variable_to_find_proportion = "stud_ID", # can be thought of as unit of analysis - if NULL, factor to explore will be used
+                                    cluster_names = NULL
+                                    )
 
 # Need to work on this guy a bit more
 
@@ -100,13 +110,3 @@ statistics <- calculate_statistics(clustering_output = output,
 
 # Need to write this and abstract the part with the tables from Breckenridge
 # look at double split cross validation randomly and by spring / fall
-
-# cross_validation <- cross_validate()
-
-explored_factors <- explore_factors(cluster_assignments = statistics[[5]],
-                                    cases_to_keep = attributes(statistics)$cases_to_keep,
-                                    factor_data_frame = factor_data_frame,
-                                    factor_to_explore = "race",
-                                    variable_to_find_proportion = "stud_ID", # can be thought of as unit of analysis - if NULL, factor to explore will be used
-                                    cluster_names = NULL
-                                    )

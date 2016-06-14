@@ -54,7 +54,7 @@ cluster_data <- function(prepared_data,
 #'@export
 #'
 
-calculate_statistics <- function(clustering_output, names_of_variables = NULL){
+calculate_stats <- function(clustering_output, names_of_variables = NULL){
     out <- list()
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
@@ -123,7 +123,7 @@ compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be
         for (i in 1:5){
             print(paste0("### Preparing ", i, "/", 5, " cluster solutions ###"))
             tmp <- cluster_data(args_tmp[[1]], (i + 3), args_tmp[[3]], args_tmp[[4]])
-            tmp <- calculate_statistics(tmp)
+            tmp <- calculate_stats(tmp)
             out$proportion_of_variance_explained[i] <- tmp[[6]]
             out$dunn_index[i] <- tmp[[7]]
             out$connectivity[i] <- tmp[[11]]

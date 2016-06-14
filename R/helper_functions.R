@@ -79,7 +79,7 @@ kmeans_function <- function(data, cluster_freqs){
     return(kmeans(data, start))
 }
 
-# For calculate_statistics function
+# For calculate_stats function
 
 dissim_function <- function(hc){
     data.frame(row.names = paste0("Cluster", seq_along(hc$height)),
