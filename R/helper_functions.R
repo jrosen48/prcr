@@ -1,9 +1,5 @@
 # helper_functions.R
 
-library(ggplot2)
-library(dplyr)
-library(tidyr)
-
 # For cluster_data function
 
 centering_function <- function(data, method_of_centering, grouping_vector, to_standardize = F){
