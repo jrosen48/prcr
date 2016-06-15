@@ -176,6 +176,14 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     return(raw_data)
 }
 
+find_n <- function(raw_data, factor_to_explore){
+    out <- 
+        raw_data %>%
+            group_by_(factor_to_explore) %>%
+            summarize(n = n())
+    return(out)
+}
+
 create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_proportion){
     # this is for summary table and plot
     if (!is.null(variable_to_find_proportion)) {
@@ -231,64 +239,43 @@ create_compare_anova <- function(processed_data){
     return(out)
 }
 
-# df <- data_gender_anova
-#
-# model_1_gender <- aov(Purposeful ~ gender, data = df)
-# summary(model_1_gender) # not sig
-#
-# model_2_gender <- aov(Rational ~ gender, data = df)
-# summary(model_2_gender) # not sig
-#
-# model_3_gender <- aov(`Universally Low` ~ gender, data = df)
-# summary(model_3_gender) # not sig
-#
-# model_4_gender <- aov(Busy ~ gender, data = df)
-# summary(model_4_gender) # not sig
-#
-# model_5_gender <- aov(Recreational ~ gender, data = df)
-# summary(model_5_gender) # not sig
-#
-# model_6_gender <- aov(Full ~ gender, data = df)
-# summary(model_6_gender) # not sig
-#
-# model_7_gender <- aov(Pleasurable ~ gender, data = df)
-# summary(model_7_gender) # not sig
-
 # For cross-validation
 
-# str(mat_group_scaled)
-#
-# cross_validation_df <- mat_group_scaled
-# cross_validation_df$half <- sample(c(rep(1, 1939), rep(2, 1939)), 3878)
-#
-# cross_validation_df_1 <- filter(cross_validation_df, half == 1)
-# cross_validation_df_2 <- filter(cross_validation_df, half == 2)
-#
-# cross_validation_df_1$half <- NULL
-# cross_validation_df_2$half <- NULL
-#
-# cv_1_out <- cluster_mat(cross_validation_df_1, n_clusters) # clustering
-# cv_2_out <- cluster_mat(cross_validation_df_2, n_clusters) # clustering
-#
-# cv_1_mat <- as.matrix(cross_validation_df_1)
-# cv_2_mat <- as.matrix(cross_validation_df_2)
-#
-# cv_1_out[[9]]
-# cv_2_out[[9]]
-#
-# # We need to find the cluster centroid in cv 1 to which each row in cv 2 is closest
-# # We create a new assignment, cv_2_out_star, to compare with PA and kappa to cv_2_out[[2]]
-#
-# Sys.setenv("PKG_CXXFLAGS"="-std=c++0x") # needed for the lambda functions in Rcpp
-# library(imputation)
-#
-# a <- as.matrix(cv_1_out[[9]]) # this is "A"
-# # cv_1_mat # this is sample "A" - not needed
-# b <- as.matrix(cv_2_mat) # this is raw data for "B"
-#
-# a
-# b
-#
+splitting_halves <- function(x){
+    
+}
+
+str(prepared_data)
+cross_validation_df$half <- sample(c(rep(1, 1939), rep(2, 1939)), 3878)
+
+cross_validation_df_1 <- filter(cross_validation_df, half == 1)
+cross_validation_df_2 <- filter(cross_validation_df, half == 2)
+
+cross_validation_df_1$half <- NULL
+cross_validation_df_2$half <- NULL
+
+cv_1_out <- cluster_mat(cross_validation_df_1, n_clusters) # clustering
+cv_2_out <- cluster_mat(cross_validation_df_2, n_clusters) # clustering
+
+cv_1_mat <- as.matrix(cross_validation_df_1)
+cv_2_mat <- as.matrix(cross_validation_df_2)
+
+cv_1_out[[9]]
+cv_2_out[[9]]
+
+# We need to find the cluster centroid in cv 1 to which each row in cv 2 is closest
+# We create a new assignment, cv_2_out_star, to compare with PA and kappa to cv_2_out[[2]]
+
+Sys.setenv("PKG_CXXFLAGS"="-std=c++0x") # needed for the lambda functions in Rcpp
+library(imputation)
+
+a <- as.matrix(cv_1_out[[9]]) # this is "A"
+# cv_1_mat # this is sample "A" - not needed
+b <- as.matrix(cv_2_mat) # this is raw data for "B"
+
+a
+b
+
 # # which row of a is closest to each row of b
 # # this creates "A*"
 # cv_2_out_star <- apply(b, 1, function(i, a) {

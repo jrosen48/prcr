@@ -140,8 +140,10 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
     # plot
     out[[4]] <- create_plot_to_explore_factors(out[[3]], cluster_names, factor_to_explore)
+    # plot
+    out[[5]] <- find_n(out[[2]], factor_to_explore)
     # anova
-    out[[5]] <- create_compare_anova(out[[2]])
+    out[[6]] <- create_compare_anova(out[[2]])
     # manova
     # out[[6]] <- create_compare_manova(out[[3]])
 
@@ -150,19 +152,19 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     print("### 2. Processed data: Raw ###")
     print("### 3. Processed data: Summary ###")
     print("### 4. ggplot2 object  ###")
-    print("### 5. ANOVA ###")
+    print("### 5. Number by factor  ###")
+    print("### 6. ANOVA ###")
     # print("### 6. MANOVA ###")
 
     invisible(out)
 }
 
+cross_validate <- function(x){
 
-# cross_validate <- function(x){
-#
-#     process()
-#
-# }
-#
+    process()
+
+}
+
 # compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
 #     args_tmp <- attributes(output)$args_attr
 #     if (is.null(vars_to_vary)) {
