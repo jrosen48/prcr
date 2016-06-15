@@ -19,14 +19,14 @@ prepare_data <- function(raw_data, method_of_centering = "raw", grouping_vector 
     return(out)
 }
 
-#' Cluster data function
+#' Create profiles function
 #'@param prepared_data output from the prepare_data() function
 #'@param n_clusters the number of clusters; specified a priori
 #'@param distance_metric metric for calculating the distance matrix used in hierarchical clustering, options include "euclidean", "squared_euclidean", and others (see ?dist() for more details)
 #'@param linkage method for combining clusters in hierarchical clustering, options include "complete", "average", and others (see ?hclust() for details)
 #'@export
 
-cluster_data <- function(prepared_data,
+create_profiles <- function(prepared_data,
                          n_clusters,
                          distance_metric = "squared_euclidean",
                          linkage = "complete") {
@@ -133,8 +133,6 @@ calculate_stats <- function(clustering_output, names_of_clusters = NULL){
 explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame, factor_to_explore, variable_to_find_proportion = NULL, cluster_names = NULL){
     out <- list()
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
-    # data$cluster_names <- data$cluster
-    # levels(data$cluster_names) <- cluster_names
     
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
     out[[1]] <- create_crosstab(data, factor_to_explore)
@@ -142,7 +140,7 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
     out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)
     out[[5]] <- find_n(out[[2]], factor_to_explore)
-    out[[6]] <- create_compare_anova(out[[2]], variable_to_find_proportion, cluster_names)
+    out[[6]] <- create_compare_anova(out[[2]], variable_to_find_proportion, cluster_names, factor_to_explore)
     # out[[7]] <- create_compare_manova()
     
     print("### Created the following output ... ")
@@ -151,7 +149,7 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     print("### 3. Processed data: Summary ###")
     print("### 4. ggplot2 object  ###")
     print("### 5. Number by factor  ###")
-    print("### 6. ANOVA ###")
+    print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
     # print("### 7. MANOVA ###")
 
     invisible(out)

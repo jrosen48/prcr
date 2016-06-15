@@ -9,7 +9,7 @@ calculate_stats(clustering_output, names_of_clusters = NULL)
 \arguments{
 \item{clustering_output}{output from cluster_data() function}
 
-\item{names_of_variables}{optional names for clusters, useful for interpreting findings}
+\item{names_of_clusters}{optional names for clusters, useful for interpreting findings}
 }
 \description{
 Function to calculate statistics about cluster solution found via cluster_data()

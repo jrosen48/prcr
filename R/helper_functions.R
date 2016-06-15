@@ -133,7 +133,7 @@ manova_function <- function(data, cluster_assignment, names_of_clusters){
     out[[1]] <- summary(mv_out, test = "Pillai")
     out[[2]] <- summary.aov(mv_out)
     out[[3]] <- testing_the_tukey(data)
-    names(out) <- names_of_clusters
+    names(out[[3]]) <- names_of_clusters
     return(out)
 }
 
@@ -147,8 +147,19 @@ merge_assignments_and_factors <- function(cluster_assignments, cases_to_keep, fa
 }
 
 create_crosstab <- function(data, factor_to_explore){
-    which_variable <- which(names(data) == factor_to_explore)
-    out <- table(data$cluster, data[, which_variable])
+    if (length(factor_to_explore) == 1) {
+        which_variable <- which(names(data) == factor_to_explore)
+        out <- table(data$cluster, data[, which_variable])
+    } else if (length(factor_to_explore) == 2) {
+        which_variable_1 <- which(names(data) == factor_to_explore[1])
+        which_variable_2 <- which(names(data) == factor_to_explore[2])
+        out <- table(data$cluster, data[, which_variable_1], data[, which_variable_2])
+    } else if (length(factor_to_explore) == 3) {
+        which_variable_1 <- which(names(data) == factor_to_explore[1])
+        which_variable_2 <- which(names(data) == factor_to_explore[2])
+        which_variable_3 <- which(names(data) == factor_to_explore[3])
+        out <- table(data$cluster, data[, which_variable_1], data[, which_variable_2], data[, which_variable_3])
+    }
     return(out)
 }
 
@@ -159,63 +170,195 @@ dummmy_code_cluster_assignments <- function(data){
 }
 
 create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
-
     # this is for ANOVA and for subsequent processing
-    if (!is.null(variable_to_find_proportion)) {
-        raw_data <- dummy_coded_data %>%
-            select(matches(variable_to_find_proportion), matches(factor_to_explore), contains("cluster")) %>%
-            group_by_(variable_to_find_proportion, factor_to_explore) %>%
-            summarize_each(funs(mean)) %>%
-            ungroup()
-    } else {
-        raw_data <- dummy_coded_data %>%
-            select(matches(factor_to_explore), contains("cluster")) %>%
-            ungroup()
+    
+    for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            raw_data <- dummy_coded_data %>%
+                select(matches(variable_to_find_proportion), matches(factor_to_explore), contains("cluster")) %>%
+                group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                summarize_each(funs(mean)) %>%
+                ungroup()
+        } else {
+            raw_data <- dummy_coded_data %>%
+                select(matches(factor_to_explore), contains("cluster")) %>%
+                ungroup()
+        }
+        return(raw_data)
     }
-    return(raw_data)
+    
+    for_two <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            raw_data <- dummy_coded_data %>%
+                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), contains("cluster")) %>%
+                group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                summarize_each(funs(mean)) %>%
+                ungroup()
+        } else {
+            raw_data <- dummy_coded_data %>%
+                select(matches(factor_to_explore[1]), matches(factor_to_explore[2]), contains("cluster")) %>%
+                ungroup()
+        }
+        return(raw_data)
+    }
+    
+    for_three <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            raw_data <- dummy_coded_data %>%
+                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), contains("cluster")) %>%
+                group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                summarize_each(funs(mean)) %>%
+                ungroup()
+        } else {
+            raw_data <- dummy_coded_data %>%
+                select(matches(factor_to_explore), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), contains("cluster")) %>%
+                ungroup()
+        }
+        return(raw_data)
+    }
+    
+    if (length(factor_to_explore) == 1) {
+        out <- for_one(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    } else if (length(factor_to_explore) == 2) {
+        out <- for_two(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    } else if (length(factor_to_explore) == 3) {
+        out <- for_three(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    }
+
+    return(out)
 }
 
 find_n <- function(raw_data, factor_to_explore){
-    out <- 
-        raw_data %>%
+    
+    if (length(factor_to_explore) == 1) {
+        out <- 
+            raw_data %>%
             group_by_(factor_to_explore) %>%
             summarize(n = n())
-    return(out)
+    } else if (length(factor_to_explore) == 2) {
+        out <- 
+            raw_data %>%
+            group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+            summarize(n = n())    
+    } else if (length(factor_to_explore) == 3) {
+        out <- 
+            raw_data %>%
+            group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+            summarize(n = n())
+    }
+    
 }
 
 create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_proportion){
     # this is for summary table and plot
-    if (!is.null(variable_to_find_proportion)) {
-        processed_data <- raw_data %>%
-            select(-matches(variable_to_find_proportion)) %>%
-            group_by_(factor_to_explore) %>%
-            summarize_each(funs(mean))
-    } else {
-        processed_data <- raw_data %>%
-            group_by_(factor_to_explore) %>%
-            summarize_each(funs(mean))
+    
+    for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            processed_data <- raw_data %>%
+                select(-matches(variable_to_find_proportion)) %>%
+                group_by_(factor_to_explore) %>%
+                summarize_each(funs(mean))
+        } else {
+            processed_data <- raw_data %>%
+                group_by_(factor_to_explore) %>%
+                summarize_each(funs(mean))
+        }
+        return(processed_data)
     }
-    return(processed_data)
+    
+    for_two <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            processed_data <- raw_data %>%
+                select(-matches(variable_to_find_proportion)) %>%
+                group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+                summarize_each(funs(mean))
+        } else {
+            processed_data <- raw_data %>%
+                group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+                summarize_each(funs(mean))
+        }
+        return(processed_data)
+    }
+    
+    for_three <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
+        if (!is.null(variable_to_find_proportion)) {
+            processed_data <- raw_data %>%
+                select(-matches(variable_to_find_proportion)) %>%
+                group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+                summarize_each(funs(mean))
+        } else {
+            processed_data <- raw_data %>%
+                group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+                summarize_each(funs(mean))
+        }
+        return(processed_data)
+    }
+    
+    if (length(factor_to_explore) == 1) {
+        out <- for_one(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    } else if (length(factor_to_explore) == 2) {
+        out <- for_two(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    } else if (length(factor_to_explore) == 3) {
+        out <- for_three(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
+    }
+    
+    return(out)
+    
 }
 
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
+
     processed_data <- processed_data[complete.cases(processed_data), ]
-    to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
-    # to_plot # this is where you can rename the clusters
-    # to_plot # this is where you can rename the groups
-    out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
-        aes_string(x = factor_to_explore) +
-        geom_bar(stat = "identity", color = "black") +
-        xlab("") +
-        ylab("Proportion of Responses") +
-        ggtitle("") +
-        theme(legend.position = "top") +
-        theme(legend.title=element_blank()) +
-        theme(text=element_text(size = 12, family = "Times")) +
-        theme(axis.text.x = element_text(angle = 90)) +
-        theme(legend.position = "right") +
-        theme(legend.title = element_blank()) +
-        scale_fill_discrete(name = "Cluster", labels = cluster_names)
+    
+    if (length(factor_to_explore) == 1) {
+        to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
+        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+            aes_string(x = factor_to_explore) +
+            geom_bar(stat = "identity", color = "black") +
+            xlab("") +
+            ylab("Proportion of Responses") +
+            ggtitle("") +
+            theme(legend.position = "top") +
+            theme(legend.title = element_blank()) +
+            theme(text=element_text(size = 12, family = "Times")) +
+            theme(axis.text.x = element_text(angle = 90)) +
+            theme(legend.position = "right") +
+            theme(legend.title = element_blank()) +
+            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+    } else if (length(factor_to_explore) == 2) {
+        to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]))
+        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+            aes_string(x = factor_to_explore[1]) +
+            facet_wrap(as.formula(paste("~", factor_to_explore[2]))) +
+            geom_bar(stat = "identity", color = "black") +
+            xlab("") +
+            ylab("Proportion of Responses") +
+            ggtitle("") +
+            theme(legend.position = "top") +
+            theme(legend.title = element_blank()) +
+            theme(text=element_text(size = 12, family = "Times")) +
+            theme(axis.text.x = element_text(angle = 90)) +
+            theme(legend.position = "right") +
+            theme(legend.title = element_blank()) +
+            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+    } else if (length(factor_to_explore) == 3) {
+        to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]), -matches(factor_to_explore[3]))
+        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+            aes_string(x = factor_to_explore[1]) +
+            facet_wrap(as.formula(paste("~", factor_to_explore[2], " + ", factor_to_explore[3]))) +
+            geom_bar(stat = "identity", color = "black") +
+            xlab("") +
+            ylab("Proportion of Responses") +
+            ggtitle("") +
+            theme(legend.position = "top") +
+            theme(legend.title = element_blank()) +
+            theme(text=element_text(size = 12, family = "Times")) +
+            theme(axis.text.x = element_text(angle = 90)) +
+            theme(legend.position = "right") +
+            theme(legend.title = element_blank()) +
+            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+        out
+    }
     return(out)
 }
 
@@ -229,23 +372,86 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
 #     return(out)
 # }
 
-create_compare_anova <- function(processed_data, variable_to_find_proportion, cluster_names){
+create_compare_anova <- function(processed_data, variable_to_find_proportion, cluster_names, factor_to_explore){
     df <- processed_data
     out <- list()
-    if (!is.null(variable_to_find_proportion)){
-        names(df)[2] <- "DV"
-        for (i in 1:(ncol(processed_data) - 2)){
-            x <- paste0("cluster", i, " ~ DV", sep = "")
-            out[[i]] <- summary(aov(as.formula(x), data = df))
+    out_tukey <- list()
+    
+    for_one <- function(processed_data, variable_to_find_proportion, cluster_names){
+        if (!is.null(variable_to_find_proportion)){
+            names(df)[2] <- "DV"
+            for (i in 1:(ncol(processed_data) - 2)){
+                x <- paste0("cluster", i, " ~ DV", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
+        } else {
+            names(df)[1] <- "DV"
+            for (i in 1:(ncol(processed_data) - 1)){
+                x <- paste0("cluster", i, " ~ DV", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
         }
-    } else {
-        names(df)[1] <- "DV"
-        for (i in 1:(ncol(processed_data) - 1)){
-            x <- paste0("cluster", i, " ~ DV", sep = "")
-            out[[i]] <- summary(aov(as.formula(x), data = df))
-        }
+        out <- list(out, out_tukey)
+        return(out)
     }
-    names(out) <- cluster_names
+
+    for_two <- function(processed_data, variable_to_find_proportion, cluster_names){
+        if (!is.null(variable_to_find_proportion)){
+            names(df)[2] <- "DV1"
+            names(df)[3] <- "DV2"
+            for (i in 1:(ncol(processed_data) - 3)){
+                x <- paste0("cluster", i, " ~ DV1*DV2", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
+        } else {
+            names(df)[1] <- "DV1"
+            names(df)[2] <- "DV2"
+            for (i in 1:(ncol(processed_data) - 2)){
+                x <- paste0("cluster", i, " ~ DV1*DV2", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
+        }
+        out <- list(out, out_tukey)
+        return(out)
+    }
+    
+    for_three <- function(processed_data, variable_to_find_proportion, cluster_names){
+        if (!is.null(variable_to_find_proportion)){
+            names(df)[2] <- "DV1"
+            names(df)[3] <- "DV2"
+            names(df)[4] <- "DV2"
+            for (i in 1:(ncol(processed_data) - 4)){
+                x <- paste0("cluster", i, " ~ DV1*DV2*DV3", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
+        } else {
+            names(df)[1] <- "DV"
+            names(df)[2] <- "DV2"
+            names(df)[3] <- "DV3"
+            for (i in 1:(ncol(processed_data) - 3)){
+                x <- paste0("cluster", i, " ~ DV1*DV2*DV3", sep = "")
+                out[[i]] <- summary(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+            }
+        }
+        out <- list(out, out_tukey)
+        return(out)
+    }
+    
+    if (length(factor_to_explore) == 1) {
+        out <- for_one(processed_data, variable_to_find_proportion, cluster_names)
+    } else if (length(factor_to_explore) == 2) {
+        out <- for_two(processed_data, variable_to_find_proportion, cluster_names)
+    } else if (length(factor_to_explore) == 3) {
+        out <- for_three(processed_data, variable_to_find_proportion, cluster_names)
+    }
+    
+    # names(out) <- cluster_names
     return(out)
 }
 

@@ -10,5 +10,6 @@ LazyData: TRUE
 Imports:
     ggplot2,
     dplyr,
-    tidyr
+    tidyr,
+    clValid
 RoxygenNote: 5.0.1
