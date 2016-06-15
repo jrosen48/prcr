@@ -200,7 +200,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     return(processed_data)
 }
 
-create_plot_to_explore_factors <- function(processed_data, factor_to_explore){
+create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
     # to_plot # this is where you can rename the clusters
     # to_plot # this is where you can rename the groups
@@ -214,8 +214,9 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore){
         theme(legend.title=element_blank()) +
         theme(text=element_text(size = 12, family = "Times")) +
         theme(axis.text.x = element_text(angle = 90)) +
-        theme(legend.position = "top") +
-        theme(legend.title = element_blank())
+        theme(legend.position = "right") +
+        theme(legend.title = element_blank()) +
+        scale_fill_discrete(name = "Cluster", labels = cluster_names)
     return(out)
 }
 
@@ -237,6 +238,7 @@ create_compare_anova <- function(processed_data, cluster_names){
         x <- paste0("cluster", i, " ~ DV", sep = "")
         out[[i]] <- summary(aov(as.formula(x), data = df))
     }
+    names(out) <- cluster_names
     return(out)
 }
 

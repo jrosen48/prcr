@@ -140,9 +140,9 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     out[[1]] <- create_crosstab(data, factor_to_explore)
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
-    out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore)
+    out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)
     out[[5]] <- find_n(out[[2]], factor_to_explore)
-    out[[6]] <- create_compare_anova(out[[2]])
+    out[[6]] <- create_compare_anova(out[[2]], cluster_names)
     # out[[7]] <- create_comprae_manova()
     
     print("### Created the following output ... ")
