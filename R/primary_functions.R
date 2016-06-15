@@ -50,6 +50,7 @@ cluster_data <- function(prepared_data,
 #'@param clustering_output output from cluster_data() function
 #'@param names_of_variables optional names for clusters, useful for interpreting findings
 #'@export
+#'@import ggplot2
 
 calculate_stats <- function(clustering_output, names_of_clusters = NULL){
     out <- list()
