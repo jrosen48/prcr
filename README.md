@@ -1,8 +1,6 @@
 # prcr
 `R` package for person-centered analysis.
 
-This package is incomplete and is presently being developed.
-
 To install it, you can use the `devtools` package and the function `devtools::install_github("jrosen48/prcr")`.
 
 This package is organized around four functions:
@@ -11,6 +9,8 @@ This package is organized around four functions:
 2. `cluster_data()`
 3. `calculate_stats()`
 4. `explore_factors()`
+
+Call each function prefaced with `?` to review documentation.
 
 Two additional functions are in the works:
 
