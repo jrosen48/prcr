@@ -86,38 +86,6 @@ calculate_stats <- function(clustering_output, names_of_clusters = NULL){
 
     invisible(out)
 }
-#
-# cross_validate <- function(x){
-#
-#     process()
-#
-# }
-#
-# compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-#     args_tmp <- attributes(output)$args_attr
-#     if (is.null(vars_to_vary)) {
-#         out <- cluster_data(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
-#     }
-#     if (vars_to_vary == tolower("n_clusters")) {
-#         out <- data.frame(proportion_of_variance_explained = rep(0, 5),
-#                           dunn_index = rep(0, 5),
-#                           connectivity = rep(0, 5))
-#         for (i in 1:5){
-#             print(paste0("### Preparing ", i, "/", 5, " cluster solutions ###"))
-#             tmp <- cluster_data(args_tmp[[1]], (i + 3), args_tmp[[3]], args_tmp[[4]])
-#             tmp <- calculate_stats(tmp)
-#             out$proportion_of_variance_explained[i] <- tmp[[6]]
-#             out$dunn_index[i] <- tmp[[7]]
-#             out$connectivity[i] <- tmp[[11]]
-#         }
-#         tmp <- sapply(out, function(x) round(x, 3))
-#         row.names(tmp) <- paste0(4:8, " clusters")
-#     }
-#     out_list <- list()
-#     out_list[[1]] <- tmp
-#     out_list[[2]] <- NULL
-#     return(out_list)
-# }
 
 #' Function to explore frequency of clusters across select factors
 #'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
@@ -155,10 +123,13 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     invisible(out)
 }
 
-cross_validate <- function(x){
-    process()
-}
-
+#
+# cross_validate <- function(x){
+#
+#     process()
+#
+# }
+#
 # compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now
 #     args_tmp <- attributes(output)$args_attr
 #     if (is.null(vars_to_vary)) {
@@ -183,4 +154,4 @@ cross_validate <- function(x){
 #     out_list[[1]] <- tmp
 #     out_list[[2]] <- NULL
 #     return(out_list)
-# }
+#
