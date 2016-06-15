@@ -142,8 +142,8 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
     out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)
     out[[5]] <- find_n(out[[2]], factor_to_explore)
-    out[[6]] <- create_compare_anova(out[[2]], cluster_names)
-    # out[[7]] <- create_comprae_manova()
+    out[[6]] <- create_compare_anova(out[[2]], variable_to_find_proportion, cluster_names)
+    # out[[7]] <- create_compare_manova()
     
     print("### Created the following output ... ")
     print("### 1. Comparison table ###")

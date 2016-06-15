@@ -170,8 +170,6 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     } else {
         raw_data <- dummy_coded_data %>%
             select(matches(factor_to_explore), contains("cluster")) %>%
-            group_by_(factor_to_explore) %>%
-            summarize_each(funs(mean)) %>%
             ungroup()
     }
     return(raw_data)
@@ -231,13 +229,21 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
 #     return(out)
 # }
 
-create_compare_anova <- function(processed_data, cluster_names){
+create_compare_anova <- function(processed_data, variable_to_find_proportion, cluster_names){
     df <- processed_data
-    names(df)[2] <- "DV"
     out <- list()
-    for (i in 1:(ncol(processed_data) - 2)){
-        x <- paste0("cluster", i, " ~ DV", sep = "")
-        out[[i]] <- summary(aov(as.formula(x), data = df))
+    if (!is.null(variable_to_find_proportion)){
+        names(df)[2] <- "DV"
+        for (i in 1:(ncol(processed_data) - 2)){
+            x <- paste0("cluster", i, " ~ DV", sep = "")
+            out[[i]] <- summary(aov(as.formula(x), data = df))
+        }
+    } else {
+        names(df)[1] <- "DV"
+        for (i in 1:(ncol(processed_data) - 1)){
+            x <- paste0("cluster", i, " ~ DV", sep = "")
+            out[[i]] <- summary(aov(as.formula(x), data = df))
+        }
     }
     names(out) <- cluster_names
     return(out)
