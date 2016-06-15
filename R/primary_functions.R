@@ -10,6 +10,8 @@
 prepare_data <- function(raw_data, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F){
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
+    print("### Created the following output ... ")
+    print("### 1. Prepared data ###")
     print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
     grouping_vector <- grouping_vector[cases_to_keep]
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
@@ -48,7 +50,7 @@ cluster_data <- function(prepared_data,
 
 #' Function to calculate statistics about cluster solution found via cluster_data()
 #'@param clustering_output output from cluster_data() function
-#'@param names_of_variables optional names for clusters, useful for interpreting findings
+#'@param names_of_clusters optional names for clusters, useful for interpreting findings
 #'@export
 #'@import ggplot2
 
@@ -131,22 +133,18 @@ calculate_stats <- function(clustering_output, names_of_clusters = NULL){
 explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame, factor_to_explore, variable_to_find_proportion = NULL, cluster_names = NULL){
     out <- list()
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
+    # data$cluster_names <- data$cluster
+    # levels(data$cluster_names) <- cluster_names
+    
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
-    # crosstab
     out[[1]] <- create_crosstab(data, factor_to_explore)
-    # raw data
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
-    # processed data
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
-    # plot
-    out[[4]] <- create_plot_to_explore_factors(out[[3]], cluster_names, factor_to_explore)
-    # plot
+    out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore)
     out[[5]] <- find_n(out[[2]], factor_to_explore)
-    # anova
     out[[6]] <- create_compare_anova(out[[2]])
-    # manova
-    # out[[6]] <- create_compare_manova(out[[3]])
-
+    # out[[7]] <- create_comprae_manova()
+    
     print("### Created the following output ... ")
     print("### 1. Comparison table ###")
     print("### 2. Processed data: Raw ###")
@@ -154,15 +152,13 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     print("### 4. ggplot2 object  ###")
     print("### 5. Number by factor  ###")
     print("### 6. ANOVA ###")
-    # print("### 6. MANOVA ###")
+    # print("### 7. MANOVA ###")
 
     invisible(out)
 }
 
 cross_validate <- function(x){
-
     process()
-
 }
 
 # compare_cluster_statistics <- function(args, vars_to_vary = NULL){ # can also be method_of_centering (and grouping vector) and to_standardize for now

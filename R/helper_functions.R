@@ -112,7 +112,7 @@ cluster_plot_function <- function(cluster_freqs){
         theme(legend.title=element_blank()) +
         theme(legend.position = "top") +
         theme(text=element_text(size = 12, family = "Times"))
-    clusters_p
+    return(clusters_p)
 }
 
 testing_the_tukey <- function(data){
@@ -125,7 +125,7 @@ testing_the_tukey <- function(data){
     return(tukey_list)
 }
 
-manova_function <- function(data, cluster_assignment){
+manova_function <- function(data, cluster_assignment, names_of_clusters){
     out <- list()
     data$DV <- as.matrix(data)
     data <- cbind(data, cluster_assignment)
@@ -133,6 +133,7 @@ manova_function <- function(data, cluster_assignment){
     out[[1]] <- summary(mv_out, test = "Pillai")
     out[[2]] <- summary.aov(mv_out)
     out[[3]] <- testing_the_tukey(data)
+    names(out) <- names_of_clusters
     return(out)
 }
 
@@ -199,7 +200,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     return(processed_data)
 }
 
-create_plot_to_explore_factors <- function(processed_data, cluster_names, factor_to_explore){
+create_plot_to_explore_factors <- function(processed_data, factor_to_explore){
     to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
     # to_plot # this is where you can rename the clusters
     # to_plot # this is where you can rename the groups
@@ -207,11 +208,11 @@ create_plot_to_explore_factors <- function(processed_data, cluster_names, factor
         aes_string(x = factor_to_explore) +
         geom_bar(stat = "identity", color = "black") +
         xlab("") +
-        ylab("Mean Proportion of Responses") +
+        ylab("Proportion of Responses") +
         ggtitle("") +
         theme(legend.position = "top") +
         theme(legend.title=element_blank()) +
-        theme(text=element_text(size = 14, family = "Times")) +
+        theme(text=element_text(size = 12, family = "Times")) +
         theme(axis.text.x = element_text(angle = 90)) +
         theme(legend.position = "top") +
         theme(legend.title = element_blank())
@@ -228,7 +229,7 @@ create_plot_to_explore_factors <- function(processed_data, cluster_names, factor
 #     return(out)
 # }
 
-create_compare_anova <- function(processed_data){
+create_compare_anova <- function(processed_data, cluster_names){
     df <- processed_data
     names(df)[2] <- "DV"
     out <- list()
@@ -239,136 +240,136 @@ create_compare_anova <- function(processed_data){
     return(out)
 }
 
-# For cross-validation
-
-splitting_halves <- function(x){
-    
-}
-
-str(prepared_data)
-cross_validation_df$half <- sample(c(rep(1, 1939), rep(2, 1939)), 3878)
-
-cross_validation_df_1 <- filter(cross_validation_df, half == 1)
-cross_validation_df_2 <- filter(cross_validation_df, half == 2)
-
-cross_validation_df_1$half <- NULL
-cross_validation_df_2$half <- NULL
-
-cv_1_out <- cluster_mat(cross_validation_df_1, n_clusters) # clustering
-cv_2_out <- cluster_mat(cross_validation_df_2, n_clusters) # clustering
-
-cv_1_mat <- as.matrix(cross_validation_df_1)
-cv_2_mat <- as.matrix(cross_validation_df_2)
-
-cv_1_out[[9]]
-cv_2_out[[9]]
-
-# We need to find the cluster centroid in cv 1 to which each row in cv 2 is closest
-# We create a new assignment, cv_2_out_star, to compare with PA and kappa to cv_2_out[[2]]
-
-Sys.setenv("PKG_CXXFLAGS"="-std=c++0x") # needed for the lambda functions in Rcpp
-library(imputation)
-
-a <- as.matrix(cv_1_out[[9]]) # this is "A"
-# cv_1_mat # this is sample "A" - not needed
-b <- as.matrix(cv_2_mat) # this is raw data for "B"
-
-a
-b
-
-# # which row of a is closest to each row of b
-# # this creates "A*"
-# cv_2_out_star <- apply(b, 1, function(i, a) {
-#     which.min(imputation:::dist_q.matrix(rbind(i, a), ref= 1L, q=2))
-# }, a= a)
-#
-# cv_2_out[[2]] # this is "B"
-#
-# cv_2_out_star # this is "A*"
-#
-# table(cv_2_out_star, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
-#
-# ###
-# # Optimizing clusters
-# ###
-#
-# cv_1_mat <- as.data.frame(cv_1_mat)
-# cv_1_mat$cluster_A_star <- cv_1_out[[2]] # this adds the "A*" assignments to "A"
-#
-# tmp <- cv_1_mat %>% # this finds the "A*" centroids
-#     group_by(cluster_A_star) %>%
-#     summarize(behavioral = mean(behavioral_scale_ind),
-#               cognitive = mean(cognitive_scale_ind),
-#               affective = mean(affective_scale_ind)) %>%
-#     select(behavioral:affective) %>%
-#     as.data.frame()
-#
-# a <- as.matrix(tmp)
-# b <- as.matrix(cv_2_out[[9]])
-# b <- b[, 1:3]
-#
-# a # "A*" centroids
-# b # "B" centroids
-#
-# library(pdist)
-#
-# x <- pdist(a, b)
-# # If mypdist = pdist(X,Y), mypdist[i,j] is the distance between X[i,] and Y[j,].
-# y <- matrix(x@dist, nrow = nrow(b))
-# row.names(y) <- paste0("a_c", 1:nrow(b))
-# colnames(y) <- paste0("b_c", 1:nrow(b))
-# y
-#
-# out <- matrix(nrow = nrow(b), ncol = 2)
-# out
-# # not sure this is the best way to optimize
-# for (i in 1:nrow(b)){
-#     tmp_dim <- which(y == min(y), arr.ind = TRUE)
-#     out[i, 2] <- tmp_dim[1]
-#     out[i, 1] <- tmp_dim[2]
-#     y[tmp_dim[1], ] <- 1000
-#     y[, tmp_dim[2]] <- 1000
+# # For cross-validation
+# 
+# splitting_halves <- function(x){
+#     
 # }
-#
-# out
-#
-# a # "A*" centroids
-# b # "B" centroids
-#
-# out
-#
-# # just have to recode one using 'out'
-#
-# table(tmp, cv_2_out[[2]])
-#
-# tmp <- cv_2_out_star
-#
-# # start here - need to find a programmatic way to recode them
-#
-# # for (i in 1:nrow(out)){
-# #     for (j in 1:length(tmp)){
-# #         tmp[j] <- ifelse(tmp[j] == out[i, 1], out[i, 2], tmp[j])
-# #     }
+# 
+# str(prepared_data)
+# cross_validation_df$half <- sample(c(rep(1, 1939), rep(2, 1939)), 3878)
+# 
+# cross_validation_df_1 <- filter(cross_validation_df, half == 1)
+# cross_validation_df_2 <- filter(cross_validation_df, half == 2)
+# 
+# cross_validation_df_1$half <- NULL
+# cross_validation_df_2$half <- NULL
+# 
+# cv_1_out <- cluster_mat(cross_validation_df_1, n_clusters) # clustering
+# cv_2_out <- cluster_mat(cross_validation_df_2, n_clusters) # clustering
+# 
+# cv_1_mat <- as.matrix(cross_validation_df_1)
+# cv_2_mat <- as.matrix(cross_validation_df_2)
+# 
+# cv_1_out[[9]]
+# cv_2_out[[9]]
+# 
+# # We need to find the cluster centroid in cv 1 to which each row in cv 2 is closest
+# # We create a new assignment, cv_2_out_star, to compare with PA and kappa to cv_2_out[[2]]
+# 
+# Sys.setenv("PKG_CXXFLAGS"="-std=c++0x") # needed for the lambda functions in Rcpp
+# library(imputation)
+# 
+# a <- as.matrix(cv_1_out[[9]]) # this is "A"
+# # cv_1_mat # this is sample "A" - not needed
+# b <- as.matrix(cv_2_mat) # this is raw data for "B"
+# 
+# a
+# b
+# 
+# # # which row of a is closest to each row of b
+# # # this creates "A*"
+# # cv_2_out_star <- apply(b, 1, function(i, a) {
+# #     which.min(imputation:::dist_q.matrix(rbind(i, a), ref= 1L, q=2))
+# # }, a= a)
+# #
+# # cv_2_out[[2]] # this is "B"
+# #
+# # cv_2_out_star # this is "A*"
+# #
+# # table(cv_2_out_star, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
+# #
+# # ###
+# # # Optimizing clusters
+# # ###
+# #
+# # cv_1_mat <- as.data.frame(cv_1_mat)
+# # cv_1_mat$cluster_A_star <- cv_1_out[[2]] # this adds the "A*" assignments to "A"
+# #
+# # tmp <- cv_1_mat %>% # this finds the "A*" centroids
+# #     group_by(cluster_A_star) %>%
+# #     summarize(behavioral = mean(behavioral_scale_ind),
+# #               cognitive = mean(cognitive_scale_ind),
+# #               affective = mean(affective_scale_ind)) %>%
+# #     select(behavioral:affective) %>%
+# #     as.data.frame()
+# #
+# # a <- as.matrix(tmp)
+# # b <- as.matrix(cv_2_out[[9]])
+# # b <- b[, 1:3]
+# #
+# # a # "A*" centroids
+# # b # "B" centroids
+# #
+# # library(pdist)
+# #
+# # x <- pdist(a, b)
+# # # If mypdist = pdist(X,Y), mypdist[i,j] is the distance between X[i,] and Y[j,].
+# # y <- matrix(x@dist, nrow = nrow(b))
+# # row.names(y) <- paste0("a_c", 1:nrow(b))
+# # colnames(y) <- paste0("b_c", 1:nrow(b))
+# # y
+# #
+# # out <- matrix(nrow = nrow(b), ncol = 2)
+# # out
+# # # not sure this is the best way to optimize
+# # for (i in 1:nrow(b)){
+# #     tmp_dim <- which(y == min(y), arr.ind = TRUE)
+# #     out[i, 2] <- tmp_dim[1]
+# #     out[i, 1] <- tmp_dim[2]
+# #     y[tmp_dim[1], ] <- 1000
+# #     y[, tmp_dim[2]] <- 1000
 # # }
-#
-# table(tmp)
-# out
-# table(tmp, cv_2_out[[2]])
-#
-# new_mat <- cbind(c, d)
-# library(irr)
-#
-# kappa2(new_mat)
-# agree(new_mat)
-#
-# table(cv_2_out_star_ss, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
-#
-# # we need to find out which A* centroid is most similar to which B centroid
-#
-# cv_2_out <- data.frame(cv_2_mat, cluster = cv_2_out_star)
-#
-# # Almost there; now we need to optimize the clusters
-#
-# cv_2_out_star
-
-# Diagnostics
+# #
+# # out
+# #
+# # a # "A*" centroids
+# # b # "B" centroids
+# #
+# # out
+# #
+# # # just have to recode one using 'out'
+# #
+# # table(tmp, cv_2_out[[2]])
+# #
+# # tmp <- cv_2_out_star
+# #
+# # # start here - need to find a programmatic way to recode them
+# #
+# # # for (i in 1:nrow(out)){
+# # #     for (j in 1:length(tmp)){
+# # #         tmp[j] <- ifelse(tmp[j] == out[i, 1], out[i, 2], tmp[j])
+# # #     }
+# # # }
+# #
+# # table(tmp)
+# # out
+# # table(tmp, cv_2_out[[2]])
+# #
+# # new_mat <- cbind(c, d)
+# # library(irr)
+# #
+# # kappa2(new_mat)
+# # agree(new_mat)
+# #
+# # table(cv_2_out_star_ss, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
+# #
+# # # we need to find out which A* centroid is most similar to which B centroid
+# #
+# # cv_2_out <- data.frame(cv_2_mat, cluster = cv_2_out_star)
+# #
+# # # Almost there; now we need to optimize the clusters
+# #
+# # cv_2_out_star
+# 
+# # Diagnostics
