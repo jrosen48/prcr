@@ -6,7 +6,7 @@
 
 ## Installation
 
-Because this package is in development and is not yet available on CRAN, to install it, first install the `devtools` package using `install.packages("devtools")`, followed by the function `devtools::install_github("jrosen48/prcr")`. After installing the package, use `library(prcr)` to load it each session.
+Because this package is in development and is not yet available on CRAN, to install it, first install the `devtools` package using `install.packages("devtools")`, followed by the function `devtools::install_github("jrosen48/prcr")`. After installing the package, use `library(prcr)` to load it in each session.
 
 ## Workflow and Use 
 
