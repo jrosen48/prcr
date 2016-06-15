@@ -6,8 +6,12 @@ Because this package is in development and is not yet available on CRAN, to inst
 This package is organized around four functions:
 
 1. `prepare_data()`
+
+-This function uses
+
 2. `create_profiles()`
 3. `calculate_stats()`
 4. `explore_factors()`
+
 
 The basic workflow is to first prepare the data (by removing incomplete cases and centering and / or scaling the data) with `prepare data()`, to create profiles with the `create_profiles()` function, calculate statistics about the profiles using the `calculate_stats()` function, and explore the distribution of profiles across select factors with the `explore_factors()` function. To review arguments and basic documentation for each function, call each prefaced with `?`, i.e. `?prepare_data()`.
