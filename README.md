@@ -1,7 +1,7 @@
 # prcr
 `R` package for person-centered analysis.
 
-To install it, you can use the `devtools` package and the function `devtools::install_github("jrosen48/prcr")`. 
+Because this package is in development and is not yet available on CRAN, to install it, first install the `devtools` package using `install.packages("devtools")`, followed by the function `devtools::install_github("jrosen48/prcr")`. After installing the package, use `library(prcr)` to load it each session.
 
 This package is organized around four functions:
 
@@ -10,11 +10,6 @@ This package is organized around four functions:
 3. `calculate_stats()`
 4. `explore_factors()`
 
-Call each function prefaced with `?` to review documentation.
+The basic workflow is to first prepare the data (by removing incomplete cases and centering and / or scaling the data) with `prepare data()`, to create profiles with the `create_profiles()` function, calculate statistics about the profiles using the `calculate_stats()` function, and explore the distribution of profiles across select factors with the `explore_factors()` function.
 
-Two additional functions are in the works:
-
-1. `compare_clusters()` to compare fit indices across cluster solutions specified with varying parameters, such as different methods of centering or numbers of clusters.
-2. `cross_validate()` to perform split-half (or other types) of cross validation.
-
-Currently, `create_profiles()` uses hierarchical and k-means cluster analysis. Future development will integrate Latent Profile Analysis (LPA).
+To review basic documentation, call each function prefaced with `?` .
