@@ -201,6 +201,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
 }
 
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
+    processed_data <- processed_data[complete.cases(processed_data), ]
     to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
     # to_plot # this is where you can rename the clusters
     # to_plot # this is where you can rename the groups
