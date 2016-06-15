@@ -14,5 +14,5 @@ Call each function prefaced with `?` to review documentation.
 
 Two additional functions are in the works:
 
-1. `compare_clusters()` to compare fit indices across cluster solutions specified with varying parameters, such as different methods of centering or numbers of clusters
-2. `cross_validate()` to perform split-half (or other types) of cross validation
+1. `compare_clusters()` to compare fit indices across cluster solutions specified with varying parameters, such as different methods of centering or numbers of clusters.
+2. `cross_validate()` to perform split-half (or other types) of cross validation.
