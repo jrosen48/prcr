@@ -12,7 +12,9 @@ This package is organized around four functions:
 
 Call each function prefaced with `?` to review documentation.
 
-Two additional functions are in the works:
+Three additional functions are in the works:
 
 1. `compare_clusters()` to compare fit indices across cluster solutions specified with varying parameters, such as different methods of centering or numbers of clusters.
+2. `create_profiles()` to create profiles from data using Latent Profile Analysis (LPA) (to compare to or be used in replace of `cluster_data()`.
 2. `cross_validate()` to perform split-half (or other types) of cross validation.
+
