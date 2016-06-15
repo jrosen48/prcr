@@ -7,7 +7,7 @@ This package is organized around four functions:
 
 1. `prepare_data()`
 
--This function uses
+* This function
 
 2. `create_profiles()`
 3. `calculate_stats()`
