@@ -54,7 +54,7 @@ create_profiles <- function(prepared_data,
 #'@export
 #'@import ggplot2
 
-calculate_stats <- function(clustering_output, names_of_clusters = NULL){
+calculate_stats <- function(clustering_output, names_of_variables = NULL){
     out <- list()
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
@@ -65,8 +65,8 @@ calculate_stats <- function(clustering_output, names_of_clusters = NULL){
     out[[5]] <- clustering_output[[2]]$cluster # kmeans assignment
     out[[6]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
     out[[7]] <- clValid::dunn(distance = NULL, clusters = out[[5]], Data = attributes(clustering_output)$data_attr, method = "euclidean")
-    out[[8]] <- manova_function(attributes(clustering_output)$data_attr, out[[5]], names_of_clusters)
-    out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], names_of_clusters)
+    out[[8]] <- manova_function(attributes(clustering_output)$data_attr, out[[5]], names_of_variables)
+    out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], names_of_variables)
     out[[10]] <- cluster_plot_function(out[[9]])
     out[[11]] <- clValid::connectivity(clusters = out[[5]], Data = attributes(clustering_output)$data_attr)
 
