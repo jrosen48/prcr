@@ -394,6 +394,8 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             }
         }
         out <- list(out, out_tukey)
+        names(out[[1]]) <- cluster_names
+        names(out[[2]]) <- cluster_names
         return(out)
     }
 
@@ -416,6 +418,8 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             }
         }
         out <- list(out, out_tukey)
+        names(out[[1]]) <- cluster_names
+        names(out[[2]]) <- cluster_names
         return(out)
     }
     
@@ -440,6 +444,8 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             }
         }
         out <- list(out, out_tukey)
+        names(out[[1]]) <- cluster_names
+        names(out[[2]]) <- cluster_names
         return(out)
     }
     
