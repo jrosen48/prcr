@@ -125,7 +125,7 @@ testing_the_tukey <- function(data){
     return(tukey_list)
 }
 
-manova_function <- function(data, cluster_assignment, names_of_clusters){
+manova_function <- function(data, cluster_assignment, names_of_variables){
     out <- list()
     data$DV <- as.matrix(data)
     data <- cbind(data, cluster_assignment)
@@ -133,7 +133,7 @@ manova_function <- function(data, cluster_assignment, names_of_clusters){
     out[[1]] <- summary(mv_out, test = "Pillai")
     out[[2]] <- summary.aov(mv_out)
     out[[3]] <- testing_the_tukey(data)
-    names(out[[3]]) <- names_of_clusters
+    names(out[[3]]) <- names_of_variables
     return(out)
 }
 
