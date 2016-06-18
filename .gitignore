@@ -7,3 +7,5 @@ Rhistory
 *.csv
 .Rbuildignore
 Rbuildignore
+.gitignore
+gitignore
