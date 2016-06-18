@@ -1,6 +1,6 @@
 .R/command_and_control.R
 .Rproj.user
-.prcr.Rproj
+prcr.Rproj
 *.png
 .Rhistory
 *.csv
