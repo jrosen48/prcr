@@ -31,5 +31,3 @@ The basic workflow is to first prepare the data (by removing incomplete cases an
 * `explore_factors()`
 
  * This function inputs the cluster assignments and the attributes indicating which cases to keep from the `calculate_stats()` function, as well as a data frame of factors to explore, a string indicating the specific factor to explore (or a vector indicating the factors to explore), and an optional vector of names for the cluster solution generated from the `create_profiles()` function.
-
-The basic workflow is to first prepare the data (by removing incomplete cases and centering and / or scaling the data) with `prepare data()`, to create profiles with the `create_profiles()` function, calculate statistics about the profiles using the `calculate_stats()` function, and explore the distribution of profiles across select factors with the `explore_factors()` function. To review arguments and basic documentation for each function, call each prefaced with `?`, i.e. `?prepare_data()`.
