@@ -50,11 +50,12 @@ create_profiles <- function(prepared_data,
 
 #' Function to calculate statistics about cluster solution found via cluster_data()
 #'@param clustering_output output from cluster_data() function
-#'@param names_of_clusters optional names for clusters, useful for interpreting findings
+#'@param variable_names optional names for variables that were clustered
+#'@param cluster_names optional names for clusters, useful for creating plot
 #'@export
 #'@import ggplot2
 
-calculate_stats <- function(clustering_output, names_of_variables = NULL){
+calculate_stats <- function(clustering_output, variable_names = NULL, cluster_names = NULL){
     out <- list()
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
@@ -66,8 +67,8 @@ calculate_stats <- function(clustering_output, names_of_variables = NULL){
     out[[6]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
     out[[7]] <- clValid::dunn(distance = NULL, clusters = out[[5]], Data = attributes(clustering_output)$data_attr, method = "euclidean")
     # out[[8]] <- manova_function(attributes(clustering_output)$data_attr, out[[5]], names_of_variables)
-    out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], names_of_variables)
-    out[[10]] <- cluster_plot_function(out[[9]])
+    out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+    out[[10]] <- cluster_plot_function(out[[9]], cluster_names)
     out[[11]] <- clValid::connectivity(clusters = out[[5]], Data = attributes(clustering_output)$data_attr)
 
     attributes(out) <- list(n_clusters_attr = attributes(clustering_output)$n_clusters_attr, data_attr = prepared_data, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep)
@@ -130,28 +131,29 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
 #
 # }
 #
-compare_cluster_statistics <- function(args, vars_to_vary = NULL, number_of_clusters_to_explore){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-    args_tmp <- attributes(output)$args_attr
-    if (is.null(vars_to_vary)) {
-        out <- create_profiles(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
-    }
-    if (vars_to_vary == tolower("n_clusters")) {
-        out <- data.frame(proportion_of_variance_explained = rep(0, number_of_clusters_to_explore),
-                          dunn_index = rep(0, number_of_clusters_to_explore),
-                          connectivity = rep(0, number_of_clusters_to_explore))
-        for (i in 1:number_of_clusters_to_explore){
-            print(paste0("### Preparing ", i, "/", number_of_clusters_to_explore, " cluster solutions ###"))
-            tmp <- create_profiles(args_tmp[[1]], (i + 1), args_tmp[[3]], args_tmp[[4]])
-            tmp <- calculate_stats(tmp)
-            out$proportion_of_variance_explained[i] <- tmp[[6]]
-            out$dunn_index[i] <- tmp[[7]]
-            out$connectivity[i] <- tmp[[11]]
-        }
-        tmp <- sapply(out, function(x) round(x, 3))
-        row.names(tmp) <- paste0(2:(number_of_clusters_to_explore + 1), " clusters")
-    }
-    out_list <- list()
-    out_list[[1]] <- tmp
-    out_list[[2]] <- NULL
-    return(out_list)
-}
+
+# compare_cluster_statistics <- function(args, vars_to_vary = NULL, number_of_clusters_to_explore){ # can also be method_of_centering (and grouping vector) and to_standardize for now
+#     args_tmp <- attributes(output)$args_attr
+#     if (is.null(vars_to_vary)) {
+#         out <- create_profiles(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
+#     }
+#     if (vars_to_vary == tolower("n_clusters")) {
+#         out <- data.frame(proportion_of_variance_explained = rep(0, number_of_clusters_to_explore),
+#                           dunn_index = rep(0, number_of_clusters_to_explore),
+#                           connectivity = rep(0, number_of_clusters_to_explore))
+#         for (i in 1:number_of_clusters_to_explore){
+#             print(paste0("### Preparing ", i, "/", number_of_clusters_to_explore, " cluster solutions ###"))
+#             tmp <- create_profiles(args_tmp[[1]], (i + 1), args_tmp[[3]], args_tmp[[4]])
+#             tmp <- calculate_stats(tmp)
+#             out$proportion_of_variance_explained[i] <- tmp[[6]]
+#             out$dunn_index[i] <- tmp[[7]]
+#             out$connectivity[i] <- tmp[[11]]
+#         }
+#         tmp <- sapply(out, function(x) round(x, 3))
+#         row.names(tmp) <- paste0(2:(number_of_clusters_to_explore + 1), " clusters")
+#     }
+#     out_list <- list()
+#     out_list[[1]] <- tmp
+#     out_list[[2]] <- NULL
+#     return(out_list)
+# }

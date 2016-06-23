@@ -85,7 +85,7 @@ dissim_function <- function(hc){
                stringsAsFactors=FALSE)
 }
 
-cluster_freq_function <- function(data, n_clusters, kfit, names_of_variables){
+cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     clusters <- list()
     for (i in 1:n_clusters){
         clusters[[i]] <- data[kfit$cluster == i, ]
@@ -96,22 +96,35 @@ cluster_freq_function <- function(data, n_clusters, kfit, names_of_variables){
         cluster_freqs[[i]] <- colSums(clusters[[i]]) / nrow(clusters[[i]]) # Need to fix - will want to add group freqs
     }
     cluster_freqs <- as.data.frame(matrix(unlist(cluster_freqs), nrow = n_clusters, byrow = T))
-    names(cluster_freqs) <- names_of_variables
+    names(cluster_freqs) <- variable_names
     cluster_freqs$Cluster <- paste0("Cluster ", 1:n_clusters, ": ", table(kfit$cluster), " Obs.")
     return(cluster_freqs)
 }
 
-cluster_plot_function <- function(cluster_freqs){
-    cluster_freqs <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
-    clusters_p <- ggplot2::ggplot(cluster_freqs, aes(x = Cluster, y = Value, fill = Var)) +
-        geom_bar(stat = "identity", position = "dodge", color = "black") +
-        scale_fill_brewer(type = "qual", palette = 1) +
-        ylab("") +
-        xlab("") +
-        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-        theme(legend.title=element_blank()) +
-        theme(legend.position = "top") +
-        theme(text=element_text(size = 12, family = "Times"))
+cluster_plot_function <- function(cluster_freqs, cluster_names){
+    cluster_freqs_tmp <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
+    if (is.null(cluster_names)){
+        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
+            geom_bar(stat = "identity", position = "dodge", color = "black") +
+            scale_fill_brewer(type = "qual", palette = 1) +
+            ylab("") +
+            xlab("") +
+            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            theme(legend.title=element_blank()) +
+            theme(legend.position = "top") +
+            theme(text=element_text(size = 12, family = "Times"))
+    } else {
+        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
+            geom_bar(stat = "identity", position = "dodge", color = "black") +
+            scale_fill_brewer(type = "qual", palette = 1) +
+            ylab("") +
+            xlab("") +
+            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            theme(legend.title=element_blank()) +
+            theme(legend.position = "top") +
+            theme(text=element_text(size = 12, family = "Times")) +
+            scale_x_discrete(breaks = waiver(), labels = cluster_names)
+    }
     return(clusters_p)
 }
 
@@ -125,7 +138,7 @@ testing_the_tukey <- function(data){
     return(tukey_list)
 }
 
-manova_function <- function(data, cluster_assignment, names_of_variables){
+manova_function <- function(data, cluster_assignment, variable_names){
     out <- list()
     data$DV <- as.matrix(data)
     data <- cbind(data, cluster_assignment)
@@ -133,7 +146,7 @@ manova_function <- function(data, cluster_assignment, names_of_variables){
     out[[1]] <- summary(mv_out, test = "Pillai")
     out[[2]] <- summary.aov(mv_out)
     out[[3]] <- testing_the_tukey(data)
-    names(out[[3]]) <- names_of_variables
+    names(out[[3]]) <- variable_names
     return(out)
 }
 
