@@ -11,5 +11,6 @@ Imports:
     ggplot2,
     dplyr,
     tidyr,
-    clValid
+    clValid,
+    chemometrics
 RoxygenNote: 5.0.1
