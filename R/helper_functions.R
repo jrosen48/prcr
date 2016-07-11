@@ -474,6 +474,30 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
     return(out)
 }
 
+# Outlier detection
+
+# remove_outliers <- function(x, na.rm = TRUE, ...) {
+#     qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+#     H <- 1.5 * IQR(x, na.rm = na.rm)
+#     y <- x
+#     y[x < (qnt[1] - H)] <- NA
+#     y[x > (qnt[2] + H)] <- NA
+#     y
+# }
+# 
+# y <- remove_outliers(data_ss$behavioral_scale)
+# x <- data_ss$behavioral_scale
+# 
+# sum(is.na(y))
+# sum(is.na(x))
+# 
+# sum(scale(data_ss$behavioral_scale) > 3, na.rm = T)
+# 
+# the_scales <- data_ss[complete.cases(data_ss[, 1:3]), 1:3]
+# 
+# s <- var(the_scales, na.rm = T)
+# table(mahalanobis(the_scales, center = F, s) > qchisq(.99, 3))
+
 # # For cross-validation
 # 
 # splitting_halves <- function(x){
@@ -607,3 +631,29 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
 # # cv_2_out_star
 # 
 # # Diagnostics
+
+# mclust
+# library(mclust)
+# 
+# X <- data_ss[, 1:3]
+# X <- X[complete.cases(X), ]
+# 
+# BIC = mclustBIC(X)
+# plot(BIC)
+# BIC
+# summary(BIC)
+# 
+# mod1 = Mclust(X, x = BIC)
+# plot(mod1)
+# str(mod1)
+# summary(mod1, parameters = TRUE)
+# 
+# mod1$classification # assignment
+# 
+# ICL = mclustICL(X)
+# summary(ICL)
+# 
+# plot(ICL)
+# 
+# LRT = mclustBootstrapLRT(X, modelName = "VVV")
+# LRT
