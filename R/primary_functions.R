@@ -10,7 +10,7 @@
 #'@export
 
 prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F, remove_mv_outliers = F){
-    removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix)
+    removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix, stringsAsFactors = F)
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     removed_obs_df$reason_removed <- NA
     removed_obs_df$reason_removed[!cases_to_keep] <- "incomplete_case"
@@ -22,7 +22,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
         data_tmp <- remove_uv_out_func(data_tmp) # makes uv outliers na
         print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
         if(any(is.na(data_tmp))){
-            x <- removed_obs_df$reason_removed[cases_to_keep, ]
+            x <- removed_obs_df[cases_to_keep, ]
             y <- !complete.cases(data_tmp)
             z <- x$row[y]
             removed_obs_df$reason_removed[z] <- "univariate_outlier"
@@ -31,15 +31,18 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     }
     if(remove_mv_outliers == T){
         out_tmp <- remove_mv_out_func(data_tmp)
-        print(paste0("### Note: ", length(out_tmp[[2]]), " cases with multiivariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - length(out_tmp[[2]]), " used in subsequent analysis ###"))
-        if(length(out_tmp) > 1){
-            x <- removed_obs_df[is.na(removed_obs_df$reason_removed), ] # finds those without a reason removed yet
-            y <- out_tmp[[2]]
-            z <- x$row[y]
+        print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - length(out_tmp), " used in subsequent analysis ###"))
+        if(exists("out_tmp")){
+            x <- removed_obs_df[cases_to_keep, ]
+            if(exists("y")){ # need to write this to be clearer, but it works
+                y <- x[!y, ]
+                z <- as.numeric(y$row[out_tmp])
+            } else{
+                z <- as.numeric(x$row[out_tmp])
+            }
             removed_obs_df$reason_removed[z] <- "multivariate_outlier"
         }
-        
-        data_tmp <- out_tmp[[1]] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
+        data_tmp <- data_tmp[-out_tmp, ] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
     }
     grouping_vector <- grouping_vector[cases_to_keep]
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
