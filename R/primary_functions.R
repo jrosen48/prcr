@@ -10,44 +10,26 @@
 #'@export
 
 prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F, remove_mv_outliers = F){
-    removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix, stringsAsFactors = F)
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
-    removed_obs_df$reason_removed <- NA
-    removed_obs_df$reason_removed[!cases_to_keep] <- "incomplete_case"
+    removed_obs_df <- removed_obs_df_maker(raw_data_matrix, cases_to_keep)
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
     print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
-    if(remove_uv_outliers == T){
-        data_tmp <- remove_uv_out_func(data_tmp) # makes uv outliers na
-        print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
-        if(any(is.na(data_tmp))){
-            x <- removed_obs_df[cases_to_keep, ]
-            y <- !complete.cases(data_tmp)
-            z <- x$row[y]
-            removed_obs_df$reason_removed[z] <- "univariate_outlier"
-        }
-        data_tmp <- data_tmp[complete.cases(data_tmp), ]
+    if (remove_uv_outliers == T){
+        tmp <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep)
+        data_tmp <- tmp[[1]]
+        removed_obs_df <- tmp[[2]]
     }
-    if(remove_mv_outliers == T){
-        out_tmp <- remove_mv_out_func(data_tmp)
-        print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - length(out_tmp), " used in subsequent analysis ###"))
-        if(exists("out_tmp")){
-            x <- removed_obs_df[cases_to_keep, ]
-            if(exists("y")){ # need to write this to be clearer, but it works
-                y <- x[!y, ]
-                z <- as.numeric(y$row[out_tmp])
-            } else{
-                z <- as.numeric(x$row[out_tmp])
-            }
-            removed_obs_df$reason_removed[z] <- "multivariate_outlier"
-        }
-        data_tmp <- data_tmp[-out_tmp, ] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
+    if (remove_mv_outliers == T){
+        tmp <- remove_mv_main_func(data_tmp, removed_obs_df, cases_to_keep)
+        data_tmp <- tmp[[1]]
+        removed_obs_df <- tmp[[2]]
     }
     grouping_vector <- grouping_vector[cases_to_keep]
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
-    removed_obs_df <- removed_obs_df[!is.na(removed_obs_df$reason_removed), ]
-    attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df)
+    cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
+    attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5])
     return(out)
 }
 
@@ -92,30 +74,25 @@ calculate_stats <- function(clustering_output, variable_names = NULL, cluster_na
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
     out[[1]] <- dissim_function(clustering_output[[1]]) # agglomeration schedule - currently out of order
-    out[[2]] <- as.dendrogram(clustering_output[[1]]) # dendrogram
+    out[[2]] <- clustering_output[[1]] # dendrogram
     out[[3]] <- cutree(clustering_output[[1]], attributes(clustering_output)$n_clusters_attr) # hclust assignment
-    out[[4]] <- clValid::dunn(distance = NULL, clusters = out[[3]], Data = attributes(clustering_output)$data_attr , method = "euclidean")
-    out[[5]] <- clustering_output[[2]]$cluster # kmeans assignment
-    out[[6]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
-    out[[7]] <- clValid::dunn(distance = NULL, clusters = out[[5]], Data = attributes(clustering_output)$data_attr, method = "euclidean")
-    out[[8]] <- manova_function(attributes(clustering_output)$data_attr, out[[5]], variable_names)
-    out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
-    out[[10]] <- cluster_plot_function(out[[9]], cluster_names)
-    out[[11]] <- clValid::connectivity(clusters = out[[5]], Data = attributes(clustering_output)$data_attr)
-    
+    out[[4]] <- clustering_output[[2]]$cluster # kmeans assignment
+    out[[5]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
+    out[[6]] <- manova_function(attributes(clustering_output)$data_attr, out[[4]], variable_names)
+    out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+    out[[8]] <- cluster_plot_function(out[[7]], cluster_names)
+
     attributes(out) <- list(n_clusters_attr = attributes(clustering_output)$n_clusters_attr, data_attr = prepared_data, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep)
     
     print("### Created the following output ... ")
     print("### 1. Hierarchical cluster analysis diagnostics: Agglomeration schedule ###")
-    print("### 2. Hierarchical cluster analysis diagnostics: Dendrogram ###")
+    print("### 2. Hierarchical cluster analysis diagnostics: hclust object to coerce using as.dendrogram then to plot() ###")
     print("### 3. Hierarchical cluster analysis assignments ###")
-    print("### 4. Hierarchical cluster analysis diagnostics: Dunn Index ###")
-    print("### 5. K-means cluster analysis assignments ###")
-    print("### 6. K-means cluster analysis diagnostics: Proportion of variance explained (R^2) ###")
-    print("### 7. K-means cluster analysis diagnostics: Dunn Index ###")
-    print("### 8. Overall diagnostics: MANOVA ###")
-    print("### 9. Overall output: Cluster centroids ###")
-    print("### 10. Overall output: ggplot2 object for plot of cluster centroids ###")
+    print("### 4. K-means cluster analysis assignments ###")
+    print("### 5. K-means cluster analysis diagnostics: Proportion of variance explained (R^2) ###")
+    print("### 6. Overall diagnostics: MANOVA ###")
+    print("### 7. Overall output: Cluster centroids ###")
+    print("### 8. Overall output: ggplot2 object for plot of cluster centroids ###")
     
     invisible(out)
 }
@@ -164,28 +141,22 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
 # }
 #
 
-# compare_cluster_statistics <- function(args, vars_to_vary = NULL, number_of_clusters_to_explore){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-#     args_tmp <- attributes(output)$args_attr
-#     if (is.null(vars_to_vary)) {
-#         out <- create_profiles(args_tmp[[1]], args_tmp[[2]], args_tmp[[3]], args_tmp[[4]])
-#     }
-#     if (vars_to_vary == tolower("n_clusters")) {
-#         out <- data.frame(proportion_of_variance_explained = rep(0, number_of_clusters_to_explore),
-#                           dunn_index = rep(0, number_of_clusters_to_explore),
-#                           connectivity = rep(0, number_of_clusters_to_explore))
-#         for (i in 1:number_of_clusters_to_explore){
-#             print(paste0("### Preparing ", i, "/", number_of_clusters_to_explore, " cluster solutions ###"))
-#             tmp <- create_profiles(args_tmp[[1]], (i + 1), args_tmp[[3]], args_tmp[[4]])
-#             tmp <- calculate_stats(tmp)
-#             out$proportion_of_variance_explained[i] <- tmp[[6]]
-#             out$dunn_index[i] <- tmp[[7]]
-#             out$connectivity[i] <- tmp[[11]]
-#         }
-#         tmp <- sapply(out, function(x) round(x, 3))
-#         row.names(tmp) <- paste0(2:(number_of_clusters_to_explore + 1), " clusters")
-#     }
-#     out_list <- list()
-#     out_list[[1]] <- tmp
-#     out_list[[2]] <- NULL
-#     return(out_list)
-# }
+compare_cluster_statistics <- function(args, lower_num, upper_num){ # can also be method_of_centering (and grouping vector) and to_standardize for now
+    args_tmp <- attributes(output)$args_attr
+    
+    out <- data.frame(proportion_of_variance_explained = rep(0, number_of_clusters_to_explore),
+                      dunn_index = rep(0, number_of_clusters_to_explore),
+                      connectivity = rep(0, number_of_clusters_to_explore))
+    
+    print(paste0("### Preparing ", i, "/", number_of_clusters_to_explore, " cluster solutions ###"))
+    tmp <- create_profiles(args_tmp[[1]], (i + 1), args_tmp[[3]], args_tmp[[4]])
+    tmp <- calculate_stats(tmp)
+    out$proportion_of_variance_explained[i] <- tmp[[6]]
+    out$dunn_index[i] <- tmp[[7]]
+    out$connectivity[i] <- tmp[[11]]
+    
+    tmp <- sapply(out, function(x) round(x, 3))
+    row.names(tmp) <- paste0(2:(number_of_clusters_to_explore + 1), " clusters")
+
+    return(out)
+}

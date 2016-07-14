@@ -476,6 +476,13 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
 
 # Outlier detection
 
+removed_obs_df_maker <- function(raw_data_matrix, cases_to_keep){
+    removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix, stringsAsFactors = F)
+    removed_obs_df$reason_removed <- NA
+    removed_obs_df$reason_removed[!cases_to_keep] <- "incomplete_case"
+    return(removed_obs_df)
+}
+
 uv_outlier_detector <- function(x, na.rm = T, ...) {
     qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
     H <- 1.5 * IQR(x, na.rm = na.rm)
@@ -485,9 +492,33 @@ uv_outlier_detector <- function(x, na.rm = T, ...) {
     return(y)
 }
 
+uv_outlier_detector <- function(x, na.rm = T, ...) {
+    # need to figure out where this came from - from a SO question, can probably re-write
+    qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+    H <- 1.5 * IQR(x, na.rm = na.rm)
+    y <- x
+    y[x < (qnt[1] - H)] <- NA
+    y[x > (qnt[2] + H)] <- NA
+    y
+}
+
 remove_uv_out_func <- function(data){
     x <- sapply(data, uv_outlier_detector)
     return(x)
+}
+
+remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep){
+    data_tmp <- remove_uv_out_func(data) # makes uv outliers na
+    print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
+    if(any(is.na(data_tmp))){
+        x <- removed_obs_df[cases_to_keep, ]
+        y <- !complete.cases(data_tmp)
+        z <- x$row[y]
+        removed_obs_df$reason_removed[z] <- "uniivariate_outlier"
+    }
+    data_out <- data_tmp[complete.cases(data_tmp), ]
+    data_out <- list(data_out, removed_obs_df)
+    return(data_out)
 }
 
 remove_mv_out_func <- function(data){
@@ -495,7 +526,27 @@ remove_mv_out_func <- function(data){
     the_index <- which(mvout$md > mvout$cutoff)
     if (any(the_index) == T){
         return(the_index)
+    } else{
+        return(data)
     }
+}
+
+remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep){
+    out_tmp <- remove_mv_out_func(data)
+    print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data), " cases removed, so ", nrow(data) - length(out_tmp), " used in subsequent analysis ###"))
+    if(exists("out_tmp")){
+        x <- removed_obs_df[cases_to_keep, ]
+        if(exists("y")){ # need to write this to be clearer, but it works
+            y <- x[!y, ]
+            z <- as.numeric(y$row[out_tmp])
+        } else{
+            z <- as.numeric(x$row[out_tmp])
+        }
+        removed_obs_df$reason_removed[z] <- "multivariate_outlier"
+    }
+    data_out <- data[-out_tmp, ] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
+    data_out <- list(data_out, removed_obs_df)
+    return(data_out)
 }
 
 # nrow(data_ss)
