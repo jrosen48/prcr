@@ -491,13 +491,11 @@ remove_uv_out_func <- function(data){
 }
 
 remove_mv_out_func <- function(data){
-    mvout <- chemometrics::Moutlier(data, quantile = 0.99, plot = T)
+    mvout <- chemometrics::Moutlier(data, quantile = 0.99, plot = F)
     the_index <- which(mvout$md > mvout$cutoff)
-    out <- data[-the_index, ]
     if (any(the_index) == T){
-        out <- list(out, mv_obs_removed = the_index)
+        return(the_index)
     }
-    return(out)
 }
 
 # nrow(data_ss)
