@@ -5,17 +5,46 @@
 #'@param method_of_centering string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables
 #'@param grouping_vector a vector indicating how the cases are to be grouped for group mean centering
 #'@param to_standardize boolean indicating whether to standardize (TRUE) or not (FALSE)
+#'@param remove_uv_outliers boolean indicating whether to remove (TRUE) univariate outlier or not (FALSE)
+#'@param remove_mv_outliers boolean indicating whether to remove (TRUE) multivariate outlier or not (FALSE)
 #'@export
 
-prepare_data <- function(raw_data, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F){
+prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F, remove_mv_outliers = F){
+    removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix)
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
+    removed_obs_df$reason_removed <- NA
+    removed_obs_df$reason_removed[!cases_to_keep] <- "incomplete_case"
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
-    print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+    print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+    if(remove_uv_outliers == T){
+        data_tmp <- remove_uv_out_func(data_tmp) # makes uv outliers na
+        print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
+        if(any(is.na(data_tmp))){
+            x <- removed_obs_df$reason_removed[cases_to_keep, ]
+            y <- !complete.cases(data_tmp)
+            z <- x$row[y]
+            removed_obs_df$reason_removed[z] <- "univariate_outlier"
+        }
+        data_tmp <- data_tmp[complete.cases(data_tmp), ]
+    }
+    if(remove_mv_outliers == T){
+        out_tmp <- remove_mv_out_func(data_tmp)
+        print(paste0("### Note: ", length(out_tmp[[2]]), " cases with multiivariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - length(out_tmp[[2]]), " used in subsequent analysis ###"))
+        if(length(out_tmp) > 1){
+            x <- removed_obs_df[is.na(removed_obs_df$reason_removed), ] # finds those without a reason removed yet
+            y <- out_tmp[[2]]
+            z <- x$row[y]
+            removed_obs_df$reason_removed[z] <- "multivariate_outlier"
+        }
+        
+        data_tmp <- out_tmp[[1]] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
+    }
     grouping_vector <- grouping_vector[cases_to_keep]
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
-    attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep)
+    removed_obs_df <- removed_obs_df[!is.na(removed_obs_df$reason_removed), ]
+    attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df)
     return(out)
 }
 
@@ -42,7 +71,7 @@ create_profiles <- function(prepared_data,
     attributes(out) <- list(n_clusters_attr = n_clusters, data_attr = df, args_attr = args, cases_to_keep_attr = attributes(prepared_data)$cases_to_keep)
     print("### Created the following output ... ")
     print("### 1. Hierarchical cluster analysis output ###")
-    print("### 2. K-means custer analysis output ###")
+    print("### 2. K-means cluster analysis output ###")
 
     invisible(out)
 
