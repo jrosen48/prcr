@@ -59,10 +59,10 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
 #'@export
 
 create_profiles <- function(prepared_data,
-                         n_clusters,
-                         distance_metric = "squared_euclidean",
-                         linkage = "complete") {
-
+                            n_clusters,
+                            distance_metric = "squared_euclidean",
+                            linkage = "complete") {
+    
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
     names(df) <- names(prepared_data)
     args <- list(prepared_data, n_clusters, distance_metric, linkage)
@@ -75,9 +75,9 @@ create_profiles <- function(prepared_data,
     print("### Created the following output ... ")
     print("### 1. Hierarchical cluster analysis output ###")
     print("### 2. K-means cluster analysis output ###")
-
+    
     invisible(out)
-
+    
 }
 
 #' Function to calculate statistics about cluster solution found via cluster_data()
@@ -102,9 +102,9 @@ calculate_stats <- function(clustering_output, variable_names = NULL, cluster_na
     out[[9]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
     out[[10]] <- cluster_plot_function(out[[9]], cluster_names)
     out[[11]] <- clValid::connectivity(clusters = out[[5]], Data = attributes(clustering_output)$data_attr)
-
+    
     attributes(out) <- list(n_clusters_attr = attributes(clustering_output)$n_clusters_attr, data_attr = prepared_data, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep)
-
+    
     print("### Created the following output ... ")
     print("### 1. Hierarchical cluster analysis diagnostics: Agglomeration schedule ###")
     print("### 2. Hierarchical cluster analysis diagnostics: Dendrogram ###")
@@ -116,7 +116,7 @@ calculate_stats <- function(clustering_output, variable_names = NULL, cluster_na
     print("### 8. Overall diagnostics: MANOVA ###")
     print("### 9. Overall output: Cluster centroids ###")
     print("### 10. Overall output: ggplot2 object for plot of cluster centroids ###")
-
+    
     invisible(out)
 }
 
@@ -152,7 +152,7 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     print("### 5. Number by factor  ###")
     print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
     # print("### 7. MANOVA ###")
-
+    
     invisible(out)
 }
 

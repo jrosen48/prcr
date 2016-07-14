@@ -28,7 +28,7 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
         out <- sapply(data, function(x) scale_this(x))
         out <- as.data.frame(out)
     }
-
+    
     if (method_of_centering == "group" & to_standardize == T) {
         out <- data %>%
             cbind(grouping_vector) %>%
@@ -237,7 +237,7 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     } else if (length(factor_to_explore) == 3) {
         out <- for_three(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     }
-
+    
     return(out)
 }
 
@@ -320,7 +320,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
 }
 
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
-
+    
     processed_data <- processed_data[complete.cases(processed_data), ]
     
     if (length(factor_to_explore) == 1) {
@@ -411,7 +411,7 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
         names(out[[2]]) <- cluster_names
         return(out)
     }
-
+    
     for_two <- function(processed_data, variable_to_find_proportion, cluster_names){
         if (!is.null(variable_to_find_proportion)){
             names(df)[2] <- "DV1"
@@ -496,16 +496,8 @@ remove_mv_out_func <- function(data){
     if (any(the_index) == T){
         return(the_index)
     }
-    print("hello")
-    print(the_index)
 }
 
-tmp <- raw_data_matrix[complete.cases(raw_data_matrix), ]
-tmp$row <- row.names(tmp)
-str(tmp)
-x <- remove_mv_out_func(tmp[, 1:3])
-x
-tmp[x, ]
 # nrow(data_ss)
 # data_ss <- data_ss[-the_index, ] # removes outliers!
 # nrow(data_ss)
