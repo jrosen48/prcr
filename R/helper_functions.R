@@ -476,28 +476,41 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
 
 # Outlier detection
 
-# remove_outliers <- function(x, na.rm = TRUE, ...) {
-#     qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
-#     H <- 1.5 * IQR(x, na.rm = na.rm)
-#     y <- x
-#     y[x < (qnt[1] - H)] <- NA
-#     y[x > (qnt[2] + H)] <- NA
-#     y
-# }
-# 
-# y <- remove_outliers(data_ss$behavioral_scale)
-# x <- data_ss$behavioral_scale
-# 
-# sum(is.na(y))
-# sum(is.na(x))
-# 
-# sum(scale(data_ss$behavioral_scale) > 3, na.rm = T)
-# 
-# the_scales <- data_ss[complete.cases(data_ss[, 1:3]), 1:3]
-# 
-# s <- var(the_scales, na.rm = T)
-# table(mahalanobis(the_scales, center = F, s) > qchisq(.99, 3))
+uv_outlier_detector <- function(x, na.rm = T, ...) {
+    qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
+    H <- 1.5 * IQR(x, na.rm = na.rm)
+    y <- x
+    y[x < (qnt[1] - H)] <- NA
+    y[x > (qnt[2] + H)] <- NA
+    return(y)
+}
 
+remove_uv_out_func <- function(data){
+    x <- sapply(data, uv_outlier_detector)
+    return(x)
+}
+
+remove_mv_out_func <- function(data){
+    mvout <- chemometrics::Moutlier(data, quantile = 0.99, plot = F)
+    the_index <- which(mvout$md > mvout$cutoff)
+    if (any(the_index) == T){
+        return(the_index)
+    }
+    print("hello")
+    print(the_index)
+}
+
+tmp <- raw_data_matrix[complete.cases(raw_data_matrix), ]
+tmp$row <- row.names(tmp)
+str(tmp)
+x <- remove_mv_out_func(tmp[, 1:3])
+x
+tmp[x, ]
+# nrow(data_ss)
+# data_ss <- data_ss[-the_index, ] # removes outliers!
+# nrow(data_ss)
+# 
+# raw_data_matrix <- data_ss[, 1:3]
 # # For cross-validation
 # 
 # splitting_halves <- function(x){
