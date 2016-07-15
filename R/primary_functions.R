@@ -13,6 +13,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     removed_obs_df <- removed_obs_df_maker(raw_data_matrix, cases_to_keep)
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
+    print(str(data_tmp))
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
     print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
@@ -27,6 +28,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
         removed_obs_df <- tmp[[2]]
     }
     grouping_vector <- grouping_vector[cases_to_keep]
+    print(str(data_tmp))
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
     cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
     attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5])
@@ -150,35 +152,47 @@ explore_factors <- function(cluster_assignments,
 # }
 #
 
-compare_cluster_statistics <- function(args, lower_num, upper_num){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-    tmp_vec <- vector(length = (upper_num - lower_num) + 1)
-    for (i in lower_num:upper_num){
-        the_try_func <- function(args){
-            out <- tryCatch(
-                {
-                tmp <- create_profiles(args[[1]], i, args[[3]], args[[4]], print_status = F)
-                },
-                error = function(cond){
-                    return("Did not properly converge, try a different lower_num or upper_num.")
-                },
-                finally = {
-                    print(paste0("Processed cluster solution with ", i, " clusters"))
-                }
-            )
-            return(out)
+try_to_cluster <- function(prepared_data, args, i){
+    out <- tryCatch(
+        {
+        tmp <- create_profiles(prepared_data, i, args[[3]], args[[4]], print_status = F)
+        },
+        error = function(cond){
+            return(warning("Did not properly converge, try a different lower_num or upper_num."))
+        },
+        finally = {
+            print(paste0("### Processed cluster solution with ", i, " clusters"))
         }
-        tmp <- the_try_func(args)
-        if(!is.character(tmp)){
-            tmp_vec[i - (lower_num + 1)] <- calculate_stats(tmp, print_status = F)[[5]]
-        } else{
-            tmp_vec[i - (lower_num + 1)] <- NA
-        }
+    )
+    return(out)
+}
 
+compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num){ # can also be method_of_centering (and grouping vector) and to_standardize for now
+    if(lower_num == 1) {
+        lower_num <- 2
+        warning("Cannot find cluster solution with 1 cluster; skipped calculation of cluster solution with 1 cluster")
     }
-    number_of_clusters <- lower_num:upper_num
+    tmp_vec <- vector(length = upper_num)
+    for (i in lower_num:upper_num){
+        tmp <- try_to_cluster(args, i)
+        if(!is.character(tmp)){
+            tmp <- calculate_stats(tmp, print_status = F)[[5]]
+            print(paste0("### Proportion of variance explained (R^2) = ", round(tmp, 3)))
+        } else{
+            tmp <- NA
+        }
+        tmp_vec[i] <- tmp
+    }
+    number_of_clusters <- 1:upper_num
     proportion_of_variance_explained <- tmp_vec
+    number_of_clusters <- number_of_clusters[proportion_of_variance_explained != 0]
+    proportion_of_variance_explained <- proportion_of_variance_explained[proportion_of_variance_explained != 0]
+    if(any(is.na(proportion_of_variance_explained))) {
+        number_of_clusters <- number_of_clusters[!is.na(proportion_of_variance_explained)]
+        proportion_of_variance_explained <- proportion_of_variance_explained[!is.na(proportion_of_variance_explained)]
+    }
     out <- data.frame(number_of_clusters, proportion_of_variance_explained)
-    out_plot <- comparision_of_statistics_plot(out, lower_num, upper_num)
+    out_plot <- comparision_of_statistics_plot(out, min(out$number_of_clusters), max(out$number_of_clusters))
     out <- list(out, out_plot)
     return(out)
 }
