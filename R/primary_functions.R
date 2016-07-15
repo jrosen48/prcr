@@ -30,6 +30,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
     cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
     attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5])
+    print("### Note. Print the cases_removed_df attribute to view cases removed ###")
     return(out)
 }
 
@@ -43,8 +44,8 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
 create_profiles <- function(prepared_data,
                             n_clusters,
                             distance_metric = "squared_euclidean",
-                            linkage = "complete") {
-    
+                            linkage = "complete", 
+                            print_status = T) {
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
     names(df) <- names(prepared_data)
     args <- list(prepared_data, n_clusters, distance_metric, linkage)
@@ -54,12 +55,12 @@ create_profiles <- function(prepared_data,
     starting_points <- hclust_to_kmeans_function(df, out[[1]], n_clusters)
     out[[2]] <- kmeans_function(df, starting_points) # Fits k-means algorithm using results from hierarchical algorithm as start value
     attributes(out) <- list(n_clusters_attr = n_clusters, data_attr = df, args_attr = args, cases_to_keep_attr = attributes(prepared_data)$cases_to_keep)
-    print("### Created the following output ... ")
-    print("### 1. Hierarchical cluster analysis output ###")
-    print("### 2. K-means cluster analysis output ###")
-    
+    if(print_status == T){
+        print("### Created the following output ... ")
+        print("### 1. Hierarchical cluster analysis output ###")
+        print("### 2. K-means cluster analysis output ###")
+    }
     invisible(out)
-    
 }
 
 #' Function to calculate statistics about cluster solution found via cluster_data()
@@ -69,7 +70,10 @@ create_profiles <- function(prepared_data,
 #'@export
 #'@import ggplot2
 
-calculate_stats <- function(clustering_output, variable_names = NULL, cluster_names = NULL){
+calculate_stats <- function(clustering_output, 
+                            variable_names = NULL, 
+                            cluster_names = NULL, 
+                            print_status = T){
     out <- list()
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
@@ -81,19 +85,18 @@ calculate_stats <- function(clustering_output, variable_names = NULL, cluster_na
     out[[6]] <- manova_function(attributes(clustering_output)$data_attr, out[[4]], variable_names)
     out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
     out[[8]] <- cluster_plot_function(out[[7]], cluster_names)
-
     attributes(out) <- list(n_clusters_attr = attributes(clustering_output)$n_clusters_attr, data_attr = prepared_data, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep)
-    
-    print("### Created the following output ... ")
-    print("### 1. Hierarchical cluster analysis diagnostics: Agglomeration schedule ###")
-    print("### 2. Hierarchical cluster analysis diagnostics: hclust object to coerce using as.dendrogram then to plot() ###")
-    print("### 3. Hierarchical cluster analysis assignments ###")
-    print("### 4. K-means cluster analysis assignments ###")
-    print("### 5. K-means cluster analysis diagnostics: Proportion of variance explained (R^2) ###")
-    print("### 6. Overall diagnostics: MANOVA ###")
-    print("### 7. Overall output: Cluster centroids ###")
-    print("### 8. Overall output: ggplot2 object for plot of cluster centroids ###")
-    
+    if(print_status == T){
+        print("### Created the following output ... ")
+        print("### 1. Hierarchical cluster analysis diagnostics: Agglomeration schedule ###")
+        print("### 2. Hierarchical cluster analysis diagnostics: hclust object to coerce using as.dendrogram then to plot() ###")
+        print("### 3. Hierarchical cluster analysis assignments ###")
+        print("### 4. K-means cluster analysis assignments ###")
+        print("### 5. K-means cluster analysis diagnostics: Proportion of variance explained (R^2) ###")
+        print("### 6. Overall diagnostics: MANOVA ###")
+        print("### 7. Overall output: Cluster centroids ###")
+        print("### 8. Overall output: ggplot2 object for plot of cluster centroids ###")
+    }
     invisible(out)
 }
 
@@ -108,10 +111,15 @@ calculate_stats <- function(clustering_output, variable_names = NULL, cluster_na
 #'  and cleaning the corpus, deviationalizing and clustering.
 #'@export
 
-explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame, factor_to_explore, variable_to_find_proportion = NULL, cluster_names = NULL){
+explore_factors <- function(cluster_assignments, 
+                            cases_to_keep, 
+                            factor_data_frame, 
+                            factor_to_explore, 
+                            variable_to_find_proportion = NULL, 
+                            cluster_names = NULL, 
+                            print_status = T){
     out <- list()
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
-    
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
     out[[1]] <- create_crosstab(data, factor_to_explore)
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
@@ -121,15 +129,16 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
     out[[6]] <- create_compare_anova(out[[2]], variable_to_find_proportion, cluster_names, factor_to_explore)
     # out[[7]] <- create_compare_manova()
     
-    print("### Created the following output ... ")
-    print("### 1. Comparison table ###")
-    print("### 2. Processed data: Raw ###")
-    print("### 3. Processed data: Summary ###")
-    print("### 4. ggplot2 object  ###")
-    print("### 5. Number by factor  ###")
-    print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
-    # print("### 7. MANOVA ###")
-    
+    if(print_status == T){
+        print("### Created the following output ... ")
+        print("### 1. Comparison table ###")
+        print("### 2. Processed data: Raw ###")
+        print("### 3. Processed data: Summary ###")
+        print("### 4. ggplot2 object  ###")
+        print("### 5. Number by factor  ###")
+        print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
+        # print("### 7. MANOVA ###")
+    }
     invisible(out)
 }
 
@@ -142,21 +151,34 @@ explore_factors <- function(cluster_assignments, cases_to_keep, factor_data_fram
 #
 
 compare_cluster_statistics <- function(args, lower_num, upper_num){ # can also be method_of_centering (and grouping vector) and to_standardize for now
-    args_tmp <- attributes(output)$args_attr
-    
-    out <- data.frame(proportion_of_variance_explained = rep(0, number_of_clusters_to_explore),
-                      dunn_index = rep(0, number_of_clusters_to_explore),
-                      connectivity = rep(0, number_of_clusters_to_explore))
-    
-    print(paste0("### Preparing ", i, "/", number_of_clusters_to_explore, " cluster solutions ###"))
-    tmp <- create_profiles(args_tmp[[1]], (i + 1), args_tmp[[3]], args_tmp[[4]])
-    tmp <- calculate_stats(tmp)
-    out$proportion_of_variance_explained[i] <- tmp[[6]]
-    out$dunn_index[i] <- tmp[[7]]
-    out$connectivity[i] <- tmp[[11]]
-    
-    tmp <- sapply(out, function(x) round(x, 3))
-    row.names(tmp) <- paste0(2:(number_of_clusters_to_explore + 1), " clusters")
+    tmp_vec <- vector(length = (upper_num - lower_num) + 1)
+    for (i in lower_num:upper_num){
+        the_try_func <- function(args){
+            out <- tryCatch(
+                {
+                tmp <- create_profiles(args[[1]], i, args[[3]], args[[4]], print_status = F)
+                },
+                error = function(cond){
+                    return("Did not properly converge, try a different lower_num or upper_num.")
+                },
+                finally = {
+                    print(paste0("Processed cluster solution with ", i, " clusters"))
+                }
+            )
+            return(out)
+        }
+        tmp <- the_try_func(args)
+        if(!is.character(tmp)){
+            tmp_vec[i - (lower_num + 1)] <- calculate_stats(tmp, print_status = F)[[5]]
+        } else{
+            tmp_vec[i - (lower_num + 1)] <- NA
+        }
 
+    }
+    number_of_clusters <- lower_num:upper_num
+    proportion_of_variance_explained <- tmp_vec
+    out <- data.frame(number_of_clusters, proportion_of_variance_explained)
+    out_plot <- comparision_of_statistics_plot(out, lower_num, upper_num)
+    out <- list(out, out_plot)
     return(out)
 }

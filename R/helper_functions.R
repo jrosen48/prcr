@@ -549,6 +549,16 @@ remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep){
     return(data_out)
 }
 
+# Comparison of statistics
+
+comparision_of_statistics_plot <- function(data, lower_num, upper_num){
+    ggplot(data, aes(x = number_of_clusters, y = proportion_of_variance_explained)) +
+        geom_point() +
+        scale_x_continuous(breaks = lower_num, upper_num) +
+        xlab("Proportion of Variance Explained (R^2)") +
+        ylab("Number of Clusters")  
+}
+
 # nrow(data_ss)
 # data_ss <- data_ss[-the_index, ] # removes outliers!
 # nrow(data_ss)
