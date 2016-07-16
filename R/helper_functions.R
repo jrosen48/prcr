@@ -563,149 +563,72 @@ comparision_of_statistics_plot <- function(data, lower_num, upper_num){
 
 # Cross validation
 
-splitting_halves <- function(prepared_data){
-    prepared_data <- rbinom(nrow(data), 1, .5)
-    half_one <- as.data.frame(data[prepared_data == 0, ])
-    half_two <- as.data.frame(data[prepared_data == 1, ])
+x <- prepared_data
+
+splitting_halves <- function(x){
+    x <- data.frame(matrix(unlist(x), ncol = length(x), byrow = F))
+    if (is.integer(nrow(x) / 2)){
+        y1 <- nrow(x) / 2
+        y2 <- y1
+    } else{
+        y1 <- nrow(x) %/% 2
+        y2 <- y1 + 1
+    }
+    y <- c(rep(1, y1), rep(0, y2))
+    z <- rnorm(nrow(x))
+    df <- arrange(data.frame(y, z), z)
+    y_shuffled <- df$y
+    half_one <- as.data.frame(x[y_shuffled == 0, ])
+    half_two <- as.data.frame(x[y_shuffled == 1, ])
     out <- list(half_one, half_two)
     return(out)
 }
 
+x <- splitting_halves(prepared_data)
+
+str(x)
+
 cluster_the_halves <- function(split_halves, args){
+    df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
     clustered_half_one <- create_profiles(split_halves[[1]], args[[2]], args[[3]], args[[4]], print_status = F)
     clustered_half_two <- create_profiles(split_halves[[2]], args[[2]], args[[3]], args[[4]], print_status = F)
-    return(clustered_half_one, clustered_half_two)
+    out <- list(clustered_half_one, clustered_half_two)
+    return(out)
 }
 
-calculate_the_stats <- function(clustered_halves, variable_names, cluster_names){
+y <- cluster_the_halves(x, attributes(output)$args_attr)
+
+cluster_vector <- c("Busy (n = 561)", "Recreational (n = 663)", "Full (n = 423)", "Universally Low (n = 611)", "Purposeful (n = 707)", "Moderately Low (n = 573)", "Rational (n = 447)")
+variable_vector <- c("Behavioral Engagement", "Cognitive Engagement", "Affective Engagement")
+
+calculate_the_stats <- function(clustered_halves, variable_names, cluster_names){ #fix
     half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, cluster_names, print_status = F)
     half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, cluster_names, print_status = F)
     out <- list(half_one_stats, half_two_stats)
     return(out)
 }
 
-z <- fields::rdist(y, x)
+z <- calculate_the_stats(y, variable_vector, cluster_vector)
 
-apply(z, 1, function(x) which.min(x))
+find_nearest_centroid <- function(prepared_data, stats){
+    
+}
 
+a <- x[[1]] # keep
+#b <- x[[2]]
+a_assign <- z[[1]][[3]] # keep
+# b_assign <- z[[2]][[3]]
+# a_centroid <- z[[1]][[7]][, 1:3]
+b_centroid <- z[[2]][[7]][, 1:3] # keep
+z <- fields::rdist(a, b_centroid)
 
-# cv_2_out_star <- apply(b, 1, function(i, a) {
-#     which.min(imputation:::dist_q.matrix(rbind(i, a), ref= 1L, q=2))
-# }, a= a)
-#
-# cv_2_out[[2]] # this is "B"
-#
-# cv_2_out_star # this is "A*"
-#
-# table(cv_2_out_star, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
-#
-# ###
-# # Optimizing clusters
-# ###
-#
-# cv_1_mat <- as.data.frame(cv_1_mat)
-# cv_1_mat$cluster_A_star <- cv_1_out[[2]] # this adds the "A*" assignments to "A"
-#
-# tmp <- cv_1_mat %>% # this finds the "A*" centroids
-#     group_by(cluster_A_star) %>%
-#     summarize(behavioral = mean(behavioral_scale_ind),
-#               cognitive = mean(cognitive_scale_ind),
-#               affective = mean(affective_scale_ind)) %>%
-#     select(behavioral:affective) %>%
-#     as.data.frame()
-#
-# a <- as.matrix(tmp)
-# b <- as.matrix(cv_2_out[[9]])
-# b <- b[, 1:3]
-#
-# a # "A*" centroids
-# b # "B" centroids
-#
-# library(pdist)
-#
-# x <- pdist(a, b)
-# # If mypdist = pdist(X,Y), mypdist[i,j] is the distance between X[i,] and Y[j,].
-# y <- matrix(x@dist, nrow = nrow(b))
-# row.names(y) <- paste0("a_c", 1:nrow(b))
-# colnames(y) <- paste0("b_c", 1:nrow(b))
-# y
-#
-# out <- matrix(nrow = nrow(b), ncol = 2)
-# out
-# # not sure this is the best way to optimize
-# for (i in 1:nrow(b)){
-#     tmp_dim <- which(y == min(y), arr.ind = TRUE)
-#     out[i, 2] <- tmp_dim[1]
-#     out[i, 1] <- tmp_dim[2]
-#     y[tmp_dim[1], ] <- 1000
-#     y[, tmp_dim[2]] <- 1000
-# }
-#
-# out
-#
-# a # "A*" centroids
-# b # "B" centroids
-#
-# out
-#
-# # just have to recode one using 'out'
-#
-# table(tmp, cv_2_out[[2]])
-#
-# tmp <- cv_2_out_star
-#
-# # start here - need to find a programmatic way to recode them
-#
-# # for (i in 1:nrow(out)){
-# #     for (j in 1:length(tmp)){
-# #         tmp[j] <- ifelse(tmp[j] == out[i, 1], out[i, 2], tmp[j])
-# #     }
-# # }
-#
-# table(tmp)
-# out
-# table(tmp, cv_2_out[[2]])
-#
-# new_mat <- cbind(c, d)
-# library(irr)
-#
-# kappa2(new_mat)
-# agree(new_mat)
-#
-# table(cv_2_out_star_ss, cv_2_out[[2]]) # this is "A*" compared to B in a table, but is not optimized
-#
-# # we need to find out which A* centroid is most similar to which B centroid
-#
-# cv_2_out <- data.frame(cv_2_mat, cluster = cv_2_out_star)
-#
-# # Almost there; now we need to optimize the clusters
-#
-# cv_2_out_star
-# 
-# # Diagnostics
+a_assign_star <- apply(z, 1, function(x) which.min(x))
+# tab <- table(out, a_assign)
 
-# mclust
-# library(mclust)
-# 
-# X <- data_ss[, 1:3]
-# X <- X[complete.cases(X), ]
-# 
-# BIC = mclustBIC(X)
-# plot(BIC)
-# BIC
-# summary(BIC)
-# 
-# mod1 = Mclust(X, x = BIC)
-# plot(mod1)
-# str(mod1)
-# summary(mod1, parameters = TRUE)
-# 
-# mod1$classification # assignment
-# 
-# ICL = mclustICL(X)
-# summary(ICL)
-# 
-# plot(ICL)
-# 
-# LRT = mclustBootstrapLRT(X, modelName = "VVV")
-# LRT
+res <- lpSolve::lp.assign(-tab)
+l <- apply(res$solution > 0.5, 1, which)
+a_assign_star_recode <- l[out]
+
+tmp_mat <- data.frame(out_new, a_assign)
+irr::kappa2(tmp_mat)
+irr::agree(tmp_mat)
