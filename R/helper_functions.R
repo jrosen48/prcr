@@ -561,8 +561,32 @@ comparision_of_statistics_plot <- function(data, lower_num, upper_num){
         ylab("Number of Clusters")  
 }
 
+# Cross validation
 
+splitting_halves <- function(prepared_data){
+    prepared_data <- rbinom(nrow(data), 1, .5)
+    half_one <- as.data.frame(data[prepared_data == 0, ])
+    half_two <- as.data.frame(data[prepared_data == 1, ])
+    out <- list(half_one, half_two)
+    return(out)
+}
 
+cluster_the_halves <- function(split_halves, args){
+    clustered_half_one <- create_profiles(split_halves[[1]], args[[2]], args[[3]], args[[4]], print_status = F)
+    clustered_half_two <- create_profiles(split_halves[[2]], args[[2]], args[[3]], args[[4]], print_status = F)
+    return(clustered_half_one, clustered_half_two)
+}
+
+calculate_the_stats <- function(clustered_halves, variable_names, cluster_names){
+    half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, cluster_names, print_status = F)
+    half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, cluster_names, print_status = F)
+    out <- list(half_one_stats, half_two_stats)
+    return(out)
+}
+
+z <- fields::rdist(y, x)
+
+apply(z, 1, function(x) which.min(x))
 
 
 # cv_2_out_star <- apply(b, 1, function(i, a) {
