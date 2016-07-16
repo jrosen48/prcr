@@ -13,23 +13,26 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     removed_obs_df <- removed_obs_df_maker(raw_data_matrix, cases_to_keep)
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
-    print(str(data_tmp))
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
     print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
     if (remove_uv_outliers == T){
-        tmp <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep)
-        data_tmp <- tmp[[1]]
-        removed_obs_df <- tmp[[2]]
+        tmp1 <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep)
+        data_tmp <- tmp1[[1]]
+        removed_obs_df <- tmp1[[2]]
+    }
+    if(any(as.character(removed_obs_df$reason_removed) == "univariate_outlier", na.rm = T)){
+        found_uv_outlier_bool <- T
+    } else{
+        found_uv_outlier_bool <- F
     }
     if (remove_mv_outliers == T){
-        tmp <- remove_mv_main_func(data_tmp, removed_obs_df, cases_to_keep)
-        data_tmp <- tmp[[1]]
-        removed_obs_df <- tmp[[2]]
+        tmp2 <- remove_mv_main_func(data_tmp, removed_obs_df, cases_to_keep, found_uv_outlier_bool, uv_outliers = tmp1)
+        data_tmp <- tmp2[[1]]
+        removed_obs_df <- tmp2[[2]]
     }
     grouping_vector <- grouping_vector[cases_to_keep]
-    print(str(data_tmp))
-    out <- centering_function(data_tmp, method_of_centering, grouping_vector, to_standardize)
+    out <- centering_function(as.data.frame(data_tmp), method_of_centering, grouping_vector, to_standardize)
     cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
     attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5])
     print("### Note. Print the cases_removed_df attribute to view cases removed ###")

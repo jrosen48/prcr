@@ -517,7 +517,11 @@ remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep){
         removed_obs_df$reason_removed[z] <- "uniivariate_outlier"
     }
     data_out <- data_tmp[complete.cases(data_tmp), ]
-    data_out <- list(data_out, removed_obs_df)
+    if(any(is.na(data_tmp))){
+        data_out <- list(data_out, removed_obs_df, uv_outliers_boolean_vector = y)
+    } else{
+        data_out <- list(data_out, removed_obs_df, uv_outliers_boolean_vector = NULL)
+    }
     return(data_out)
 }
 
@@ -531,19 +535,17 @@ remove_mv_out_func <- function(data){
     }
 }
 
-remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep){
+remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_outlier_bool = F, uv_outliers = NULL){
     out_tmp <- remove_mv_out_func(data)
     print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data), " cases removed, so ", nrow(data) - length(out_tmp), " used in subsequent analysis ###"))
-    if(exists("out_tmp")){
-        x <- removed_obs_df[cases_to_keep, ]
-        if(exists("y")){ # need to write this to be clearer, but it works
-            y <- x[!y, ]
-            z <- as.numeric(y$row[out_tmp])
-        } else{
-            z <- as.numeric(x$row[out_tmp])
-        }
-        removed_obs_df$reason_removed[z] <- "multivariate_outlier"
+    x <- removed_obs_df[cases_to_keep, ]
+    if(found_uv_outlier_bool == T){ 
+        y <- x[-uv_outliers, ]
+        z <- as.numeric(y$row[out_tmp])
+    } else{
+        z <- as.numeric(x$row[out_tmp])
     }
+    removed_obs_df$reason_removed[z] <- "multivariate_outlier"
     data_out <- data[-out_tmp, ] # this is the first list item (data with mv outliers removed), second is the cases to be output as an attribute returned from prepare_data()
     data_out <- list(data_out, removed_obs_df)
     return(data_out)
