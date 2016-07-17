@@ -5,7 +5,8 @@
 \title{Create profiles function}
 \usage{
 create_profiles(prepared_data, n_clusters,
-  distance_metric = "squared_euclidean", linkage = "complete")
+  distance_metric = "squared_euclidean", linkage = "complete",
+  print_status = T)
 }
 \arguments{
 \item{prepared_data}{output from the prepare_data() function}

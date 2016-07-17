@@ -4,17 +4,22 @@
 \alias{prepare_data}
 \title{Pre-processing function to prepare data for subsequent analysis}
 \usage{
-prepare_data(raw_data, method_of_centering = "raw", grouping_vector = NULL,
-  to_standardize = F)
+prepare_data(raw_data_matrix, method_of_centering = "raw",
+  grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F,
+  remove_mv_outliers = F)
 }
 \arguments{
-\item{raw_data}{data frame or matrix of any dimensions with numeric data}
-
 \item{method_of_centering}{string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables}
 
 \item{grouping_vector}{a vector indicating how the cases are to be grouped for group mean centering}
 
 \item{to_standardize}{boolean indicating whether to standardize (TRUE) or not (FALSE)}
+
+\item{remove_uv_outliers}{boolean indicating whether to remove (TRUE) univariate outlier or not (FALSE)}
+
+\item{remove_mv_outliers}{boolean indicating whether to remove (TRUE) multivariate outlier or not (FALSE)}
+
+\item{raw_data}{data frame or matrix of any dimensions with numeric data}
 }
 \description{
 Pre-processing function to prepare data for subsequent analysis

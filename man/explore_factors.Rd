@@ -6,7 +6,7 @@
 \usage{
 explore_factors(cluster_assignments, cases_to_keep, factor_data_frame,
   factor_to_explore, variable_to_find_proportion = NULL,
-  cluster_names = NULL)
+  cluster_names = NULL, print_status = T)
 }
 \arguments{
 \item{cluster_assignments}{cluster assignments from calculate_stats() function, in particular the fifth list item from its output}
@@ -25,7 +25,7 @@ explore_factors(cluster_assignments, cases_to_keep, factor_data_frame,
 Function to explore frequency of clusters across select factors
 }
 \details{
-Performs the clustering half of the process, including assembling
+To explore the frequency of clusters across factors
  and cleaning the corpus, deviationalizing and clustering.
 }
 
