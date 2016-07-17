@@ -159,7 +159,7 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
     }
     tmp_vec <- vector(length = upper_num)
     for (i in lower_num:upper_num){
-        tmp <- try_to_cluster(args, i)
+        tmp <- try_to_cluster(prepared_data, args, i)
         if(!is.character(tmp)){
             tmp <- calculate_stats(tmp, print_status = F)[[5]]
             print(paste0("### Proportion of variance explained (R^2) = ", round(tmp, 3)))
