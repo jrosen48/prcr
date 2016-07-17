@@ -1,16 +1,19 @@
 Package: prcr
 Type: Package
 Title: Person-centered analysis
-Version: 0.1.0
+Version: 0.2.0
 Author: person("Joshua", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
 Description: Provides functions for conducting person-center analysis in psychology, education, and related fields. 
-License: MIT. 
+License: MIT
 LazyData: TRUE
 Imports:
     ggplot2,
     dplyr,
     tidyr,
     clValid,
-    chemometrics
+    chemometrics,
+    lpSolve,
+    fields,
+    irr
 RoxygenNote: 5.0.1

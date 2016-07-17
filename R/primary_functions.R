@@ -112,7 +112,7 @@ calculate_stats <- function(clustering_output,
 #'@param factor_to_explore specific factor to explore
 #'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
 #'@param cluster_names optional names for clusters, useful for interpreting findings
-#'@details Performs the clustering half of the process, including assembling
+#'@details To explore the frequency of clusters across factors
 #'  and cleaning the corpus, deviationalizing and clustering.
 #'@export
 
@@ -147,28 +147,10 @@ explore_factors <- function(cluster_assignments,
     invisible(out)
 }
 
-#
-# cross_validate <- function(x){
-#
-#     process()
-#
-# }
-#
-
-try_to_cluster <- function(prepared_data, args, i){
-    out <- tryCatch(
-        {
-        tmp <- create_profiles(prepared_data, i, args[[3]], args[[4]], print_status = F)
-        },
-        error = function(cond){
-            return(warning("Did not properly converge, try a different lower_num or upper_num."))
-        },
-        finally = {
-            print(paste0("### Processed cluster solution with ", i, " clusters"))
-        }
-    )
-    return(out)
-}
+#' Function to compare the proportion of variance explained for cluster solutions with varying number of clusters
+#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
+#'@details Function to compare the proportion of variance explained for cluster solutions with varying number of clusters
+#'@export
 
 compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num){ # can also be method_of_centering (and grouping vector) and to_standardize for now
     if(lower_num == 1) {
@@ -197,5 +179,39 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
     out <- data.frame(number_of_clusters, proportion_of_variance_explained)
     out_plot <- comparision_of_statistics_plot(out, min(out$number_of_clusters), max(out$number_of_clusters))
     out <- list(out, out_plot)
+    return(out)
+}
+
+#' Function to cross-validate the cluster solution using split half or other cross validation 
+#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
+#'@details Function to cross-validate the cluster solution using split half or other cross validation 
+#'@export
+
+cross_validate <- function(prepared_data, output, variable_vector, cluster_vector, k, print_status = T){
+    kappa_collector <- vector()
+    agree_collector <- vector()
+    for (i in 1:k){
+        print(paste0("Processing cross validation attempt #", i))
+        x <- splitting_halves(prepared_data)
+        y <- cluster_the_halves(x, attributes(output)$args_attr)
+        z <- calculate_the_stats(y, variable_vector, cluster_vector)
+        a_assign_star <- find_nearest_centroid(split_halves = x, calculated_stats = z)
+        zzz <- calculate_agreement(a_assign_star, z[[1]][4])
+        kappa_collector[[i]] <- round(zzz[[1]]$value, 3)
+        agree_collector[[i]] <- round(zzz[[2]]$value * .01, 3)
+        # print(paste0("Kappa: ", kappa_collector[[i]]))
+        # print(paste0("Agreement: ", agree_collector[[i]]))
+        
+    }
+    mean_kappa <- paste0("Mean Kappa for ", k, " attempts: ", mean(kappa_collector))
+    mean_agree <- paste0("Mean Kappa for ", k, " attempts: ", mean(agree_collector))    
+    out <- list(kappa_collector, agree_collector, mean_kappa, mean_agree)
+    if(print_status == T){
+        print("### Created the following output ... ")
+        print("### 1. Vector of Cohen's Kappa of length k ###")
+        print("### 2. Vector of agreement of length k ###")
+        print("### 3. Mean Cohen's Kappa for k attempts ###")
+        print("### 4. Mean agreement for k attempts  ###")
+    }
     return(out)
 }

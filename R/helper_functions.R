@@ -561,9 +561,22 @@ comparision_of_statistics_plot <- function(data, lower_num, upper_num){
         ylab("Number of Clusters")  
 }
 
-# Cross validation
+try_to_cluster <- function(prepared_data, args, i){
+    out <- tryCatch(
+        {
+        tmp <- create_profiles(prepared_data, i, args[[3]], args[[4]], print_status = F)
+        },
+        error = function(cond){
+            return(warning("Did not properly converge, try a different lower_num or upper_num."))
+        },
+        finally = {
+            print(paste0("### Processed cluster solution with ", i, " clusters"))
+        }
+    )
+    return(out)
+}
 
-x <- prepared_data
+# Cross validation
 
 splitting_halves <- function(x){
     x <- data.frame(matrix(unlist(x), ncol = length(x), byrow = F))
@@ -584,10 +597,6 @@ splitting_halves <- function(x){
     return(out)
 }
 
-x <- splitting_halves(prepared_data)
-
-str(x)
-
 cluster_the_halves <- function(split_halves, args){
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
     clustered_half_one <- create_profiles(split_halves[[1]], args[[2]], args[[3]], args[[4]], print_status = F)
@@ -596,11 +605,6 @@ cluster_the_halves <- function(split_halves, args){
     return(out)
 }
 
-y <- cluster_the_halves(x, attributes(output)$args_attr)
-
-cluster_vector <- c("Busy (n = 561)", "Recreational (n = 663)", "Full (n = 423)", "Universally Low (n = 611)", "Purposeful (n = 707)", "Moderately Low (n = 573)", "Rational (n = 447)")
-variable_vector <- c("Behavioral Engagement", "Cognitive Engagement", "Affective Engagement")
-
 calculate_the_stats <- function(clustered_halves, variable_names, cluster_names){ #fix
     half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, cluster_names, print_status = F)
     half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, cluster_names, print_status = F)
@@ -608,27 +612,23 @@ calculate_the_stats <- function(clustered_halves, variable_names, cluster_names)
     return(out)
 }
 
-z <- calculate_the_stats(y, variable_vector, cluster_vector)
-
-find_nearest_centroid <- function(prepared_data, stats){
-    
+find_nearest_centroid <- function(split_halves, calculated_stats){
+    a <- split_halves[[1]] # keep
+    a_assign <- calculated_stats[[1]][[3]] # keep
+    b_centroid <- calculated_stats[[2]][[7]][, 1:3] # keep
+    z <- fields::rdist(a, b_centroid)
+    a_assign_star <- apply(z, 1, function(x) which.min(x))
+    return(a_assign_star)
 }
 
-a <- x[[1]] # keep
-#b <- x[[2]]
-a_assign <- z[[1]][[3]] # keep
-# b_assign <- z[[2]][[3]]
-# a_centroid <- z[[1]][[7]][, 1:3]
-b_centroid <- z[[2]][[7]][, 1:3] # keep
-z <- fields::rdist(a, b_centroid)
-
-a_assign_star <- apply(z, 1, function(x) which.min(x))
-# tab <- table(out, a_assign)
-
-res <- lpSolve::lp.assign(-tab)
-l <- apply(res$solution > 0.5, 1, which)
-a_assign_star_recode <- l[out]
-
-tmp_mat <- data.frame(out_new, a_assign)
-irr::kappa2(tmp_mat)
-irr::agree(tmp_mat)
+calculate_agreement <- function(a_assign_star, a_assign){
+    out <- list()
+    tab <- table(a_assign_star, a_assign[[1]])
+    res <- lpSolve::lp.assign(-tab)
+    l <- apply(res$solution > 0.5, 1, which)
+    a_assign_star_recode <- l[a_assign_star]
+    tmp_mat <- data.frame(a_assign_star_recode, a_assign)
+    out[[1]] <- irr::kappa2(tmp_mat)
+    out[[2]] <- irr::agree(tmp_mat)
+    return(out)
+}
