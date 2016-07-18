@@ -197,7 +197,7 @@ cross_validate <- function(prepared_data, output, variable_vector, k){
     kappa_collector <- vector()
     agree_collector <- vector()
     for (i in 1:k){
-        print(paste0("### Processing cross validation attempt #", i))
+        print(paste0("### Processing cross validation iteration ", i))
         x <- splitting_halves(prepared_data)
         y <- cluster_the_halves(x, attributes(output)$args_attr)
         test <- all(!is.na(y[[1]]) & !is.na(y[[2]]))
