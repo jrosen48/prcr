@@ -29,7 +29,6 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
         out <- as.data.frame(out)
     }
     if (method_of_centering == "group" & to_standardize == T) {
-        print(str(data))
         out <- data %>%
             cbind(grouping_vector) %>%
             group_by(grouping_vector) %>%
@@ -90,7 +89,6 @@ cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     for (i in 1:n_clusters){
         clusters[[i]] <- data[kfit$cluster == i, ]
     }
-    clusters
     cluster_freqs <- list()
     for (i in seq(n_clusters)){
         cluster_freqs[[i]] <- colSums(clusters[[i]]) / nrow(clusters[[i]]) # Need to fix - will want to add group freqs
@@ -138,15 +136,28 @@ testing_the_tukey <- function(data){
     return(tukey_list)
 }
 
-manova_function <- function(data, cluster_assignment, variable_names){
-    out <- list()
-    data$DV <- as.matrix(data)
-    data <- cbind(data, cluster_assignment)
-    mv_out <- manova(DV ~ cluster_assignment, data = data)
-    out[[1]] <- summary(mv_out, test = "Pillai")
-    out[[2]] <- summary.aov(mv_out)
-    out[[3]] <- testing_the_tukey(data)
-    names(out[[3]]) <- variable_names
+try_manova <- function(data, cluster_assignment, variable_names){
+    
+    manova_function <- function(data, cluster_assignment, variable_names){
+        out <- list()
+        data$DV <- as.matrix(data)
+        data <- cbind(data, cluster_assignment)
+        mv_out <- manova(DV ~ cluster_assignment, data = data)
+        out[[1]] <- summary(mv_out, test = "Pillai")
+        out[[2]] <- summary.aov(mv_out)
+        out[[3]] <- testing_the_tukey(data)
+        names(out[[3]]) <- variable_names
+        return(out)
+    }
+    
+    out <- tryCatch(
+        {
+        manova_function(data, cluster_assignment, variable_names)  
+        },
+        error = function(cond){
+            return(NA)
+        }
+    )
     return(out)
 }
 
@@ -319,10 +330,8 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     
 }
 
-create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
-    
+create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names, variable_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
-    
     if (length(factor_to_explore) == 1) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
         out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
