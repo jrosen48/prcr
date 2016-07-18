@@ -556,9 +556,9 @@ remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_ou
 comparision_of_statistics_plot <- function(data, lower_num, upper_num){
     ggplot(data, aes(x = number_of_clusters, y = proportion_of_variance_explained)) +
         geom_point() +
-        scale_x_continuous(breaks = lower_num:upper_num) +
-        xlab("Proportion of Variance Explained (R^2)") +
-        ylab("Number of Clusters")  
+        # scale_x_continuous(breaks = lower_num:upper_num) +
+        ylab("Proportion of Variance Explained (R^2)") +
+        xlab("Number of Clusters")  
 }
 
 try_to_cluster <- function(prepared_data, args, i){
@@ -597,10 +597,40 @@ splitting_halves <- function(x){
     return(out)
 }
 
+try_to_cluster_halves <- function(prepared_data, args){
+    out <- tryCatch({
+        create_profiles(prepared_data, args[[2]], args[[3]], args[[4]], print_status = F)
+        },
+        error = function(cond){
+            #warning("Did not properly converge, trying again.")
+            return(NA)
+        },
+        finally = {
+    
+        }
+    )
+    return(out)
+}
+
 cluster_the_halves <- function(split_halves, args){
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
-    clustered_half_one <- create_profiles(split_halves[[1]], args[[2]], args[[3]], args[[4]], print_status = F)
-    clustered_half_two <- create_profiles(split_halves[[2]], args[[2]], args[[3]], args[[4]], print_status = F)
+    
+    clustered_half_one <- try_to_cluster_halves(split_halves[[1]], args)
+    # if(!is.character(clustered_half_one)){
+    #     clustered_half_one <- calculate_stats(clustered_half_one, print_status = F)[[5]]
+    #     print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_one, 3)))
+    # } else{
+    #     clustered_half_one<- NA
+    # }
+    
+    clustered_half_two <- try_to_cluster_halves(split_halves[[2]], args)
+    # if(!is.character(clustered_half_two)){
+    #     clustered_half_two <- calculate_stats(clustered_half_two, print_status = F)[[5]]
+    #     print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_two, 3)))
+    # } else{
+    #     clustered_half_two <- NA
+    # }
+    
     out <- list(clustered_half_one, clustered_half_two)
     return(out)
 }

@@ -187,31 +187,34 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
 #'@details Function to cross-validate the cluster solution using split half or other cross validation 
 #'@export
 
-cross_validate <- function(prepared_data, output, variable_vector, cluster_vector, k, print_status = T){
+cross_validate <- function(prepared_data, output, variable_vector, cluster_vector, k){
     kappa_collector <- vector()
     agree_collector <- vector()
     for (i in 1:k){
         print(paste0("Processing cross validation attempt #", i))
         x <- splitting_halves(prepared_data)
         y <- cluster_the_halves(x, attributes(output)$args_attr)
-        z <- calculate_the_stats(y, variable_vector, cluster_vector)
-        a_assign_star <- find_nearest_centroid(split_halves = x, calculated_stats = z)
-        zzz <- calculate_agreement(a_assign_star, z[[1]][4])
-        kappa_collector[[i]] <- round(zzz[[1]]$value, 3)
-        agree_collector[[i]] <- round(zzz[[2]]$value * .01, 3)
+        test <- all(!is.na(y[[1]]) & !is.na(y[[2]]))
+        if(test){
+            z <- calculate_the_stats(y, variable_vector, cluster_vector)
+            a_assign_star <- find_nearest_centroid(split_halves = x, calculated_stats = z)
+            zzz <- calculate_agreement(a_assign_star, z[[1]][4])
+            kappa_collector[[i]] <- round(zzz[[1]]$value, 3)
+            agree_collector[[i]] <- round(zzz[[2]]$value * .01, 3)
+        } else{
+            kappa_collector[[i]] <- NA
+            agree_collector[[i]] <- NA
+        }
         # print(paste0("Kappa: ", kappa_collector[[i]]))
         # print(paste0("Agreement: ", agree_collector[[i]]))
-        
     }
-    mean_kappa <- paste0("Mean Kappa for ", k, " attempts: ", mean(kappa_collector))
-    mean_agree <- paste0("Mean Kappa for ", k, " attempts: ", mean(agree_collector))    
+    mean_kappa <- paste0("Mean Kappa for ", k, " attempts: ", round(mean(kappa_collector, na.rm = T), 3))
+    mean_agree <- paste0("Mean agreement for ", k, " attempts: ", round(mean(agree_collector, na.rm = T), 3))    
     out <- list(kappa_collector, agree_collector, mean_kappa, mean_agree)
-    if(print_status == T){
-        print("### Created the following output ... ")
-        print("### 1. Vector of Cohen's Kappa of length k ###")
-        print("### 2. Vector of agreement of length k ###")
-        print("### 3. Mean Cohen's Kappa for k attempts ###")
-        print("### 4. Mean agreement for k attempts  ###")
-    }
+    print("### Created the following output ... ")
+    print("### 1. Vector of Cohen's Kappa of length k ###")
+    print("### 2. Vector of agreement of length k ###")
+    print("### 3. Mean Cohen's Kappa for k attempts ###")
+    print("### 4. Mean agreement for k attempts  ###")
     return(out)
 }
