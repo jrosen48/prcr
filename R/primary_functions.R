@@ -193,7 +193,7 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
 #'@details Function to cross-validate the cluster solution using split half or other cross validation 
 #'@export
 
-cross_validate <- function(prepared_data, output, variable_vector, cluster_vector, k){
+cross_validate <- function(prepared_data, output, variable_vector, k){
     kappa_collector <- vector()
     agree_collector <- vector()
     for (i in 1:k){
@@ -202,7 +202,7 @@ cross_validate <- function(prepared_data, output, variable_vector, cluster_vecto
         y <- cluster_the_halves(x, attributes(output)$args_attr)
         test <- all(!is.na(y[[1]]) & !is.na(y[[2]]))
         if(test){
-            z <- calculate_the_stats(y, variable_vector, cluster_vector)
+            z <- calculate_the_stats(y, variable_vector)
             a_assign_star <- find_nearest_centroid(split_halves = x, calculated_stats = z)
             zzz <- calculate_agreement(a_assign_star, z[[1]][4])
             kappa_collector[[i]] <- round(zzz[[1]]$value, 3)
@@ -218,9 +218,9 @@ cross_validate <- function(prepared_data, output, variable_vector, cluster_vecto
     mean_agree <- paste0("Mean agreement for ", k, " attempts: ", round(mean(agree_collector, na.rm = T), 3))    
     out <- list(kappa_collector, agree_collector, mean_kappa, mean_agree)
     print("### Created the following output ... ")
-    print("### 1. Vector of Cohen's Kappa of length k ###")
-    print("### 2. Vector of agreement of length k ###")
-    print("### 3. Mean Cohen's Kappa for k attempts ###")
-    print("### 4. Mean agreement for k attempts  ###")
+    print(paste0("### 1. Vector of Cohen's Kappa of length ", k, " ###"))
+    print(paste0("### 2. Vector of agreement of length ", k, " ###"))
+    print(paste0("### 3. Mean Cohen's Kappa for ", k, " attempts ###"))
+    print(paste0("### 4. Mean agreement for ", k, " attempts  ###"))
     return(out)
 }

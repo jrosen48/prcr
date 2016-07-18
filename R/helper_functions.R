@@ -644,9 +644,9 @@ cluster_the_halves <- function(split_halves, args){
     return(out)
 }
 
-calculate_the_stats <- function(clustered_halves, variable_names, cluster_names){ #fix
-    half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, cluster_names, print_status = F)
-    half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, cluster_names, print_status = F)
+calculate_the_stats <- function(clustered_halves, variable_names){ #fix
+    half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, print_status = F)
+    half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, print_status = F)
     out <- list(half_one_stats, half_two_stats)
     return(out)
 }
