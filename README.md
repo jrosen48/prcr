@@ -14,7 +14,7 @@ The basic workflow is to first prepare the data (by removing incomplete cases an
 
 * `prepare_data()`
 
- * This function inputs a `data.frame` or `matrix` of at least two columns, as well as strings indicating the method of centering, the grouping factor (used only for group-mean centering), and the method of scaling. It outputs a `list` to be used in the `create_profiles()` function.
+ * This function inputs a `data.frame` or `matrix` of at least two columns, as well as strings indicating the method of centering, the grouping factor (used only for group-mean centering), the method of scaling, and booleans indicating whether univariate and multivariate outliers should be removed. Note that for the identification of multivariate outliers, the package `chemometrics` is suggested but not imported. It outputs a `list` to be used in the `create_profiles()` function. 
 
 * `create_profiles()`
 
