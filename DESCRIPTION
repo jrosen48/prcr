@@ -8,12 +8,12 @@ Description: Provides functions for conducting person-center analysis in psychol
 License: MIT
 LazyData: TRUE
 Imports:
-    ggplot2,
     dplyr,
     tidyr,
-    clValid,
-    chemometrics,
+    ggplot2
+Suggests:
     lpSolve,
     fields,
-    irr
+    irr,
+    chemometrics
 RoxygenNote: 5.0.1

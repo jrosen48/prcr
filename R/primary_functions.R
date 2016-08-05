@@ -7,17 +7,20 @@
 #'@param to_standardize boolean indicating whether to standardize (TRUE) or not (FALSE)
 #'@param remove_uv_outliers boolean indicating whether to remove (TRUE) univariate outlier or not (FALSE)
 #'@param remove_mv_outliers boolean indicating whether to remove (TRUE) multivariate outlier or not (FALSE)
+#'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@export
 
-prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F, remove_mv_outliers = F){
+prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F, remove_mv_outliers = F, print_status = F){
     cases_to_keep <- complete.cases(raw_data_matrix) # to use later for comparing function to index which cases to keep
     removed_obs_df <- removed_obs_df_maker(raw_data_matrix, cases_to_keep)
     data_tmp <- raw_data_matrix[cases_to_keep, ] # removes incomplete cases
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
-    print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+    if(print_status == T){
+        print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+    }
     if (remove_uv_outliers == T){
-        tmp1 <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep)
+        tmp1 <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep, print_status)
         data_tmp <- tmp1[[1]]
         removed_obs_df <- tmp1[[2]]
     }
@@ -27,7 +30,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
         found_uv_outlier_bool <- F
     }
     if (remove_mv_outliers == T){
-        tmp2 <- remove_mv_main_func(data_tmp, removed_obs_df, cases_to_keep, found_uv_outlier_bool, uv_outliers = tmp1)
+        tmp2 <- remove_mv_main_func(data_tmp, removed_obs_df, cases_to_keep, found_uv_outlier_bool, uv_outliers = tmp1, print_status)
         data_tmp <- tmp2[[1]]
         removed_obs_df <- tmp2[[2]]
     }
@@ -35,7 +38,9 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     out <- centering_function(as.data.frame(data_tmp), method_of_centering, grouping_vector, to_standardize)
     cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
     attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5], variable_names = names(raw_data_matrix))
-    print("### Note. Print the cases_removed_df attribute to view cases removed ###")
+    if(print_status == T){
+        print("### Note. Print the cases_removed_df attribute to view cases removed ###")
+    }
     return(out)
 }
 
@@ -44,6 +49,7 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
 #'@param n_clusters the number of clusters; specified a priori
 #'@param distance_metric metric for calculating the distance matrix used in hierarchical clustering, options include "euclidean", "squared_euclidean", and others (see ?dist() for more details)
 #'@param linkage method for combining clusters in hierarchical clustering, options include "complete", "average", and others (see ?hclust() for details)
+#'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@export
 
 create_profiles <- function(prepared_data,
@@ -72,6 +78,7 @@ create_profiles <- function(prepared_data,
 #'@param clustering_output output from cluster_data() function
 #'@param variable_names optional names for variables that were clustered
 #'@param cluster_names optional names for clusters, useful for creating plot
+#'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@export
 #'@import ggplot2
 
@@ -113,6 +120,7 @@ calculate_stats <- function(clustering_output,
 #'@param factor_to_explore specific factor to explore
 #'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
 #'@param cluster_names optional names for clusters, useful for interpreting findings
+#'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@details To explore the frequency of clusters across factors
 #'  and cleaning the corpus, deviationalizing and clustering.
 #'@export
@@ -197,7 +205,7 @@ cross_validate <- function(prepared_data, output, variable_vector, k){
     kappa_collector <- vector()
     agree_collector <- vector()
     for (i in 1:k){
-        print(paste0("### Processing cross validation iteration ", i))
+        # print(paste0("### Processing cross validation iteration ", i))
         x <- splitting_halves(prepared_data)
         y <- cluster_the_halves(x, attributes(output)$args_attr)
         test <- all(!is.na(y[[1]]) & !is.na(y[[2]]))
@@ -224,3 +232,9 @@ cross_validate <- function(prepared_data, output, variable_vector, k){
     print(paste0("### 4. Mean agreement for ", k, " attempts  ###"))
     return(out)
 }
+
+# prcr <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, 
+#                  to_standardize = T, remove_uv_outliers = T, remove_mv_outliers = T, print_status = F,
+#                  n_clusters, distance_metric = "squared_euclidean", linkage = "complete",
+#                  variable_to_find_proportion = NULL, factor_data_frame, factor_to_explore, 
+#                  compare_statistics = F, cross_validate = F)

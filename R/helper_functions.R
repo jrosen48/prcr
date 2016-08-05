@@ -516,9 +516,11 @@ remove_uv_out_func <- function(data){
     return(x)
 }
 
-remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep){
+remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep, print_status){
     data_tmp <- remove_uv_out_func(data) # makes uv outliers na
-    print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
+    if(print_status == T){
+        print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
+    }
     if(any(is.na(data_tmp))){
         x <- removed_obs_df[cases_to_keep, ]
         y <- !complete.cases(data_tmp)
@@ -544,9 +546,11 @@ remove_mv_out_func <- function(data){
     }
 }
 
-remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_outlier_bool = F, uv_outliers = NULL){
+remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_outlier_bool = F, uv_outliers = NULL, print_status){
     out_tmp <- remove_mv_out_func(data)
-    print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data), " cases removed, so ", nrow(data) - length(out_tmp), " used in subsequent analysis ###"))
+    if(print_status == T){
+        print(paste0("### Note: ", length(out_tmp), " cases with multivariate outliers out of ", nrow(data), " cases removed, so ", nrow(data) - length(out_tmp), " used in subsequent analysis ###"))
+    }
     x <- removed_obs_df[cases_to_keep, ]
     if(found_uv_outlier_bool == T){ 
         y <- x[-uv_outliers, ]
@@ -579,7 +583,7 @@ try_to_cluster <- function(prepared_data, args, i){
             return(warning("Did not properly converge, try a different lower_num or upper_num."))
         },
         finally = {
-            print(paste0("### Processed cluster solution with ", i, " clusters"))
+            # print(paste0("### Processed cluster solution with ", i, " clusters"))
         }
     )
     return(out)

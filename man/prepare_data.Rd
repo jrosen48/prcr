@@ -6,7 +6,7 @@
 \usage{
 prepare_data(raw_data_matrix, method_of_centering = "raw",
   grouping_vector = NULL, to_standardize = F, remove_uv_outliers = F,
-  remove_mv_outliers = F)
+  remove_mv_outliers = F, print_status = F)
 }
 \arguments{
 \item{method_of_centering}{string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables}

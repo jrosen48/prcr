@@ -4,8 +4,7 @@
 \alias{cross_validate}
 \title{Function to cross-validate the cluster solution using split half or other cross validation}
 \usage{
-cross_validate(prepared_data, output, variable_vector, cluster_vector, k,
-  print_status = T)
+cross_validate(prepared_data, output, variable_vector, k)
 }
 \arguments{
 \item{cluster_assignments}{cluster assignments from calculate_stats() function, in particular the fifth list item from its output}
