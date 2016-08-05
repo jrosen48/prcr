@@ -20,6 +20,10 @@ explore_factors(cluster_assignments, cases_to_keep, factor_data_frame,
 \item{variable_to_find_proportion}{variable to normalize clusters as a unit of analysis}
 
 \item{cluster_names}{optional names for clusters, useful for interpreting findings}
+
+\item{variable_names}{optional names for variables that were clustered}
+
+\item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
 }
 \description{
 Function to explore frequency of clusters across select factors

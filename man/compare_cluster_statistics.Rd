@@ -7,7 +7,13 @@
 compare_cluster_statistics(prepared_data, args, lower_num, upper_num)
 }
 \arguments{
-\item{cluster_assignments}{cluster assignments from calculate_stats() function, in particular the fifth list item from its output}
+\item{prepared_data}{output from the prepare_data() function}
+
+\item{args}{list of arguments passed to the create_profiles() function, which is returned as an attribute of its output (i.e., attributes(output)$args_attr)}
+
+\item{lower_num}{integer representing the lower bound of the range of the number of clusters in the cluster solution}
+
+\item{upper_num}{integer representing the lower bound of the range of the number of clusters in the cluster solution}
 }
 \description{
 Function to compare the proportion of variance explained for cluster solutions with varying number of clusters

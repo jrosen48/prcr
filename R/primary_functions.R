@@ -1,7 +1,7 @@
 # primary_functions.R
 
 #' Pre-processing function to prepare data for subsequent analysis
-#'@param raw_data data frame or matrix of any dimensions with numeric data
+#'@param raw_data_matrix data frame or matrix of any dimensions with numeric data
 #'@param method_of_centering string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables
 #'@param grouping_vector a vector indicating how the cases are to be grouped for group mean centering
 #'@param to_standardize boolean indicating whether to standardize (TRUE) or not (FALSE)
@@ -84,6 +84,7 @@ create_profiles <- function(prepared_data,
 
 calculate_stats <- function(clustering_output, 
                             cluster_names = NULL, 
+                            variable_names = NULL,
                             print_status = T){
     out <- list()
     variable_names <- attributes(clustering_output)$variable_names
@@ -97,7 +98,7 @@ calculate_stats <- function(clustering_output,
     out[[6]] <- try_manova(attributes(clustering_output)$data_attr, out[[4]], variable_names)
     out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
     out[[8]] <- cluster_plot_function(out[[7]], cluster_names)
-    attributes(out) <- list(cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, data_attr = prepared_data, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep,
+    attributes(out) <- list(cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep,
                             variable_names = attributes(clustering_output)$variable_names)
     if(print_status == T){
         print("### Created the following output ... ")
@@ -120,6 +121,7 @@ calculate_stats <- function(clustering_output,
 #'@param factor_to_explore specific factor to explore
 #'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
 #'@param cluster_names optional names for clusters, useful for interpreting findings
+#'@param variable_names optional names for variables that were clustered
 #'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@details To explore the frequency of clusters across factors
 #'  and cleaning the corpus, deviationalizing and clustering.
@@ -159,7 +161,10 @@ explore_factors <- function(cluster_assignments,
 }
 
 #' Function to compare the proportion of variance explained for cluster solutions with varying number of clusters
-#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
+#'@param prepared_data output from the prepare_data() function
+#'@param args list of arguments passed to the create_profiles() function, which is returned as an attribute of its output (i.e., attributes(output)$args_attr)
+#'@param lower_num integer representing the lower bound of the range of the number of clusters in the cluster solution
+#'@param upper_num integer representing the lower bound of the range of the number of clusters in the cluster solution
 #'@details Function to compare the proportion of variance explained for cluster solutions with varying number of clusters
 #'@export
 
@@ -197,11 +202,14 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
 }
 
 #' Function to cross-validate the cluster solution using split half or other cross validation 
-#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
+#'@param prepared_data output from the prepare_data() function
+#'@param output output from the create_profiles() function
+#'@param variable_names vector for the names for variables that were clustered
+#'@param k integer for the number of cross-validation attempts
 #'@details Function to cross-validate the cluster solution using split half or other cross validation 
 #'@export
 
-cross_validate <- function(prepared_data, output, variable_vector, k){
+cross_validate <- function(prepared_data, output, variable_names, k){
     kappa_collector <- vector()
     agree_collector <- vector()
     for (i in 1:k){
@@ -233,6 +241,7 @@ cross_validate <- function(prepared_data, output, variable_vector, k){
     return(out)
 }
 
+# Wrapper function to perform all analyses at once - still in development
 # prcr <- function(raw_data_matrix, method_of_centering = "raw", grouping_vector = NULL, 
 #                  to_standardize = T, remove_uv_outliers = T, remove_mv_outliers = T, print_status = F,
 #                  n_clusters, distance_metric = "squared_euclidean", linkage = "complete",

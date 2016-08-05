@@ -16,6 +16,8 @@ create_profiles(prepared_data, n_clusters,
 \item{distance_metric}{metric for calculating the distance matrix used in hierarchical clustering, options include "euclidean", "squared_euclidean", and others (see ?dist() for more details)}
 
 \item{linkage}{method for combining clusters in hierarchical clustering, options include "complete", "average", and others (see ?hclust() for details)}
+
+\item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
 }
 \description{
 Create profiles function

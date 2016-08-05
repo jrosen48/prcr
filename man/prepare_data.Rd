@@ -9,6 +9,8 @@ prepare_data(raw_data_matrix, method_of_centering = "raw",
   remove_mv_outliers = F, print_status = F)
 }
 \arguments{
+\item{raw_data_matrix}{data frame or matrix of any dimensions with numeric data}
+
 \item{method_of_centering}{string indicating variable-wise centering, options include "grand" (for grand mean centering), "group" (for group mean centering; requires a grouping vector, described next) and "raw", which does not center the variables}
 
 \item{grouping_vector}{a vector indicating how the cases are to be grouped for group mean centering}
@@ -19,7 +21,7 @@ prepare_data(raw_data_matrix, method_of_centering = "raw",
 
 \item{remove_mv_outliers}{boolean indicating whether to remove (TRUE) multivariate outlier or not (FALSE)}
 
-\item{raw_data}{data frame or matrix of any dimensions with numeric data}
+\item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
 }
 \description{
 Pre-processing function to prepare data for subsequent analysis

@@ -5,7 +5,7 @@ Version: 0.2.0
 Author: person("Joshua", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
 Description: Provides functions for conducting person-center analysis in psychology, education, and related fields. 
-License: MIT
+License: MIT + file LICENSE
 LazyData: TRUE
 Imports:
     dplyr,
