@@ -6,7 +6,7 @@
 
 ## Installation
 
-Because this package is in development and is not yet available on CRAN, to install it, first install the `devtools` package using `install.packages("devtools")`, followed by the function `devtools::install_github("jrosen48/prcr")`. After installing the package, use `library(prcr)` to load it in each session.
+Because this package is in development and is not yet available on CRAN, to install it, first install the `devtools` package using `install.packages("devtools")`, followed by the function `devtools::install_github("jrosen48/prcr")`. After installing the package, use `library(prcr)` to load it in each session. Note that `dplyr`, `tidyr`, and `ggplot2` are imported by this package.
 
 ## Workflow and Use 
 
@@ -27,3 +27,14 @@ The basic workflow is to first prepare the data (by removing incomplete cases an
 * `explore_factors()`
 
  * This function inputs the cluster assignments and the attributes indicating which cases to keep from the `calculate_stats()` function, as well as a data frame of factors to explore, a string indicating the specific factor to explore (or a vector indicating the factors to explore), and an optional vector of names for the cluster solution generated from the `create_profiles()` function.
+
+## Additional Functions
+
+Two additional functions provided added features. `compare_cluster_statistics()` compares the proportion of variance explained for cluster solutions with varying number of clusters. `cross_validate()` provides split half cross-validation as described in [Breckenridge](http://www.tandfonline.com/doi/abs/10.1207/S15327906MBR3502_5#.V6TT8JMrJE5).
+
+* `compare_cluster_statistics()`
+
+ * This function inputs the output from the `prepared_data()` function, as well as a list of arguments to `create_profiles()`, and an `integer` for the lower and upper bounds of the range of cluster solutions to compare (i.e., comparing the proportion of variance explained for solutions with from 2 to 12 clusters. It outputs the proportion of variance explained for the different solutions as well as a `ggplot2` object to plot.
+
+* `cross_validate()`
+ * This function inputs the output from the `prepared_data()` function, the output from the `create_profiles()` function, a `vector` with the names of the clustered variables, and an `integer` representing the number of times to replicate the cross-validation. It outputs a `data.frame` for the percentage agreement and Cohen's kappa for the cross-validation, as well as their mean values. Note that this function requires the installation of the `lpSolve`, `fields`, and `irr` packages, which are suggested but not imported by this package.
