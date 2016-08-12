@@ -84,6 +84,11 @@ dissim_function <- function(hc){
                stringsAsFactors=FALSE)
 }
 
+standardize_function <- function(data){
+    standardized_data <- scale(data, center = F, scale = T)
+    return(standardized_data)
+}
+
 cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     clusters <- list()
     for (i in 1:n_clusters){
@@ -330,7 +335,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     
 }
 
-create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names, variable_names){
+create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
     if (length(factor_to_explore) == 1) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
@@ -343,7 +348,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             theme(legend.position = "top") +
             theme(legend.title = element_blank()) +
             theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 90)) +
+            theme(axis.text.x = element_text(angle = 45)) +
             theme(legend.position = "right") +
             theme(legend.title = element_blank()) +
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
@@ -359,7 +364,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             theme(legend.position = "top") +
             theme(legend.title = element_blank()) +
             theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 90)) +
+            theme(axis.text.x = element_text(angle = 45)) +
             theme(legend.position = "right") +
             theme(legend.title = element_blank()) +
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
@@ -375,7 +380,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             theme(legend.position = "top") +
             theme(legend.title = element_blank()) +
             theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 90)) +
+            theme(axis.text.x = element_text(angle = 45)) +
             theme(legend.position = "right") +
             theme(legend.title = element_blank()) +
             scale_fill_discrete(name = "Cluster", labels = cluster_names)

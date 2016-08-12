@@ -37,7 +37,9 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     grouping_vector <- grouping_vector[cases_to_keep]
     out <- centering_function(as.data.frame(data_tmp), method_of_centering, grouping_vector, to_standardize)
     cases_to_keep = row.names(raw_data_matrix) %in% removed_obs_df$row[is.na(removed_obs_df$reason_removed)]
-    attributes(out) <- list(method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, cases_removed_df = removed_obs_df[, 2:5], variable_names = names(raw_data_matrix))
+    attributes(out) <- list(uncentered_cleaned_data = data_tmp, 
+                            method_of_centering = method_of_centering, cases_to_keep = cases_to_keep, 
+                            cases_removed_df = removed_obs_df[, 2:5], variable_names = names(raw_data_matrix))
     if(print_status == T){
         print("### Note. Print the cases_removed_df attribute to view cases removed ###")
     }
@@ -65,7 +67,11 @@ create_profiles <- function(prepared_data,
     out[[1]] <- hclust(distance_matrix, method = linkage) # hierarhical clustering
     starting_points <- hclust_to_kmeans_function(df, out[[1]], n_clusters)
     out[[2]] <- kmeans_function(df, starting_points) # Fits k-means algorithm using results from hierarchical algorithm as start value
-    attributes(out) <- list(n_clusters_attr = n_clusters, data_attr = df, args_attr = args, cases_to_keep_attr = attributes(prepared_data)$cases_to_keep, variable_names = attributes(prepared_data)$variable_names)
+    attributes(out) <- list(cleaned_data = df,
+                            uncentered_cleaned_data = attributes(prepared_data)$uncentered_cleaned_data, 
+                            n_clusters_attr = n_clusters, data_attr = df, args_attr = args, 
+                            cases_to_keep_attr = attributes(prepared_data)$cases_to_keep, 
+                            variable_names = attributes(prepared_data)$variable_names)
     if(print_status == T){
         print("### Created the following output ... ")
         print("### 1. Hierarchical cluster analysis output ###")
@@ -76,7 +82,6 @@ create_profiles <- function(prepared_data,
 
 #' Function to calculate statistics about cluster solution found via cluster_data()
 #'@param clustering_output output from cluster_data() function
-#'@param variable_names optional names for variables that were clustered
 #'@param cluster_names optional names for clusters, useful for creating plot
 #'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@export
@@ -84,8 +89,9 @@ create_profiles <- function(prepared_data,
 
 calculate_stats <- function(clustering_output, 
                             cluster_names = NULL, 
-                            variable_names = NULL,
-                            print_status = T){
+                            to_standardize = F,
+                            print_status = T,
+                            plot_uncentered_data = F){
     out <- list()
     variable_names <- attributes(clustering_output)$variable_names
     # this function takes a list, clustering output, from the cluster_data function
@@ -95,10 +101,22 @@ calculate_stats <- function(clustering_output,
     out[[3]] <- cutree(clustering_output[[1]], attributes(clustering_output)$n_clusters_attr) # hclust assignment
     out[[4]] <- clustering_output[[2]]$cluster # kmeans assignment
     out[[5]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
-    out[[6]] <- try_manova(attributes(clustering_output)$data_attr, out[[4]], variable_names)
-    out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+    out[[6]] <- try_manova(attributes(clustering_output)$data_attr, out[[4]])
+    if (to_standardize == T){
+        tmp <- standardize_function(attributes(clustering_output)$data_attr)
+        out[[7]] <- cluster_freq_function(tmp, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+    } else {
+        out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+    }
     out[[8]] <- cluster_plot_function(out[[7]], cluster_names)
-    attributes(out) <- list(cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, args_attr = args, cases_to_keep = attributes(clustering_output)$cases_to_keep,
+    if (plot_uncentered_data == T){
+        tmp <- cluster_freq_function(attributes(clustering_output)$uncentered_cleaned_data, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
+        out[[9]] <- cluster_plot_function(tmp, cluster_names)
+    }
+    attributes(out) <- list(cleaned_data = attributes(clustering_output)$cleaned_data,
+                            cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, 
+                            args_attr = args, 
+                            cases_to_keep = attributes(clustering_output)$cases_to_keep,
                             variable_names = attributes(clustering_output)$variable_names)
     if(print_status == T){
         print("### Created the following output ... ")
@@ -109,7 +127,10 @@ calculate_stats <- function(clustering_output,
         print("### 5. K-means cluster analysis diagnostics: Proportion of variance explained (R^2) ###")
         print("### 6. Overall diagnostics: MANOVA ###")
         print("### 7. Overall output: Cluster centroids ###")
-        print("### 8. Overall output: ggplot2 object for plot of cluster centroids ###")
+        print("### 8. Overall output: ggplot2 object for plot of cluster centroids with centered data ###")
+        if(plot_uncentered_data == T){
+            print("### 9. Overall output: ggplot2 object for plot of cluster centroids with raw data ###")
+        }
     }
     invisible(out)
 }
@@ -121,28 +142,29 @@ calculate_stats <- function(clustering_output,
 #'@param factor_to_explore specific factor to explore
 #'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
 #'@param cluster_names optional names for clusters, useful for interpreting findings
-#'@param variable_names optional names for variables that were clustered
 #'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
 #'@details To explore the frequency of clusters across factors
 #'  and cleaning the corpus, deviationalizing and clustering.
 #'@export
 
-explore_factors <- function(cluster_assignments, 
-                            cases_to_keep, 
+explore_factors <- function(statistics,
                             factor_data_frame, 
                             factor_to_explore, 
                             variable_to_find_proportion = NULL, 
                             cluster_names = NULL,
-                            variable_names = NULL,
                             print_status = T){
+    cluster_assignments = statistics[[4]]
+    cases_to_keep = attributes(statistics)$cases_to_keep
+    variable_names = attributes(statistics)$variable_names
     out <- list()
     factor_data_frame[] <- lapply(factor_data_frame, factor)
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
+    data_for_descriptive_stats <- data.frame(attributes(statistics)$cleaned_data, data)
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
     out[[1]] <- create_crosstab(data, factor_to_explore)
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
-    out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names, variable_names)
+    out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)
     out[[5]] <- find_n(out[[2]], factor_to_explore)
     out[[6]] <- create_compare_anova(out[[2]], variable_to_find_proportion, cluster_names, factor_to_explore)
     # out[[7]] <- create_compare_manova()
@@ -157,7 +179,9 @@ explore_factors <- function(cluster_assignments,
         print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
         # print("### 7. MANOVA ###")
     }
+    attributes(out) <- list(cleaned_df = data_for_descriptive_stats)
     invisible(out)
+
 }
 
 #' Function to compare the proportion of variance explained for cluster solutions with varying number of clusters
@@ -204,7 +228,6 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
 #' Function to cross-validate the cluster solution using split half or other cross validation 
 #'@param prepared_data output from the prepare_data() function
 #'@param output output from the create_profiles() function
-#'@param variable_names vector for the names for variables that were clustered
 #'@param k integer for the number of cross-validation attempts
 #'@details Function to cross-validate the cluster solution using split half or other cross validation 
 #'@export
@@ -218,7 +241,7 @@ cross_validate <- function(prepared_data, output, variable_names, k){
         y <- cluster_the_halves(x, attributes(output)$args_attr)
         test <- all(!is.na(y[[1]]) & !is.na(y[[2]]))
         if(test){
-            z <- calculate_the_stats(y, variable_vector)
+            z <- calculate_the_stats(y, variable_names)
             a_assign_star <- find_nearest_centroid(split_halves = x, calculated_stats = z)
             zzz <- calculate_agreement(a_assign_star, z[[1]][4])
             kappa_collector[[i]] <- round(zzz[[1]]$value, 3)
