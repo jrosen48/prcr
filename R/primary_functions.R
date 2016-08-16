@@ -17,7 +17,11 @@ prepare_data <- function(raw_data_matrix, method_of_centering = "raw", grouping_
     print("### Created the following output ... ")
     print("### 1. Prepared data ###")
     if(print_status == T){
-        print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+        if(length(table(cases_to_keep)) > 1){
+            print(paste0("### Note: ", table(cases_to_keep)[1], " incomplete cases out of ", sum(table(cases_to_keep)), " total cases removed, so ", sum(table(cases_to_keep)) - table(cases_to_keep)[1], " used in subsequent analysis ###"))
+        } else{
+            print(paste0("### Note: 0 incomplete cases out of ", nrow(data_tmp), " total cases removed, so ", nrow(data_tmp), " used in subsequent analysis ###"))
+        }
     }
     if (remove_uv_outliers == T){
         tmp1 <- remove_uv_main_func(data_tmp, removed_obs_df, cases_to_keep, print_status)
@@ -101,7 +105,7 @@ calculate_stats <- function(clustering_output,
     out[[3]] <- cutree(clustering_output[[1]], attributes(clustering_output)$n_clusters_attr) # hclust assignment
     out[[4]] <- clustering_output[[2]]$cluster # kmeans assignment
     out[[5]] <- (clustering_output[[2]]$totss - sum(clustering_output[[2]]$withinss)) / clustering_output[[2]]$totss # proportion of variance explained
-    out[[6]] <- try_manova(attributes(clustering_output)$data_attr, out[[4]])
+    out[[6]] <- try_manova(attributes(clustering_output)$data_attr, out[[4]], variable_names)
     if (to_standardize == T){
         tmp <- standardize_function(attributes(clustering_output)$data_attr)
         out[[7]] <- cluster_freq_function(tmp, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)

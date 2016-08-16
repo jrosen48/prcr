@@ -171,7 +171,6 @@ try_manova <- function(data, cluster_assignment, variable_names){
 merge_assignments_and_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame){
     factor_data_frame_ss <- factor_data_frame[cases_to_keep, ]
     data <- data.frame(cluster = cluster_assignments, factor_data_frame_ss)
-    data$cluster <- as.factor(data$cluster)
     return(data)
 }
 
@@ -193,6 +192,7 @@ create_crosstab <- function(data, factor_to_explore){
 }
 
 dummmy_code_cluster_assignments <- function(data){
+    data$cluster <- as.factor(data$cluster)
     tmp <- as.data.frame(model.matrix( ~ cluster - 1, data = data))
     out <- data.frame(data[, 2:ncol(data)], tmp)
     return(out)
@@ -602,7 +602,7 @@ splitting_halves <- function(x){
         y1 <- nrow(x) / 2
         y2 <- y1
     } else{
-        y1 <- nrow(x) %/% 2
+        y1 <- nrow(x) / 2
         y2 <- y1 + 1
     }
     y <- c(rep(1, y1), rep(0, y2))
