@@ -602,8 +602,8 @@ splitting_halves <- function(x){
         y1 <- nrow(x) / 2
         y2 <- y1
     } else{
-        y1 <- nrow(x) / 2
-        y2 <- y1 + 1
+        y1 <- nrow(x) %/% 2
+        y2 <- y1
     }
     y <- c(rep(1, y1), rep(0, y2))
     z <- rnorm(nrow(x))

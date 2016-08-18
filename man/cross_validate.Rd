@@ -11,8 +11,6 @@ cross_validate(prepared_data, output, variable_names, k)
 
 \item{output}{output from the create_profiles() function}
 
-\item{variable_names}{vector for the names for variables that were clustered}
-
 \item{k}{integer for the number of cross-validation attempts}
 }
 \description{

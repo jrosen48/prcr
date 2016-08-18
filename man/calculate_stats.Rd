@@ -4,15 +4,13 @@
 \alias{calculate_stats}
 \title{Function to calculate statistics about cluster solution found via cluster_data()}
 \usage{
-calculate_stats(clustering_output, cluster_names = NULL,
-  variable_names = NULL, print_status = T)
+calculate_stats(clustering_output, cluster_names = NULL, to_standardize = F,
+  print_status = T, plot_uncentered_data = F)
 }
 \arguments{
 \item{clustering_output}{output from cluster_data() function}
 
 \item{cluster_names}{optional names for clusters, useful for creating plot}
-
-\item{variable_names}{optional names for variables that were clustered}
 
 \item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
 }
