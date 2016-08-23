@@ -183,7 +183,7 @@ explore_factors <- function(statistics,
         print("### 6. ANOVA [[1]] and Tukey HSD [[2]] ###")
         # print("### 7. MANOVA ###")
     }
-    attributes(out) <- list(cleaned_df = data_for_descriptive_stats)
+    attributes(out) <- list(cleaned_df = data_for_descriptive_stats, data_attr = data)
     invisible(out)
 
 }

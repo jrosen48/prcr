@@ -6,6 +6,7 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     center_this <- function(x){
         x - mean(x, na.rm = T)
     }
+    
     scale_this <- function(x) {
         if (sd(x, na.rm = T) == 0){
             x - mean(x, na.rm = T)

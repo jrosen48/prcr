@@ -10,7 +10,8 @@ LazyData: TRUE
 Imports:
     dplyr,
     tidyr,
-    ggplot2
+    ggplot2,
+    mclust
 Suggests:
     lpSolve,
     fields,
