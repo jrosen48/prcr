@@ -336,11 +336,14 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     
 }
 
+?dplyr::arrange
+
+
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
     if (length(factor_to_explore) == 1) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
-        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
             aes_string(x = factor_to_explore) +
             geom_bar(stat = "identity", color = "black") +
             xlab("") +
@@ -355,7 +358,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
     } else if (length(factor_to_explore) == 2) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]))
-        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
             aes_string(x = factor_to_explore[1]) +
             facet_wrap(as.formula(paste("~", factor_to_explore[2]))) +
             geom_bar(stat = "identity", color = "black") +
@@ -371,7 +374,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
     } else if (length(factor_to_explore) == 3) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]), -matches(factor_to_explore[3]))
-        out <- ggplot(to_plot, aes(y = mean, fill = cluster)) +
+        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster, order =)) +
             aes_string(x = factor_to_explore[1]) +
             facet_wrap(as.formula(paste("~", factor_to_explore[2], " + ", factor_to_explore[3]))) +
             geom_bar(stat = "identity", color = "black") +
@@ -385,7 +388,6 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             theme(legend.position = "right") +
             theme(legend.title = element_blank()) +
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
-        out
     }
     return(out)
 }
