@@ -166,6 +166,7 @@ explore_factors <- function(statistics,
     data_for_descriptive_stats <- data.frame(attributes(statistics)$cleaned_data, data)
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
     out[[1]] <- create_crosstab(data, factor_to_explore)
+    print(str(dummy_coded_data))
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
     out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)

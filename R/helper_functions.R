@@ -22,7 +22,7 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
         out <- data %>%
             cbind(grouping_vector) %>%
             group_by(grouping_vector) %>%
-            mutate_each(funs(center_this))
+            mutate_each(dplyr::funs(center_this))
         out <- as.data.frame(out[, 1:ncol(data)])
     }
     if (method_of_centering == "grand" & to_standardize == T) {
@@ -33,7 +33,7 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
         out <- data %>%
             cbind(grouping_vector) %>%
             group_by(grouping_vector) %>%
-            mutate_each(funs(scale_this))
+            mutate_each(dplyr::funs(scale_this))
         out <- as.data.frame(out[, 1:ncol(data)])
     }
     if (method_of_centering == "raw") {
@@ -110,7 +110,7 @@ cluster_plot_function <- function(cluster_freqs, cluster_names){
     if (is.null(cluster_names)){
         clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
             geom_bar(stat = "identity", position = "dodge", color = "black") +
-            scale_fill_brewer(type = "qual", palette = 1) +
+            # scale_fill_brewer(type = "qual", palette = 1) +
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -120,7 +120,7 @@ cluster_plot_function <- function(cluster_freqs, cluster_names){
     } else {
         clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
             geom_bar(stat = "identity", position = "dodge", color = "black") +
-            scale_fill_brewer(type = "qual", palette = 1) +
+            # scale_fill_brewer(type = "qual", palette = 1) +
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -161,7 +161,7 @@ try_manova <- function(data, cluster_assignment, variable_names){
         manova_function(data, cluster_assignment, variable_names)  
         },
         error = function(cond){
-            return(NA)
+            return(cond)
         }
     )
     return(out)
@@ -205,14 +205,14 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             raw_data <- dummy_coded_data %>%
-                select(matches(variable_to_find_proportion), matches(factor_to_explore), contains("cluster")) %>%
-                group_by_(variable_to_find_proportion, factor_to_explore) %>%
-                summarize_each(funs(mean)) %>%
-                ungroup()
+                dplyr::select(dplyr::matches(variable_to_find_proportion), dplyr::matches(factor_to_explore), dplyr::contains("cluster")) %>%
+                dplyr::group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                dplyr::summarize_each(dplyr::funs(mean)) %>%
+                dplyr::ungroup()
         } else {
             raw_data <- dummy_coded_data %>%
-                select(matches(factor_to_explore), contains("cluster")) %>%
-                ungroup()
+                dplyr::select(dplyr::matches(factor_to_explore), dplyr::contains("cluster")) %>%
+                dplyr::ungroup()
         }
         return(raw_data)
     }
@@ -220,13 +220,13 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     for_two <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             raw_data <- dummy_coded_data %>%
-                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), contains("cluster")) %>%
+                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
                 group_by_(variable_to_find_proportion, factor_to_explore) %>%
-                summarize_each(funs(mean)) %>%
+                dplyr::summarize_each(dplyr::funs(mean)) %>%
                 ungroup()
         } else {
             raw_data <- dummy_coded_data %>%
-                select(matches(factor_to_explore[1]), matches(factor_to_explore[2]), contains("cluster")) %>%
+                select(matches(factor_to_explore[1]), matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
                 ungroup()
         }
         return(raw_data)
@@ -235,13 +235,13 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     for_three <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             raw_data <- dummy_coded_data %>%
-                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), contains("cluster")) %>%
+                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
                 group_by_(variable_to_find_proportion, factor_to_explore) %>%
-                summarize_each(funs(mean)) %>%
+               dplyr::summarize_each(dplyr::funs(mean)) %>%
                 ungroup()
         } else {
             raw_data <- dummy_coded_data %>%
-                select(matches(factor_to_explore), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), contains("cluster")) %>%
+                select(matches(factor_to_explore), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
                 ungroup()
         }
         return(raw_data)
@@ -263,18 +263,18 @@ find_n <- function(raw_data, factor_to_explore){
     if (length(factor_to_explore) == 1) {
         out <- 
             raw_data %>%
-            group_by_(factor_to_explore) %>%
-            summarize(n = n())
+            dplyr::group_by_(factor_to_explore) %>%
+            dplyr::summarize(n = n())
     } else if (length(factor_to_explore) == 2) {
         out <- 
             raw_data %>%
-            group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
-            summarize(n = n())    
+            dplyr::group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+            dplyr::summarize(n = n())    
     } else if (length(factor_to_explore) == 3) {
         out <- 
             raw_data %>%
-            group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
-            summarize(n = n())
+            dplyr::group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+            dplyr::summarize(n = n())
     }
     
 }
@@ -286,12 +286,12 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
                 select(-matches(variable_to_find_proportion)) %>%
-                group_by_(factor_to_explore) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         } else {
             processed_data <- raw_data %>%
-                group_by_(factor_to_explore) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         }
         return(processed_data)
     }
@@ -300,12 +300,12 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
                 select(-matches(variable_to_find_proportion)) %>%
-                group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         } else {
             processed_data <- raw_data %>%
-                group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         }
         return(processed_data)
     }
@@ -314,12 +314,12 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
                 select(-matches(variable_to_find_proportion)) %>%
-                group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         } else {
             processed_data <- raw_data %>%
-                group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
-                summarize_each(funs(mean))
+                dplyr::group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
+                dplyr::summarize_each(dplyr::funs(mean))
         }
         return(processed_data)
     }
@@ -335,9 +335,6 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     return(out)
     
 }
-
-?dplyr::arrange
-
 
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
@@ -601,16 +598,16 @@ try_to_cluster <- function(prepared_data, args, i){
 
 splitting_halves <- function(x){
     x <- data.frame(matrix(unlist(x), ncol = length(x), byrow = F))
-    if (is.integer(nrow(x) / 2)){
+    if (nrow(x) %/% 2 == 0){
         y1 <- nrow(x) / 2
         y2 <- y1
     } else{
         y1 <- nrow(x) %/% 2
-        y2 <- y1
+        y2 <- y1 + 1
     }
     y <- c(rep(1, y1), rep(0, y2))
     z <- rnorm(nrow(x))
-    df <- arrange(data.frame(y, z), z)
+    df <- dplyr::arrange(data.frame(y, z), z)
     y_shuffled <- df$y
     half_one <- as.data.frame(x[y_shuffled == 0, ])
     half_two <- as.data.frame(x[y_shuffled == 1, ])
@@ -675,7 +672,9 @@ find_nearest_centroid <- function(split_halves, calculated_stats){
 calculate_agreement <- function(a_assign_star, a_assign){
     out <- list()
     tab <- table(a_assign_star, a_assign[[1]])
+    # print(tab)
     res <- lpSolve::lp.assign(-tab)
+    # print(res)
     l <- apply(res$solution > 0.5, 1, which)
     a_assign_star_recode <- l[a_assign_star]
     tmp_mat <- data.frame(a_assign_star_recode, a_assign)
