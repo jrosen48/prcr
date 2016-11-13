@@ -105,29 +105,26 @@ cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     return(cluster_freqs)
 }
 
-cluster_plot_function <- function(cluster_freqs, cluster_names){
+cluster_plot_function <- function(cluster_freqs, font_size){
     cluster_freqs_tmp <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
     if (is.null(cluster_names)){
         clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
-            geom_bar(stat = "identity", position = "dodge", color = "black") +
-            # scale_fill_brewer(type = "qual", palette = 1) +
+            geom_bar(stat = "identity", position = "dodge") +
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             theme(legend.title=element_blank()) +
             theme(legend.position = "top") +
-            theme(text=element_text(size = 12, family = "Times"))
+            theme(text=element_text(size = font_size, family = "Times"))
     } else {
         clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
-            geom_bar(stat = "identity", position = "dodge", color = "black") +
-            # scale_fill_brewer(type = "qual", palette = 1) +
+            geom_bar(stat = "identity", position = "dodge") +
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
             theme(legend.title=element_blank()) +
             theme(legend.position = "top") +
-            theme(text=element_text(size = 12, family = "Times")) +
-            scale_x_discrete(breaks = waiver(), labels = cluster_names)
+            theme(text=element_text(size = font_size, family = "Times"))
     }
     return(clusters_p)
 }
@@ -220,14 +217,14 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     for_two <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             raw_data <- dummy_coded_data %>%
-                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
-                group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                dplyr::select(dplyr::matches(variable_to_find_proportion), dplyr::matches(factor_to_explore[1]), dplyr::matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
+                dplyr::group_by_(variable_to_find_proportion, factor_to_explore) %>%
                 dplyr::summarize_each(dplyr::funs(mean)) %>%
                 ungroup()
         } else {
             raw_data <- dummy_coded_data %>%
-                select(matches(factor_to_explore[1]), matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
-                ungroup()
+                dplyr::select(dplyr::matches(factor_to_explore[1]), dplyr::matches(factor_to_explore[2]), dplyr::contains("cluster")) %>%
+                dplyr::ungroup()
         }
         return(raw_data)
     }
@@ -235,14 +232,14 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     for_three <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             raw_data <- dummy_coded_data %>%
-                select(matches(variable_to_find_proportion), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
-                group_by_(variable_to_find_proportion, factor_to_explore) %>%
-               dplyr::summarize_each(dplyr::funs(mean)) %>%
-                ungroup()
+                dplyr::select(dplyr::matches(variable_to_find_proportion), dplyr::matches(factor_to_explore[1]), dplyr::matches(factor_to_explore[2]), dplyr::matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
+                dplyr::group_by_(variable_to_find_proportion, factor_to_explore) %>%
+                dplyr::summarize_each(dplyr::funs(mean)) %>%
+                dplyr::ungroup()
         } else {
             raw_data <- dummy_coded_data %>%
-                select(matches(factor_to_explore), matches(factor_to_explore[1]), matches(factor_to_explore[2]), matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
-                ungroup()
+                dplyr::select(dplyr::matches(factor_to_explore), dplyr::matches(factor_to_explore[1]), dplyr::matches(factor_to_explore[2]), dplyr::matches(factor_to_explore[3]), dplyr::contains("cluster")) %>%
+                dplyr::ungroup()
         }
         return(raw_data)
     }
@@ -285,7 +282,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
-                select(-matches(variable_to_find_proportion)) %>%
+                dplyr::select(-dplyr::matches(variable_to_find_proportion)) %>%
                 dplyr::group_by_(factor_to_explore) %>%
                 dplyr::summarize_each(dplyr::funs(mean))
         } else {
@@ -299,7 +296,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     for_two <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
-                select(-matches(variable_to_find_proportion)) %>%
+                dplyr::select(-dplyr::matches(variable_to_find_proportion)) %>%
                 dplyr::group_by_(factor_to_explore[1], factor_to_explore[2]) %>%
                 dplyr::summarize_each(dplyr::funs(mean))
         } else {
@@ -313,7 +310,7 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     for_three <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
             processed_data <- raw_data %>%
-                select(-matches(variable_to_find_proportion)) %>%
+                dplyr::select(-dplyr::matches(variable_to_find_proportion)) %>%
                 dplyr::group_by_(factor_to_explore[1], factor_to_explore[2], factor_to_explore[3]) %>%
                 dplyr::summarize_each(dplyr::funs(mean))
         } else {
@@ -339,7 +336,8 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
     if (length(factor_to_explore) == 1) {
-        to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore))
+        to_plot <- tidyr::gather(processed_data, cluster, mean, -dplyr::matches(factor_to_explore))
+        # to_plot <- to_plot[!is.na(dplyr::matches(factor_to_explore)), ]
         out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
             aes_string(x = factor_to_explore) +
             geom_bar(stat = "identity", color = "black") +
@@ -354,7 +352,7 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
             theme(legend.title = element_blank()) +
             scale_fill_discrete(name = "Cluster", labels = cluster_names)
     } else if (length(factor_to_explore) == 2) {
-        to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]))
+        to_plot <- tidyr::gather(processed_data, cluster, mean, -dplyr::matches(factor_to_explore[1]), -dplyr::matches(factor_to_explore[2]))
         out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
             aes_string(x = factor_to_explore[1]) +
             facet_wrap(as.formula(paste("~", factor_to_explore[2]))) +
