@@ -121,8 +121,10 @@ calculate_stats <- function(clustering_output,
         out[[7]] <- dplyr::arrange(out[[7]], the_order)
         out[[7]]$the_order <- NULL
     }
-        
-    out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+    
+    if (!is.null(cluster_names)){
+        out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+    }
 
     out[[8]] <- cluster_plot_function(out[[7]], font_size)
     
@@ -136,7 +138,9 @@ calculate_stats <- function(clustering_output,
             tmp$the_order <- NULL
         } 
             
-        out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+        if (!is.null(cluster_names)){
+            out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+        }
             
         out[[9]] <- cluster_plot_function(tmp, font_size)
     }
