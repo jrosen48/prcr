@@ -119,9 +119,10 @@ calculate_stats <- function(clustering_output,
     if (!is.null(the_order)){
         out[[7]]$the_order <- the_order
         out[[7]] <- dplyr::arrange(out[[7]], the_order)
-        out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
         out[[7]]$the_order <- NULL
     }
+    
+    out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
 
     out[[8]] <- cluster_plot_function(out[[7]], font_size)
     
@@ -134,9 +135,12 @@ calculate_stats <- function(clustering_output,
             tmp$Cluster <- factor(cluster_names, levels = cluster_names)
             tmp$the_order <- NULL
         }
-
+            
+        out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+            
         out[[9]] <- cluster_plot_function(tmp, font_size)
     }
+    
     attributes(out) <- list(cleaned_data = attributes(clustering_output)$cleaned_data,
                             cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, 
                             args_attr = args, 
@@ -186,7 +190,6 @@ explore_factors <- function(statistics,
     data_for_descriptive_stats <- data.frame(attributes(statistics)$cleaned_data, data)
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
     out[[1]] <- create_crosstab(data, factor_to_explore)
-    print(str(dummy_coded_data))
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
     out[[4]] <- create_plot_to_explore_factors(out[[3]], factor_to_explore, cluster_names)
