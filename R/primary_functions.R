@@ -96,7 +96,9 @@ calculate_stats <- function(clustering_output,
                             to_standardize = F,
                             print_status = T,
                             plot_uncentered_data = F,
+                            fill_order = NULL,
                             the_order = NULL,
+                            legend_title = NULL,
                             font_size = 14){
     out <- list()
     variable_names <- attributes(clustering_output)$variable_names
@@ -126,7 +128,7 @@ calculate_stats <- function(clustering_output,
         out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
     }
 
-    out[[8]] <- cluster_plot_function(out[[7]], font_size)
+    out[[8]] <- cluster_plot_function(out[[7]], font_size, fill_order)
     
     if (plot_uncentered_data == T){
         tmp <- cluster_freq_function(attributes(clustering_output)$uncentered_cleaned_data, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
@@ -142,7 +144,7 @@ calculate_stats <- function(clustering_output,
             out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
         }
             
-        out[[9]] <- cluster_plot_function(tmp, font_size)
+        out[[9]] <- cluster_plot_function(tmp, font_size, fill_order)
     }
     
     attributes(out) <- list(cleaned_data = attributes(clustering_output)$cleaned_data,
@@ -193,6 +195,7 @@ explore_factors <- function(statistics,
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
     data_for_descriptive_stats <- data.frame(attributes(statistics)$cleaned_data, data)
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
+    #dummy_coded_data <- dummy_coded_data[!is.nan(factor_to_explore), ]
     out[[1]] <- create_crosstab(data, factor_to_explore)
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)

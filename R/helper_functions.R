@@ -105,15 +105,20 @@ cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     return(cluster_freqs)
 }
 
-cluster_plot_function <- function(cluster_freqs, font_size){
+cluster_plot_function <- function(cluster_freqs, font_size, fill_order){
     cluster_freqs_tmp <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
+    if (!is.null(fill_order)){
+        cluster_freqs_tmp$Var <- factor(cluster_freqs_tmp$Var, levels = fill_order)
+        #cluster_freqs_tmp <- cluster_freqs_tmp[match(fill_order, cluster_freqs_tmp$Var), ]
+    }
+    print(str(cluster_freqs_tmp))
+    print(levels(cluster_freqs_tmp$Var))
     if (is.null(cluster_names)){
         clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
             geom_bar(stat = "identity", position = "dodge") +
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            theme(legend.title=element_blank()) +
             theme(legend.position = "top") +
             theme(text=element_text(size = font_size, family = "Times"))
     } else {
@@ -122,7 +127,6 @@ cluster_plot_function <- function(cluster_freqs, font_size){
             ylab("") +
             xlab("") +
             theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            theme(legend.title=element_blank()) +
             theme(legend.position = "top") +
             theme(text=element_text(size = font_size, family = "Times"))
     }
