@@ -5,7 +5,8 @@
 \title{Function to calculate statistics about cluster solution found via cluster_data()}
 \usage{
 calculate_stats(clustering_output, cluster_names = NULL, to_standardize = F,
-  print_status = T, plot_uncentered_data = F)
+  print_status = T, plot_uncentered_data = F, fill_order = NULL,
+  the_order = NULL, legend_title = NULL, font_size = 14)
 }
 \arguments{
 \item{clustering_output}{output from cluster_data() function}
