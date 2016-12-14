@@ -10,3 +10,4 @@ Rbuildignore
 .gitignore
 gitignore
 .Rproj
+.RData
