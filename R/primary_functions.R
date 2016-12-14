@@ -95,11 +95,16 @@ calculate_stats <- function(clustering_output,
                             cluster_names = NULL, 
                             to_standardize = F,
                             print_status = T,
-                            plot_uncentered_data = F){
+                            plot_uncentered_data = F,
+                            fill_order = NULL,
+                            the_order = NULL,
+                            legend_title = NULL,
+                            font_size = 14){
     out <- list()
     variable_names <- attributes(clustering_output)$variable_names
     # this function takes a list, clustering output, from the cluster_data function
     options(max.print = 100000)
+
     out[[1]] <- dissim_function(clustering_output[[1]]) # agglomeration schedule - currently out of order
     out[[2]] <- clustering_output[[1]] # dendrogram
     out[[3]] <- cutree(clustering_output[[1]], attributes(clustering_output)$n_clusters_attr) # hclust assignment
@@ -112,11 +117,36 @@ calculate_stats <- function(clustering_output,
     } else {
         out[[7]] <- cluster_freq_function(attributes(clustering_output)$data_attr, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
     }
-    out[[8]] <- cluster_plot_function(out[[7]], cluster_names)
+    
+    if (!is.null(the_order)){
+        out[[7]]$the_order <- the_order
+        out[[7]] <- dplyr::arrange(out[[7]], the_order)
+        out[[7]]$the_order <- NULL
+    }
+    
+    if (!is.null(cluster_names)){
+        out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+    }
+
+    out[[8]] <- cluster_plot_function(out[[7]], font_size, fill_order)
+    
     if (plot_uncentered_data == T){
         tmp <- cluster_freq_function(attributes(clustering_output)$uncentered_cleaned_data, attributes(clustering_output)$n_clusters_attr, clustering_output[[2]], variable_names)
-        out[[9]] <- cluster_plot_function(tmp, cluster_names)
+        
+        if (!is.null(the_order)){
+            tmp$the_order <- the_order
+            tmp <- dplyr::arrange(tmp, the_order)
+            tmp$Cluster <- factor(cluster_names, levels = cluster_names)
+            tmp$the_order <- NULL
+        } 
+            
+        if (!is.null(cluster_names)){
+            out[[7]]$Cluster <- factor(cluster_names, levels = cluster_names)
+        }
+            
+        out[[9]] <- cluster_plot_function(tmp, font_size, fill_order)
     }
+    
     attributes(out) <- list(cleaned_data = attributes(clustering_output)$cleaned_data,
                             cluster_names = out[[7]]$Cluster, n_clusters_attr = attributes(clustering_output)$n_clusters_attr, 
                             args_attr = args, 
@@ -165,6 +195,7 @@ explore_factors <- function(statistics,
     data <- merge_assignments_and_factors(cluster_assignments, cases_to_keep, factor_data_frame)
     data_for_descriptive_stats <- data.frame(attributes(statistics)$cleaned_data, data)
     dummy_coded_data <- dummmy_code_cluster_assignments(data)
+    #dummy_coded_data <- dummy_coded_data[!is.nan(factor_to_explore), ]
     out[[1]] <- create_crosstab(data, factor_to_explore)
     out[[2]] <- create_raw_data(dummy_coded_data, factor_to_explore, variable_to_find_proportion)
     out[[3]] <- create_processed_data(out[[2]], factor_to_explore, variable_to_find_proportion)
