@@ -150,9 +150,10 @@ try_manova <- function(data, cluster_assignment, variable_names){
         data$DV <- as.matrix(data)
         data <- cbind(data, cluster_assignment)
         mv_out <- manova(DV ~ cluster_assignment, data = data)
-        out[[1]] <- summary(mv_out, test = "Pillai")
+        out[[1]] <- summary(mv_out, test = "Wilks")
         out[[2]] <- summary.aov(mv_out)
         out[[3]] <- testing_the_tukey(data)
+        out[[4]] <- heplots::etasq(mv_out)
         names(out[[3]]) <- variable_names
         return(out)
     }
