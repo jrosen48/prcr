@@ -13,7 +13,19 @@ calculate_stats(clustering_output, cluster_names = NULL, to_standardize = F,
 
 \item{cluster_names}{optional names for clusters, useful for creating plot}
 
+\item{to_standardize}{boolean indicating whether to standardize the raw data used to create cluster centroid plots}
+
 \item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
+
+\item{plot_uncentered_data}{boolean indicating whether to plot cluster centroid plots with raw data}
+
+\item{fill_order}{optional order for clustered variables}
+
+\item{the_order}{optional order for cluster profiles}
+
+\item{legend_title}{optional legend title}
+
+\item{font_size}{optional font size}
 }
 \description{
 Function to calculate statistics about cluster solution found via cluster_data()

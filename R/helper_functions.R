@@ -1,6 +1,8 @@
 # helper_functions.R
 
-# For cluster_data function
+#' centers the data
+#'
+#' @export
 
 centering_function <- function(data, method_of_centering, grouping_vector, to_standardize = F){
     center_this <- function(x){
@@ -8,10 +10,10 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     }
     
     scale_this <- function(x) {
-        if (sd(x, na.rm = T) == 0){
+        if (stats::sd(x, na.rm = T) == 0){
             x - mean(x, na.rm = T)
         } else {
-            (x - mean(x)) / sd(x)
+            (x - mean(x)) / stats::sd(x)
         }
     }
     if (method_of_centering == "grand" & to_standardize == F) {
@@ -21,8 +23,8 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     if (method_of_centering == "group" & to_standardize == F) {
         out <- data %>%
             cbind(grouping_vector) %>%
-            group_by(grouping_vector) %>%
-            mutate_each(dplyr::funs(center_this))
+            dplyr::group_by(grouping_vector) %>%
+            dplyr::mutate_each(dplyr::funs(center_this))
         out <- as.data.frame(out[, 1:ncol(data)])
     }
     if (method_of_centering == "grand" & to_standardize == T) {
@@ -32,8 +34,8 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     if (method_of_centering == "group" & to_standardize == T) {
         out <- data %>%
             cbind(grouping_vector) %>%
-            group_by(grouping_vector) %>%
-            mutate_each(dplyr::funs(scale_this))
+            dplyr::group_by(grouping_vector) %>%
+            dplyr::mutate_each(dplyr::funs(scale_this))
         out <- as.data.frame(out[, 1:ncol(data)])
     }
     if (method_of_centering == "raw") {
@@ -42,19 +44,27 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     return(out)
 }
 
+#' calculates distance
+#'
+#' @export
+
 distance_function <- function(x, distance_metric = "squared_euclidean"){
     if (distance_metric != "squared_euclidean") {
-        distance <- dist(x, method = distance_metric)
+        distance <- stats::dist(x, method = distance_metric)
     } else {
-        distance <- dist(x, method = "euclidean")
+        distance <- stats::dist(x, method = "euclidean")
         distance <- distance ^ 2
     }
     return(distance)
 }
 
+#' converts hclust output to start values for kmeans function
+#'
+#' @export
+
 hclust_to_kmeans_function <- function(data, out, n_clusters){
     # This function processes the output from the hierarchical clustering to be used as starting points for the kmeans clustering
-    cut_hclust <- cutree(out, n_clusters) # cuts the results of the hierarchical cluster at the specified # of clusters
+    cut_hclust <- stats::cutree(out, n_clusters) # cuts the results of the hierarchical cluster at the specified # of clusters
     clusters_list <- list()
     for (i in seq(n_clusters)){
         clusters_list[[i]] <- data[cut_hclust == i,]
@@ -68,14 +78,20 @@ hclust_to_kmeans_function <- function(data, out, n_clusters){
     return(cluster_freqs)
 }
 
+#' carries out kmeans cluster analysis
+#'
+#' @export
+
 kmeans_function <- function(data, cluster_freqs){
     start <- data.frame(matrix(unlist(cluster_freqs), nrow=length(cluster_freqs[[1]]), byrow = T), stringsAsFactors = F)
     start <- as.matrix(start)
     start <- t(start)
-    return(kmeans(data, start))
+    return(stats::kmeans(data, start))
 }
 
-# For calculate_stats function
+#' calculates dissimilarity matrix
+#'
+#' @export
 
 dissim_function <- function(hc){
     data.frame(row.names = paste0("Cluster", seq_along(hc$height)),
@@ -85,10 +101,18 @@ dissim_function <- function(hc){
                stringsAsFactors=FALSE)
 }
 
+#' standardizes raw data
+#'
+#' @export
+
 standardize_function <- function(data){
     standardized_data <- scale(data, center = F, scale = T)
     return(standardized_data)
 }
+
+#' calculates cluster centroids
+#'
+#' @export
 
 cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     clusters <- list()
@@ -105,43 +129,53 @@ cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     return(cluster_freqs)
 }
 
+#' creates plot of cluster centroids
+#'
+#' @export
+
 cluster_plot_function <- function(cluster_freqs, font_size, fill_order){
     cluster_freqs_tmp <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
     if (!is.null(fill_order)){
         cluster_freqs_tmp$Var <- factor(cluster_freqs_tmp$Var, levels = fill_order)
         #cluster_freqs_tmp <- cluster_freqs_tmp[match(fill_order, cluster_freqs_tmp$Var), ]
     }
-    print(str(cluster_freqs_tmp))
-    print(levels(cluster_freqs_tmp$Var))
     if (is.null(cluster_names)){
-        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
-            geom_bar(stat = "identity", position = "dodge") +
+        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, ggplot2::aes(x = Cluster, y = Value, fill = Var)) +
+            ggplot2::geom_bar(stat = "identity", position = "dodge") +
             ylab("") +
             xlab("") +
-            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            theme(legend.position = "top") +
-            theme(text=element_text(size = font_size, family = "Times"))
+            ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            ggplot2::theme(legend.position = "top") +
+            ggplot2::theme(text=element_text(size = font_size, family = "Times"))
     } else {
-        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, aes(x = Cluster, y = Value, fill = Var)) +
-            geom_bar(stat = "identity", position = "dodge") +
+        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, ggplot2::aes(x = Cluster, y = Value, fill = Var)) +
+            ggplot2::geom_bar(stat = "identity", position = "dodge") +
             ylab("") +
             xlab("") +
-            theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            theme(legend.position = "top") +
-            theme(text=element_text(size = font_size, family = "Times"))
+            ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+            ggplot2::theme(legend.position = "top") +
+            ggplot2::theme(text=element_text(size = font_size, family = "Times"))
     }
     return(clusters_p)
 }
+
+#' carries out Tukey HSD test
+#'
+#' @export
 
 testing_the_tukey <- function(data){
     tukey_list <- list()
     for (i in 1:(ncol(data) - 2)){
         fit <- aov(data[, i] ~ as.character(data$cluster_assignment))
-        tukey_list[[i]] <- TukeyHSD(fit)
+        tukey_list[[i]] <- stats::TukeyHSD(fit)
     }
     names(tukey_list) <- names(data[, 1:3])
     return(tukey_list)
 }
+
+#' carries out MANOVA test
+#'
+#' @export
 
 try_manova <- function(data, cluster_assignment, variable_names){
     
@@ -149,11 +183,10 @@ try_manova <- function(data, cluster_assignment, variable_names){
         out <- list()
         data$DV <- as.matrix(data)
         data <- cbind(data, cluster_assignment)
-        mv_out <- manova(DV ~ cluster_assignment, data = data)
+        mv_out <- stats::manova(DV ~ cluster_assignment, data = data)
         out[[1]] <- summary(mv_out, test = "Wilks")
         out[[2]] <- summary.aov(mv_out)
         out[[3]] <- testing_the_tukey(data)
-        out[[4]] <- heplots::etasq(mv_out)
         names(out[[3]]) <- variable_names
         return(out)
     }
@@ -169,13 +202,19 @@ try_manova <- function(data, cluster_assignment, variable_names){
     return(out)
 }
 
-# For explore_factors function
+#' merge assignments with selected factors
+#'
+#' @export
 
 merge_assignments_and_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame){
     factor_data_frame_ss <- factor_data_frame[cases_to_keep, ]
     data <- data.frame(cluster = cluster_assignments, factor_data_frame_ss)
     return(data)
 }
+
+#' create crosstabs
+#'
+#' @export
 
 create_crosstab <- function(data, factor_to_explore){
     if (length(factor_to_explore) == 1) {
@@ -194,6 +233,10 @@ create_crosstab <- function(data, factor_to_explore){
     return(out)
 }
 
+#' dummy code cluster assignments
+#'
+#' @export
+
 dummmy_code_cluster_assignments <- function(data){
     data$cluster <- as.factor(data$cluster)
     tmp <- as.data.frame(model.matrix( ~ cluster - 1, data = data))
@@ -201,8 +244,11 @@ dummmy_code_cluster_assignments <- function(data){
     return(out)
 }
 
+#' create raw data for ANOVA and subsequent processing
+#'
+#' @export
+
 create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
-    # this is for ANOVA and for subsequent processing
     
     for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
@@ -260,6 +306,10 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     return(out)
 }
 
+#' finds n by condition 
+#'
+#' @export
+
 find_n <- function(raw_data, factor_to_explore){
     
     if (length(factor_to_explore) == 1) {
@@ -281,8 +331,11 @@ find_n <- function(raw_data, factor_to_explore){
     
 }
 
+#' creates process data for summary table and plot
+#'
+#' @export
+
 create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_proportion){
-    # this is for summary table and plot
     
     for_one <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
         if (!is.null(variable_to_find_proportion)) {
@@ -338,56 +391,60 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     
 }
 
+#' create plot to explore factors
+#'
+#' @export
+
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
     if (length(factor_to_explore) == 1) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -dplyr::matches(factor_to_explore))
         # to_plot <- to_plot[!is.na(dplyr::matches(factor_to_explore)), ]
-        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
-            aes_string(x = factor_to_explore) +
-            geom_bar(stat = "identity", color = "black") +
+        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), ggplot2::aes(y = mean, fill = cluster)) +
+            ggplot2::aes_string(x = factor_to_explore) +
+            ggplot2::geom_bar(stat = "identity", color = "black") +
             xlab("") +
             ylab("Proportion of Responses") +
             ggtitle("") +
-            theme(legend.position = "top") +
-            theme(legend.title = element_blank()) +
-            theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 45)) +
-            theme(legend.position = "right") +
-            theme(legend.title = element_blank()) +
-            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+            ggplot2::theme(legend.position = "top") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::theme(text=element_text(size = 12, family = "Times")) +
+            ggplot2::theme(axis.text.x = element_text(angle = 45)) +
+            ggplot2::theme(legend.position = "right") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::scale_fill_discrete(name = "Cluster", labels = cluster_names)
     } else if (length(factor_to_explore) == 2) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -dplyr::matches(factor_to_explore[1]), -dplyr::matches(factor_to_explore[2]))
-        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster)) +
-            aes_string(x = factor_to_explore[1]) +
-            facet_wrap(as.formula(paste("~", factor_to_explore[2]))) +
-            geom_bar(stat = "identity", color = "black") +
-            xlab("") +
-            ylab("Proportion of Responses") +
-            ggtitle("") +
-            theme(legend.position = "top") +
-            theme(legend.title = element_blank()) +
-            theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 45)) +
-            theme(legend.position = "right") +
-            theme(legend.title = element_blank()) +
-            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+        out <- ggplot2::ggplot(dplyr::arrange(to_plot, desc(cluster)), ggplot2::aes(y = mean, fill = cluster)) +
+            ggplot2::aes_string(x = factor_to_explore[1]) +
+            ggplot2::facet_wrap(as.formula(paste("~", factor_to_explore[2]))) +
+            ggplot2::geom_bar(stat = "identity", color = "black") +
+            ggplot2::xlab("") +
+            ggplot2::ylab("Proportion of Responses") +
+            ggplot2::ggtitle("") +
+            ggplot2::theme(legend.position = "top") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::theme(text=element_text(size = 12, family = "Times")) +
+            ggplot2::theme(axis.text.x = element_text(angle = 45)) +
+            ggplot2::theme(legend.position = "right") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::scale_fill_discrete(name = "Cluster", labels = cluster_names)
     } else if (length(factor_to_explore) == 3) {
         to_plot <- tidyr::gather(processed_data, cluster, mean, -matches(factor_to_explore[1]), -matches(factor_to_explore[2]), -matches(factor_to_explore[3]))
-        out <- ggplot(dplyr::arrange(to_plot, desc(cluster)), aes(y = mean, fill = cluster, order =)) +
-            aes_string(x = factor_to_explore[1]) +
-            facet_wrap(as.formula(paste("~", factor_to_explore[2], " + ", factor_to_explore[3]))) +
-            geom_bar(stat = "identity", color = "black") +
-            xlab("") +
-            ylab("Proportion of Responses") +
-            ggtitle("") +
-            theme(legend.position = "top") +
-            theme(legend.title = element_blank()) +
-            theme(text=element_text(size = 12, family = "Times")) +
-            theme(axis.text.x = element_text(angle = 45)) +
-            theme(legend.position = "right") +
-            theme(legend.title = element_blank()) +
-            scale_fill_discrete(name = "Cluster", labels = cluster_names)
+        out <- ggplot2::ggplot(dplyr::arrange(to_plot, desc(cluster)), ggplot2::aes(y = mean, fill = cluster, order =)) +
+            ggplot2::aes_string(x = factor_to_explore[1]) +
+            ggplot2::facet_wrap(as.formula(paste("~", factor_to_explore[2], " + ", factor_to_explore[3]))) +
+            ggplot2::geom_bar(stat = "identity", color = "black") +
+            ggplot2::xlab("") +
+            ggplot2::ylab("Proportion of Responses") +
+            ggplot2::ggtitle("") +
+            ggplot2::theme(legend.position = "top") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::theme(text=element_text(size = 12, family = "Times")) +
+            ggplot2::theme(axis.text.x = element_text(angle = 45)) +
+            ggplot2::theme(legend.position = "right") +
+            ggplot2::theme(legend.title = element_blank()) +
+            ggplot2::scale_fill_discrete(name = "Cluster", labels = cluster_names)
     }
     return(out)
 }
@@ -402,6 +459,10 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
 #     return(out)
 # }
 
+#' compares between levels of factor using ANOVA
+#'
+#' @export
+
 create_compare_anova <- function(processed_data, variable_to_find_proportion, cluster_names, factor_to_explore){
     df <- processed_data
     out <- list()
@@ -413,14 +474,14 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             for (i in 1:(ncol(processed_data) - 2)){
                 x <- paste0("cluster", i, " ~ DV", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         } else {
             names(df)[1] <- "DV"
             for (i in 1:(ncol(processed_data) - 1)){
                 x <- paste0("cluster", i, " ~ DV", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         }
         out <- list(out, out_tukey)
@@ -436,7 +497,7 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             for (i in 1:(ncol(processed_data) - 3)){
                 x <- paste0("cluster", i, " ~ DV1*DV2", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         } else {
             names(df)[1] <- "DV1"
@@ -444,7 +505,7 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             for (i in 1:(ncol(processed_data) - 2)){
                 x <- paste0("cluster", i, " ~ DV1*DV2", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         }
         out <- list(out, out_tukey)
@@ -461,7 +522,7 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             for (i in 1:(ncol(processed_data) - 4)){
                 x <- paste0("cluster", i, " ~ DV1*DV2*DV3", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         } else {
             names(df)[1] <- "DV"
@@ -470,7 +531,7 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
             for (i in 1:(ncol(processed_data) - 3)){
                 x <- paste0("cluster", i, " ~ DV1*DV2*DV3", sep = "")
                 out[[i]] <- summary(aov(as.formula(x), data = df))
-                out_tukey[[i]] <- TukeyHSD(aov(as.formula(x), data = df))
+                out_tukey[[i]] <- stats::TukeyHSD(aov(as.formula(x), data = df))
             }
         }
         out <- list(out, out_tukey)
@@ -491,7 +552,9 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
     return(out)
 }
 
-# Outlier detection
+#' removes incomplete cases
+#'
+#' @export
 
 removed_obs_df_maker <- function(raw_data_matrix, cases_to_keep){
     removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix, stringsAsFactors = F)
@@ -500,14 +563,9 @@ removed_obs_df_maker <- function(raw_data_matrix, cases_to_keep){
     return(removed_obs_df)
 }
 
-uv_outlier_detector <- function(x, na.rm = T, ...) {
-    qnt <- quantile(x, probs=c(.25, .75), na.rm = na.rm, ...)
-    H <- 1.5 * IQR(x, na.rm = na.rm)
-    y <- x
-    y[x < (qnt[1] - H)] <- NA
-    y[x > (qnt[2] + H)] <- NA
-    return(y)
-}
+#' detects univariate outliers
+#'
+#' @export
 
 uv_outlier_detector <- function(x, na.rm = T, ...) {
     # need to figure out where this came from - from a SO question, can probably re-write
@@ -516,33 +574,21 @@ uv_outlier_detector <- function(x, na.rm = T, ...) {
     y <- x
     y[x < (qnt[1] - H)] <- NA
     y[x > (qnt[2] + H)] <- NA
-    y
+    return(y)
 }
+
+#' remove uv outliers
+#'
+#' @export
 
 remove_uv_out_func <- function(data){
     x <- sapply(data, uv_outlier_detector)
     return(x)
 }
 
-remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep, print_status){
-    data_tmp <- remove_uv_out_func(data) # makes uv outliers na
-    if(print_status == T){
-        print(paste0("### Note: ", sum(is.na(data_tmp)), " cases with univariate outliers out of ", nrow(data_tmp), " cases removed, so ", nrow(data_tmp) - sum(is.na(data_tmp)), " used in subsequent analysis ###"))
-    }
-    if(any(is.na(data_tmp))){
-        x <- removed_obs_df[cases_to_keep, ]
-        y <- !complete.cases(data_tmp)
-        z <- x$row[y]
-        removed_obs_df$reason_removed[z] <- "uniivariate_outlier"
-    }
-    data_out <- data_tmp[complete.cases(data_tmp), ]
-    if(any(is.na(data_tmp))){
-        data_out <- list(data_out, removed_obs_df, uv_outliers_boolean_vector = y)
-    } else{
-        data_out <- list(data_out, removed_obs_df, uv_outliers_boolean_vector = NULL)
-    }
-    return(data_out)
-}
+#' remove mv outliers
+#'
+#' @export
 
 remove_mv_out_func <- function(data){
     mvout <- chemometrics::Moutlier(data, quantile = 0.99, plot = F)
@@ -553,6 +599,10 @@ remove_mv_out_func <- function(data){
         return(data)
     }
 }
+
+#' main function to remove mv outliers
+#'
+#' @export
 
 remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_outlier_bool = F, uv_outliers = NULL, print_status){
     out_tmp <- remove_mv_out_func(data)
@@ -572,32 +622,21 @@ remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_ou
     return(data_out)
 }
 
-# Comparison of statistics
+#' compare cluster fit index statistics
+#'
+#' @export
 
 comparision_of_statistics_plot <- function(data, lower_num, upper_num){
-    ggplot(data, aes(x = number_of_clusters, y = proportion_of_variance_explained)) +
-        geom_point() +
+    ggplot2::ggplot(data, aes(x = number_of_clusters, y = proportion_of_variance_explained)) +
+        ggplot2::geom_point() +
         # scale_x_continuous(breaks = lower_num:upper_num) +
-        ylab("Proportion of Variance Explained (R^2)") +
-        xlab("Number of Clusters")  
+        ggplot2::ylab("Proportion of Variance Explained (R^2)") +
+        ggplot2::xlab("Number of Clusters")  
 }
 
-try_to_cluster <- function(prepared_data, args, i){
-    out <- tryCatch(
-        {
-        tmp <- create_profiles(prepared_data, i, args[[3]], args[[4]], print_status = F)
-        },
-        error = function(cond){
-            return(warning("Did not properly converge, try a different lower_num or upper_num."))
-        },
-        finally = {
-            # print(paste0("### Processed cluster solution with ", i, " clusters"))
-        }
-    )
-    return(out)
-}
-
-# Cross validation
+#' split halves
+#'
+#' @export
 
 splitting_halves <- function(x){
     x <- data.frame(matrix(unlist(x), ncol = length(x), byrow = F))
@@ -618,6 +657,10 @@ splitting_halves <- function(x){
     return(out)
 }
 
+#' try to cluster halves
+#'
+#' @export
+
 try_to_cluster_halves <- function(prepared_data, args){
     out <- tryCatch({
         create_profiles(prepared_data, args[[2]], args[[3]], args[[4]], print_status = F)
@@ -633,28 +676,36 @@ try_to_cluster_halves <- function(prepared_data, args){
     return(out)
 }
 
+#' clustering the halves functions
+#'
+#' @export
+
 cluster_the_halves <- function(split_halves, args){
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
     
     clustered_half_one <- try_to_cluster_halves(split_halves[[1]], args)
-    # if(!is.character(clustered_half_one)){
-    #     clustered_half_one <- calculate_stats(clustered_half_one, print_status = F)[[5]]
-    #     print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_one, 3)))
-    # } else{
-    #     clustered_half_one<- NA
-    # }
+    if(!is.character(clustered_half_one)){
+        clustered_half_one <- calculate_stats(clustered_half_one, print_status = F)[[5]]
+        print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_one, 3)))
+    } else{
+        clustered_half_one<- NA
+    }
     
     clustered_half_two <- try_to_cluster_halves(split_halves[[2]], args)
-    # if(!is.character(clustered_half_two)){
-    #     clustered_half_two <- calculate_stats(clustered_half_two, print_status = F)[[5]]
-    #     print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_two, 3)))
-    # } else{
-    #     clustered_half_two <- NA
-    # }
+    if(!is.character(clustered_half_two)){
+        clustered_half_two <- calculate_stats(clustered_half_two, print_status = F)[[5]]
+        print(paste0("### Proportion of variance explained (R^2) = ", round(clustered_half_two, 3)))
+    } else{
+        clustered_half_two <- NA
+    }
     
     out <- list(clustered_half_one, clustered_half_two)
     return(out)
 }
+
+#' calculate stats for halves
+#'
+#' @export
 
 calculate_the_stats <- function(clustered_halves, variable_names){ #fix
     half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, print_status = F)
@@ -662,6 +713,10 @@ calculate_the_stats <- function(clustered_halves, variable_names){ #fix
     out <- list(half_one_stats, half_two_stats)
     return(out)
 }
+
+#' finding the nearest centroids
+#'
+#' @export
 
 find_nearest_centroid <- function(split_halves, calculated_stats){
     a <- split_halves[[1]] # keep
@@ -672,12 +727,14 @@ find_nearest_centroid <- function(split_halves, calculated_stats){
     return(a_assign_star)
 }
 
+#' calculate agreement and kappa
+#'
+#' @export
+
 calculate_agreement <- function(a_assign_star, a_assign){
     out <- list()
     tab <- table(a_assign_star, a_assign[[1]])
-    # print(tab)
     res <- lpSolve::lp.assign(-tab)
-    # print(res)
     l <- apply(res$solution > 0.5, 1, which)
     a_assign_star_recode <- l[a_assign_star]
     tmp_mat <- data.frame(a_assign_star_recode, a_assign)

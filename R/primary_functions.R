@@ -88,8 +88,13 @@ create_profiles <- function(prepared_data,
 #'@param clustering_output output from cluster_data() function
 #'@param cluster_names optional names for clusters, useful for creating plot
 #'@param print_status boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)
+#'@param to_standardize boolean indicating whether to standardize the raw data used to create cluster centroid plots
+#'@param plot_uncentered_data boolean indicating whether to plot cluster centroid plots with raw data
+#'@param fill_order optional order for clustered variables
+#'@param the_order optional order for cluster profiles
+#'@param legend_title optional legend title
+#'@param font_size optional font size
 #'@export
-#'@import ggplot2
 
 calculate_stats <- function(clustering_output, 
                             cluster_names = NULL, 
@@ -170,8 +175,7 @@ calculate_stats <- function(clustering_output,
 }
 
 #' Function to explore frequency of clusters across select factors
-#'@param cluster_assignments cluster assignments from calculate_stats() function, in particular the fifth list item from its output
-#'@param cases_to_keep cases to keep from calculates_stats() function, in particular the attribute "cases_to_keep" from its output
+#'@param statistics from create_statistics() function
 #'@param factor_data_frame data frame of select factors
 #'@param factor_to_explore specific factor to explore
 #'@param variable_to_find_proportion variable to normalize clusters as a unit of analysis
@@ -264,6 +268,7 @@ compare_cluster_statistics <- function(prepared_data, args, lower_num, upper_num
 #'@param prepared_data output from the prepare_data() function
 #'@param output output from the create_profiles() function
 #'@param k integer for the number of cross-validation attempts
+#'@param variable_names optional names for clustered variables
 #'@details Function to cross-validate the cluster solution using split half or other cross validation 
 #'@export
 

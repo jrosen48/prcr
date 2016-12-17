@@ -9,6 +9,8 @@ explore_factors(statistics, factor_data_frame, factor_to_explore,
   print_status = T)
 }
 \arguments{
+\item{statistics}{from create_statistics() function}
+
 \item{factor_data_frame}{data frame of select factors}
 
 \item{factor_to_explore}{specific factor to explore}
@@ -18,10 +20,6 @@ explore_factors(statistics, factor_data_frame, factor_to_explore,
 \item{cluster_names}{optional names for clusters, useful for interpreting findings}
 
 \item{print_status}{boolean indicating whether to print information about the output (TRUE) or to not print information about the output (FALSE)}
-
-\item{cluster_assignments}{cluster assignments from calculate_stats() function, in particular the fifth list item from its output}
-
-\item{cases_to_keep}{cases to keep from calculates_stats() function, in particular the attribute "cases_to_keep" from its output}
 }
 \description{
 Function to explore frequency of clusters across select factors
