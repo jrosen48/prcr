@@ -139,23 +139,13 @@ cluster_plot_function <- function(cluster_freqs, font_size, fill_order){
         cluster_freqs_tmp$Var <- factor(cluster_freqs_tmp$Var, levels = fill_order)
         #cluster_freqs_tmp <- cluster_freqs_tmp[match(fill_order, cluster_freqs_tmp$Var), ]
     }
-    if (is.null(cluster_names)){
-        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, ggplot2::aes(x = Cluster, y = Value, fill = Var)) +
-            ggplot2::geom_bar(stat = "identity", position = "dodge") +
-            ylab("") +
-            xlab("") +
-            ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            ggplot2::theme(legend.position = "top") +
-            ggplot2::theme(text=element_text(size = font_size, family = "Times"))
-    } else {
-        clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, ggplot2::aes(x = Cluster, y = Value, fill = Var)) +
-            ggplot2::geom_bar(stat = "identity", position = "dodge") +
-            ylab("") +
-            xlab("") +
-            ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-            ggplot2::theme(legend.position = "top") +
-            ggplot2::theme(text=element_text(size = font_size, family = "Times"))
-    }
+    clusters_p <- ggplot2::ggplot(cluster_freqs_tmp, ggplot2::aes(x = Cluster, y = Value, fill = Var)) +
+        ggplot2::geom_bar(stat = "identity", position = "dodge") +
+        ylab("") +
+        xlab("") +
+        ggplot2::theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        ggplot2::theme(legend.position = "top") +
+        ggplot2::theme(text=element_text(size = font_size, family = "Times"))
     return(clusters_p)
 }
 
@@ -700,6 +690,25 @@ cluster_the_halves <- function(split_halves, args){
     }
     
     out <- list(clustered_half_one, clustered_half_two)
+    return(out)
+}
+
+#' try to cluster
+#'
+#' @export
+
+try_to_cluster <- function(prepared_data, args, i){
+    out <- tryCatch(
+        {
+            tmp <- create_profiles(prepared_data, i, args[[3]], args[[4]], print_status = F)
+        },
+        error = function(cond){
+            return(warning("Did not properly converge, try a different lower_num or upper_num."))
+        },
+        finally = {
+            # print(paste0("### Processed cluster solution with ", i, " clusters"))
+        }
+    )
     return(out)
 }
 
