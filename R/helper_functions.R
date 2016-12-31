@@ -1,9 +1,5 @@
 # helper_functions.R
 
-#' centers the data
-#'
-#' @export
-
 centering_function <- function(data, method_of_centering, grouping_vector, to_standardize = F){
     center_this <- function(x){
         x - mean(x, na.rm = T)
@@ -44,10 +40,6 @@ centering_function <- function(data, method_of_centering, grouping_vector, to_st
     return(out)
 }
 
-#' calculates distance
-#'
-#' @export
-
 distance_function <- function(x, distance_metric = "squared_euclidean"){
     if (distance_metric != "squared_euclidean") {
         distance <- stats::dist(x, method = distance_metric)
@@ -57,10 +49,6 @@ distance_function <- function(x, distance_metric = "squared_euclidean"){
     }
     return(distance)
 }
-
-#' converts hclust output to start values for kmeans function
-#'
-#' @export
 
 hclust_to_kmeans_function <- function(data, out, n_clusters){
     # This function processes the output from the hierarchical clustering to be used as starting points for the kmeans clustering
@@ -78,20 +66,12 @@ hclust_to_kmeans_function <- function(data, out, n_clusters){
     return(cluster_freqs)
 }
 
-#' carries out kmeans cluster analysis
-#'
-#' @export
-
 kmeans_function <- function(data, cluster_freqs){
     start <- data.frame(matrix(unlist(cluster_freqs), nrow=length(cluster_freqs[[1]]), byrow = T), stringsAsFactors = F)
     start <- as.matrix(start)
     start <- t(start)
     return(stats::kmeans(data, start))
 }
-
-#' calculates dissimilarity matrix
-#'
-#' @export
 
 dissim_function <- function(hc){
     data.frame(row.names = paste0("Cluster", seq_along(hc$height)),
@@ -101,18 +81,10 @@ dissim_function <- function(hc){
                stringsAsFactors=FALSE)
 }
 
-#' standardizes raw data
-#'
-#' @export
-
 standardize_function <- function(data){
     standardized_data <- scale(data, center = F, scale = T)
     return(standardized_data)
 }
-
-#' calculates cluster centroids
-#'
-#' @export
 
 cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     clusters <- list()
@@ -128,10 +100,6 @@ cluster_freq_function <- function(data, n_clusters, kfit, variable_names){
     cluster_freqs$Cluster <- paste0("Cluster ", 1:n_clusters, ": ", table(kfit$cluster), " Obs.")
     return(cluster_freqs)
 }
-
-#' creates plot of cluster centroids
-#'
-#' @export
 
 cluster_plot_function <- function(cluster_freqs, font_size, fill_order){
     cluster_freqs_tmp <- tidyr::gather(cluster_freqs, Var, Value, -Cluster)
@@ -149,10 +117,6 @@ cluster_plot_function <- function(cluster_freqs, font_size, fill_order){
     return(clusters_p)
 }
 
-#' carries out Tukey HSD test
-#'
-#' @export
-
 testing_the_tukey <- function(data){
     tukey_list <- list()
     for (i in 1:(ncol(data) - 2)){
@@ -162,10 +126,6 @@ testing_the_tukey <- function(data){
     names(tukey_list) <- names(data[, 1:3])
     return(tukey_list)
 }
-
-#' carries out MANOVA test
-#'
-#' @export
 
 try_manova <- function(data, cluster_assignment, variable_names){
     
@@ -192,19 +152,11 @@ try_manova <- function(data, cluster_assignment, variable_names){
     return(out)
 }
 
-#' merge assignments with selected factors
-#'
-#' @export
-
 merge_assignments_and_factors <- function(cluster_assignments, cases_to_keep, factor_data_frame){
     factor_data_frame_ss <- factor_data_frame[cases_to_keep, ]
     data <- data.frame(cluster = cluster_assignments, factor_data_frame_ss)
     return(data)
 }
-
-#' create crosstabs
-#'
-#' @export
 
 create_crosstab <- function(data, factor_to_explore){
     if (length(factor_to_explore) == 1) {
@@ -223,20 +175,12 @@ create_crosstab <- function(data, factor_to_explore){
     return(out)
 }
 
-#' dummy code cluster assignments
-#'
-#' @export
-
 dummmy_code_cluster_assignments <- function(data){
     data$cluster <- as.factor(data$cluster)
     tmp <- as.data.frame(model.matrix( ~ cluster - 1, data = data))
     out <- data.frame(data[, 2:ncol(data)], tmp)
     return(out)
 }
-
-#' create raw data for ANOVA and subsequent processing
-#'
-#' @export
 
 create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_find_proportion){
     
@@ -296,10 +240,6 @@ create_raw_data <- function(dummy_coded_data, factor_to_explore, variable_to_fin
     return(out)
 }
 
-#' finds n by condition 
-#'
-#' @export
-
 find_n <- function(raw_data, factor_to_explore){
     
     if (length(factor_to_explore) == 1) {
@@ -320,10 +260,6 @@ find_n <- function(raw_data, factor_to_explore){
     }
     
 }
-
-#' creates process data for summary table and plot
-#'
-#' @export
 
 create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_proportion){
     
@@ -381,10 +317,6 @@ create_processed_data <- function(raw_data, factor_to_explore, variable_to_find_
     
 }
 
-#' create plot to explore factors
-#'
-#' @export
-
 create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cluster_names){
     processed_data <- processed_data[complete.cases(processed_data), ]
     if (length(factor_to_explore) == 1) {
@@ -438,20 +370,6 @@ create_plot_to_explore_factors <- function(processed_data, factor_to_explore, cl
     }
     return(out)
 }
-
-# create_compare_manova <- function(processed_data, factor_to_explore){
-#     factor_to_explore <- "race"
-#     processed_data <- explored_factors[[2]]
-#     df <- as.data.frame(processed_data)
-#     df$DV <- as.matrix(cbind(df[, 3:ncol(df)]))
-#     x <- paste0("DV ~ ", factor_to_explore, sep = "")
-#     out <- manova(as.formula(x), data = df)
-#     return(out)
-# }
-
-#' compares between levels of factor using ANOVA
-#'
-#' @export
 
 create_compare_anova <- function(processed_data, variable_to_find_proportion, cluster_names, factor_to_explore){
     df <- processed_data
@@ -542,20 +460,12 @@ create_compare_anova <- function(processed_data, variable_to_find_proportion, cl
     return(out)
 }
 
-#' removes incomplete cases
-#'
-#' @export
-
 removed_obs_df_maker <- function(raw_data_matrix, cases_to_keep){
     removed_obs_df <- data.frame(row = row.names(raw_data_matrix), raw_data_matrix, stringsAsFactors = F)
     removed_obs_df$reason_removed <- NA
     removed_obs_df$reason_removed[!cases_to_keep] <- "incomplete_case"
     return(removed_obs_df)
 }
-
-#' detects univariate outliers
-#'
-#' @export
 
 uv_outlier_detector <- function(x, na.rm = T, ...) {
     # need to figure out where this came from - from a SO question, can probably re-write
@@ -567,18 +477,10 @@ uv_outlier_detector <- function(x, na.rm = T, ...) {
     return(y)
 }
 
-#' remove uv outliers
-#'
-#' @export
-
 remove_uv_out_func <- function(data){
     x <- sapply(data, uv_outlier_detector)
     return(x)
 }
-
-#' remove mv outliers
-#'
-#' @export
 
 remove_mv_out_func <- function(data){
     mvout <- chemometrics::Moutlier(data, quantile = 0.99, plot = F)
@@ -589,10 +491,6 @@ remove_mv_out_func <- function(data){
         return(data)
     }
 }
-
-#' main function to remove mv outliers
-#'
-#' @export
 
 remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_outlier_bool = F, uv_outliers = NULL, print_status){
     out_tmp <- remove_mv_out_func(data)
@@ -612,10 +510,6 @@ remove_mv_main_func <- function(data, removed_obs_df, cases_to_keep, found_uv_ou
     return(data_out)
 }
 
-#' compare cluster fit index statistics
-#'
-#' @export
-
 comparision_of_statistics_plot <- function(data, lower_num, upper_num){
     ggplot2::ggplot(data, aes(x = number_of_clusters, y = proportion_of_variance_explained)) +
         ggplot2::geom_point() +
@@ -623,10 +517,6 @@ comparision_of_statistics_plot <- function(data, lower_num, upper_num){
         ggplot2::ylab("Proportion of Variance Explained (R^2)") +
         ggplot2::xlab("Number of Clusters")  
 }
-
-#' split halves
-#'
-#' @export
 
 splitting_halves <- function(x){
     x <- data.frame(matrix(unlist(x), ncol = length(x), byrow = F))
@@ -647,10 +537,6 @@ splitting_halves <- function(x){
     return(out)
 }
 
-#' try to cluster halves
-#'
-#' @export
-
 try_to_cluster_halves <- function(prepared_data, args){
     out <- tryCatch({
         create_profiles(prepared_data, args[[2]], args[[3]], args[[4]], print_status = F)
@@ -665,10 +551,6 @@ try_to_cluster_halves <- function(prepared_data, args){
     )
     return(out)
 }
-
-#' clustering the halves functions
-#'
-#' @export
 
 cluster_the_halves <- function(split_halves, args){
     df <- data.frame(matrix(unlist(prepared_data), ncol = length(prepared_data), byrow = F))
@@ -693,10 +575,6 @@ cluster_the_halves <- function(split_halves, args){
     return(out)
 }
 
-#' try to cluster
-#'
-#' @export
-
 try_to_cluster <- function(prepared_data, args, i){
     out <- tryCatch(
         {
@@ -712,20 +590,12 @@ try_to_cluster <- function(prepared_data, args, i){
     return(out)
 }
 
-#' calculate stats for halves
-#'
-#' @export
-
 calculate_the_stats <- function(clustered_halves, variable_names){ #fix
     half_one_stats <- calculate_stats(clustered_halves[[1]], variable_names, print_status = F)
     half_two_stats <- calculate_stats(clustered_halves[[2]], variable_names, print_status = F)
     out <- list(half_one_stats, half_two_stats)
     return(out)
 }
-
-#' finding the nearest centroids
-#'
-#' @export
 
 find_nearest_centroid <- function(split_halves, calculated_stats){
     a <- split_halves[[1]] # keep
@@ -735,10 +605,6 @@ find_nearest_centroid <- function(split_halves, calculated_stats){
     a_assign_star <- apply(z, 1, function(x) which.min(x))
     return(a_assign_star)
 }
-
-#' calculate agreement and kappa
-#'
-#' @export
 
 calculate_agreement <- function(a_assign_star, a_assign){
     out <- list()
