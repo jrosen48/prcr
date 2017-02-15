@@ -1,7 +1,7 @@
 Package: prcr
 Type: Package
 Title: Person-centered analysis
-Version: 0.2.0
+Version: 0.1.0
 Author: person("Joshua", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
 Description: Provides functions for conducting person-center analysis in psychology, education, and related fields. 
@@ -10,14 +10,8 @@ LazyData: TRUE
 Imports:
     dplyr,
     tidyr,
-    ggplot2,
-    mclust
+    ggplot2
 Suggests:
-    lpSolve,
-    fields,
-    irr,
-    chemometrics,
-    knitr,
     rmarkdown
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
