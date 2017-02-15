@@ -13,3 +13,4 @@ gitignore
 .RData
 ilp.R
 mbc.R
+inst/doc

@@ -1,0 +1,15 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r}
+df_ss <- dplyr::select(mtcars, disp, hp, wt)
+create_profiles(df_ss, 2, to_center = T, to_scale = T)
+```
