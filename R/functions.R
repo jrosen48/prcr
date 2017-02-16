@@ -25,17 +25,22 @@ hclust_to_kmeans_function <- function(data, out, n_clusters){
 }
 
 kmeans_function <- function(data, cluster_freqs){
-    start <- data.frame(matrix(unlist(cluster_freqs), nrow=length(cluster_freqs[[1]]), byrow = T), stringsAsFactors = F)
+    start <- data.frame(matrix(unlist(cluster_freqs), nrow=length(cluster_freqs[[1]]), byrow = TRUE), stringsAsFactors = F)
     start <- as.matrix(start)
     start <- t(start)
     return(stats::kmeans(data, start))
 }
 
+prcr <- function() {
+    structure(list(), class = "prcr")
+}
+
 prepare_data <- function(df, to_center, to_scale){
-    cases_to_keep <- complete.cases(df) # to use later for comparing function to index which cases to keep
-    df_wo_incomplete_cases <- as.matrix(df[cases_to_keep, ]) # removes incomplete cases
-    prepared_data <- list()
-    prepared_data[[1]] <- tibble::as_tibble(scale(df_wo_incomplete_cases, to_center, to_scale))
+    if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
+    cases_to_keep <- stats::complete.cases(df) # to use later for comparing function to index which cases to keep
+    df_wo_incomplete_cases <- df[cases_to_keep, ] # removes incomplete cases
+    prepared_data <- prcr()
+    prepared_data[[1]] <- tibble::as_tibble(scale(as.matrix(df_wo_incomplete_cases), to_center, to_scale))
     names(prepared_data)[[1]] <- "prepared_tibble"
     class(prepared_data) <- c("prcr")
     attributes(prepared_data)$cases_to_keep <- cases_to_keep
@@ -49,7 +54,7 @@ cluster_observations <- function(prepared_data,
                                  linkage){
     distance_matrix <- distance_function(prepared_data[[1]], distance_metric)
     clustered_data <- prepared_data
-    clustered_data[[2]] <- hclust(distance_matrix, method = linkage) # hierarhical clustering
+    clustered_data[[2]] <- stats::hclust(distance_matrix, method = linkage) # hierarhical clustering
     names(clustered_data)[[2]] <- "hierarchical_clustering_output"
     starting_points <- hclust_to_kmeans_function(prepared_data[[1]], clustered_data[[2]], n_clusters)
     clustered_data[[3]] <- kmeans_function(prepared_data[[1]], starting_points) # Fits k-means algorithm with hierarchical vals as start value
@@ -67,11 +72,10 @@ calculate_statistics <- function(clustered_data){
     names(clustering_stats)[[5]] <- "clustered_raw_data"
     cluster_centroids <- tibble::as_tibble(clustering_stats[[3]]$centers)
     cluster_centroids$Cluster <- paste0("Cluster ", 1:nrow(cluster_centroids), " (", clustering_stats[[3]]$size," obs.)")
-    clustering_stats[[6]] <- dplyr::select(cluster_centroids, Cluster, dplyr::everything())
+    clustering_stats[[6]] <- dplyr::select(cluster_centroids, dplyr::contains("Cluster"), dplyr::everything())
     names(clustering_stats)[[6]] <- "clustered_processed_data"
-    df_to_plot <- tidyr::gather(clustering_stats[[6]], Variable, Value, -Cluster)
-
-    p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = Variable, y = Value, fill = Cluster)) +
+    df_to_plot <- tidyr::gather(clustering_stats[[6]], Variable, Value, -dplyr::contains("Cluster"))
+    p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Variable, y = df_to_plot$Value, fill = df_to_plot$Cluster)) +
             ggplot2::geom_col(position = "dodge") +
             ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
 
@@ -85,10 +89,14 @@ calculate_statistics <- function(clustered_data){
 #' @details Function to create a specified number of profiles of observed variables using a two-step (hierarchical and k-means) cluster analysis. 
 #' @param df A `data.frame` with two or more columns with continuous variables
 #' @param n_clusters The specified number of profiles to be found for the clustering solution
+#' @param to_center Boolean (TRUE or FALSE) for whether to center the raw data with M = 0
+#' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
+#' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
+#' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
 #' @examples
 #' df <- mtcars[, c("disp", "hp", "wt")]
-#' create_profiles(df, 2, to_scale = T)
+#' create_profiles(df, 2, to_scale = TRUE)
 #' @export
 
 create_profiles <- function(df, 
@@ -100,6 +108,25 @@ create_profiles <- function(df,
     x <- prepare_data(df, to_center, to_scale)
     y <- cluster_observations(x, n_clusters, distance_metric, linkage)
     z <- calculate_statistics(y)
-    print(z$ggplot_plot)
     invisible(z)
+}
+
+plot.prcr <- function(x){
+    print(x$ggplot_obj)
+}
+
+summary.prcr <- function(x){
+    cat(paste0(attributes(x)$n_clusters,
+               " cluster solution (R-squared = ", 
+               round(x$r_squared, 3), ")\n\n"))
+    cat("Profile n and means:\n\n")
+    print(x$clustered_processed_data)
+}
+
+print.prcr <- function(x){
+    cat("$clustered_processed_data\n\n")
+    print(x$clustered_processed_data)
+    cat("\n")
+    cat("$clustered_raw_data\n\n")
+    print(x$clustered_raw_data)
 }

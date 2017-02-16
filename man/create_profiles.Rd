@@ -11,6 +11,14 @@ create_profiles(df, n_clusters, to_center = FALSE, to_scale = FALSE,
 \item{df}{A `data.frame` with two or more columns with continuous variables}
 
 \item{n_clusters}{The specified number of profiles to be found for the clustering solution}
+
+\item{to_center}{Boolean (TRUE or FALSE) for whether to center the raw data with M = 0}
+
+\item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
+
+\item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
+
+\item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
 }
 \value{
 A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
@@ -23,5 +31,5 @@ Function to create a specified number of profiles of observed variables using a 
 }
 \examples{
 df <- mtcars[, c("disp", "hp", "wt")]
-create_profiles(df, 2, to_scale = T)
+create_profiles(df, 2, to_scale = TRUE)
 }
