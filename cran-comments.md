@@ -1,8 +1,6 @@
-## Changes in response to requests from a previous submission
+## Notes on changes requested for a previous CRAN submission
 
-* Changed the LICENSE file to include only the year and my name
-* In the DESCRIPTION file, changed Title to be title-case
-* Addressed the note about no visible bindings for "Variable", "Value", and "Cluster"
+* Moved introduction_to_prcr.R file to inst/doc/ directory
 
 ## Test environments
 * local OS X install, R 3.3.1

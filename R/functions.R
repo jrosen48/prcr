@@ -74,7 +74,7 @@ calculate_statistics <- function(clustered_data){
     cluster_centroids$Cluster <- paste0("Cluster ", 1:nrow(cluster_centroids), " (", clustering_stats[[3]]$size," obs.)")
     clustering_stats[[6]] <- dplyr::select(cluster_centroids, dplyr::contains("Cluster"), dplyr::everything())
     names(clustering_stats)[[6]] <- "clustered_processed_data"
-    df_to_plot <- tidyr::gather(clustering_stats[[6]], Variable, Value, -dplyr::contains("Cluster"))
+    df_to_plot <- tidyr::gather_(clustering_stats[[6]], key_col = 'Variable', value_col = 'Value', -dplyr::contains("Cluster"))
     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Variable, y = df_to_plot$Value, fill = df_to_plot$Cluster)) +
             ggplot2::geom_col(position = "dodge") +
             ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
