@@ -113,9 +113,20 @@ create_profiles <- function(df,
     invisible(z)
 }
 
+#' Return plot of cluster centroids
+#' @details Returns ggplot2 plot of cluster centroids
+#' @param x A `prcr` object
+#' @return A ggplot2 object
+#' @export
+
 plot.prcr <- function(x){
     print(x$ggplot_obj)
 }
+
+#' Concise summary of prcr cluster solution
+#' @details Prints a concise summary of prcr cluster solution
+#' @param x A `prcr` object
+#' @export
 
 summary.prcr <- function(x){
     cat(paste0(attributes(x)$n_clusters,
@@ -124,6 +135,11 @@ summary.prcr <- function(x){
     cat("Profile n and means:\n\n")
     print(x$clustered_processed_data)
 }
+
+#' Prints details of prcr cluster solution
+#' @details Prints details of of prcr cluster solution
+#' @param x A `prcr` object
+#' @export
 
 print.prcr <- function(x){
     cat("$clustered_processed_data\n\n")
