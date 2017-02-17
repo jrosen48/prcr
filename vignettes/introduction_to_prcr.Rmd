@@ -25,8 +25,7 @@ mtcars_df <- as.data.frame(mtcars[, c("disp", "hp", "wt")])
 two_profile_solution <- create_profiles(mtcars_df, 2, to_scale = T)
 summary(two_profile_solution)
 print(two_profile_solution)
-two_profile_solution$clustered_processed_data
-# plot(two_profile_solution)
+plot(two_profile_solution)
 ```
 
 The output has the class `prcr` and has slots for additional information that can be extracted from it, such as the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).
