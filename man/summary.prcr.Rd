@@ -4,10 +4,12 @@
 \alias{summary.prcr}
 \title{Concise summary of prcr cluster solution}
 \usage{
-\method{summary}{prcr}(x)
+\method{summary}{prcr}(object, ...)
 }
 \arguments{
-\item{x}{A `prcr` object}
+\item{object}{A `prcr` object}
+
+\item{...}{Additional arguments}
 }
 \description{
 Concise summary of prcr cluster solution

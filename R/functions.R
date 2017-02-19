@@ -12,7 +12,7 @@ hclust_to_kmeans_function <- function(data, out, n_clusters){
     # This function processes the output from the hierarchical clustering to be used as starting points for the kmeans clustering
     cut_hclust <- stats::cutree(out, n_clusters) # cuts the results of the hierarchical cluster at the specified # of clusters
     clusters_list <- list()
-    for (i in seq(n_clusters)){
+    for (i in seq(n_clusters)){ # rewrite this to not loop (using purrr)
         clusters_list[[i]] <- data[cut_hclust == i,]
     }
     ordered_clusters <- list()
@@ -24,11 +24,28 @@ hclust_to_kmeans_function <- function(data, out, n_clusters){
     return(cluster_freqs)
 }
 
+try_kmeans <- function(x, s) {
+    out <- tryCatch(
+        {
+            stats::kmeans(x, s, iter.max = 25)
+        },
+        error = function(cond) {
+            message(cond)
+            return(NA)
+        },
+        warning=function(cond) {
+            message(cond)
+            return(NA)
+        }
+    )    
+    return(out)
+}
+
 kmeans_function <- function(data, cluster_freqs){
     start <- data.frame(matrix(unlist(cluster_freqs), nrow=length(cluster_freqs[[1]]), byrow = TRUE), stringsAsFactors = F)
     start <- as.matrix(start)
     start <- t(start)
-    return(stats::kmeans(data, start))
+    return(try_kmeans(data, start))
 }
 
 prcr <- function() {
@@ -66,8 +83,7 @@ cluster_observations <- function(prepared_data,
 
 calculate_statistics <- function(clustered_data){
     clustering_stats <- clustered_data
-    clustering_stats[[4]] <- sum(clustering_stats[[3]]$withinss) / sum(clustering_stats[[3]]$totss + sum(clustering_stats[[3]]$withinss))
-    names(clustering_stats)[[4]] <- "r_squared"
+    clustering_stats[[4]] <- clustering_stats[[3]]$tot.withinss / clustering_stats[[3]]$totss
     clustering_stats[[5]] <- tibble::as_tibble(data.frame(clustering_stats[[1]], cluster = clustering_stats[[3]]$cluster))
     names(clustering_stats)[[5]] <- "clustered_raw_data"
     cluster_centroids <- tibble::as_tibble(clustering_stats[[3]]$centers)
@@ -78,9 +94,9 @@ calculate_statistics <- function(clustered_data){
     df_to_plot <- tidyr::gather_(clustering_stats[[6]], key_col = "Variable", value_col = "Value", names(clustering_stats[[6]])[names(clustering_stats[[6]]) != 'Cluster'])
     
     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Variable, y = df_to_plot$Value, fill = df_to_plot$Cluster)) +
-            ggplot2::geom_col(position = "dodge") +
-            ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
-
+        ggplot2::geom_col(position = "dodge") +
+        ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
+    
     clustering_stats[[7]] <- p
     names(clustering_stats)[[7]] <- "ggplot_obj"
     message("Calculated statistics: R-squared = ", round(clustering_stats[[4]], 3))
@@ -109,39 +125,46 @@ create_profiles <- function(df,
                             linkage = "complete"){
     x <- prepare_data(df, to_center, to_scale)
     y <- cluster_observations(x, n_clusters, distance_metric, linkage)
-    z <- calculate_statistics(y)
-    invisible(z)
+    if (!is.na(y[[3]])){
+        z <- calculate_statistics(y)
+        invisible(z)
+    } else {
+        NA
+    }
 }
 
 #' Return plot of cluster centroids
 #' @details Returns ggplot2 plot of cluster centroids
 #' @param x A `prcr` object
+#' @param ... Additional arguments
 #' @return A ggplot2 object
 #' @export
 
-plot.prcr <- function(x){
+plot.prcr <- function(x, ...){
     print(x$ggplot_obj)
 }
 
 #' Concise summary of prcr cluster solution
 #' @details Prints a concise summary of prcr cluster solution
-#' @param x A `prcr` object
+#' @param object A `prcr` object
+#' @param ... Additional arguments
 #' @export
 
-summary.prcr <- function(x){
-    cat(paste0(attributes(x)$n_clusters,
+summary.prcr <- function(object, ...){
+    cat(paste0(attributes(object)$n_clusters,
                " cluster solution (R-squared = ", 
-               round(x$r_squared, 3), ")\n\n"))
+               round(object$r_squared, 3), ")\n\n"))
     cat("Profile n and means:\n\n")
-    print(x$clustered_processed_data)
+    print(object$clustered_processed_data)
 }
 
 #' Prints details of prcr cluster solution
 #' @details Prints details of of prcr cluster solution
 #' @param x A `prcr` object
+#' @param ... Additional arguments
 #' @export
 
-print.prcr <- function(x){
+print.prcr <- function(x, ...){
     cat("$clustered_processed_data\n\n")
     print(x$clustered_processed_data)
     cat("\n")

@@ -4,10 +4,12 @@
 \alias{print.prcr}
 \title{Prints details of prcr cluster solution}
 \usage{
-\method{print}{prcr}(x)
+\method{print}{prcr}(x, ...)
 }
 \arguments{
 \item{x}{A `prcr` object}
+
+\item{...}{Additional arguments}
 }
 \description{
 Prints details of prcr cluster solution

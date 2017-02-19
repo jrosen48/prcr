@@ -4,10 +4,12 @@
 \alias{plot.prcr}
 \title{Return plot of cluster centroids}
 \usage{
-\method{plot}{prcr}(x)
+\method{plot}{prcr}(x, ...)
 }
 \arguments{
 \item{x}{A `prcr` object}
+
+\item{...}{Additional arguments}
 }
 \value{
 A ggplot2 object

@@ -1,6 +1,6 @@
 ## Notes on changes requested for a previous CRAN submission
 
-* Moved introduction_to_prcr.R file to inst/doc/ directory
+* Because files in the 'vignettes' directory were newer than all files in 'inst/doc, I re-built and added new vignette to 'inst/doc'
 
 ## Test environments
 * local OS X install, R 3.3.1
