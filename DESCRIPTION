@@ -2,7 +2,7 @@ Package: prcr
 Type: Package
 Title: Person-Centered Analysis
 Version: 0.1.1
-Author: person("Joshua", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
+Author: person("Joshua", "M.", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
 Description: R package to make carrying out person-centered analysis using cluster analysis. While person-centered analysis is increasingly common in psychology, education, and related fields, carrying it out is challenging. The prcr package provides an easy-to-use yet adaptable set of tools to conduct person-center analysis. 
 License: MIT + file LICENSE
