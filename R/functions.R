@@ -83,7 +83,8 @@ cluster_observations <- function(prepared_data,
 
 calculate_statistics <- function(clustered_data){
     clustering_stats <- clustered_data
-    clustering_stats[[4]] <- clustering_stats[[3]]$tot.withinss / clustering_stats[[3]]$totss
+    clustering_stats[[4]] <- clustering_stats[[3]]$betweenss / clustering_stats[[3]]$totss
+    names(clustering_stats)[[4]] <- "r_squared"
     clustering_stats[[5]] <- tibble::as_tibble(data.frame(clustering_stats[[1]], cluster = clustering_stats[[3]]$cluster))
     names(clustering_stats)[[5]] <- "clustered_raw_data"
     cluster_centroids <- tibble::as_tibble(clustering_stats[[3]]$centers)
@@ -125,12 +126,8 @@ create_profiles <- function(df,
                             linkage = "complete"){
     x <- prepare_data(df, to_center, to_scale)
     y <- cluster_observations(x, n_clusters, distance_metric, linkage)
-    if (!is.na(y[[3]])){
-        z <- calculate_statistics(y)
-        invisible(z)
-    } else {
-        NA
-    }
+    z <- calculate_statistics(y)
+    invisible(z)
 }
 
 #' Return plot of cluster centroids
