@@ -1,6 +1,8 @@
 ## Changes in response to feedback from a previous submission
 
-* I'm sorry for incorrectly stating I made this change in the last submission (I meant to) - omitted the redundant "The prcr package" and just started the Description field "Provides ..."
+* I'm sorry for incorrectly stating I made this change in the last submission -- omitted the redundant "The prcr package" and just started the Description field "Provides ..."
+
+* Corrected formatting of DOI
 
 ## Test environments
 

@@ -4,7 +4,7 @@ Title: Person-Centered Analysis
 Version: 0.1.2
 Author: person("Joshua", "M.", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
-Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step (hierarchical and iterative) cluster analysis as described in Bergman & El-Khouri (1999) <10.1002/(SICI)1521-4036(199910)41:6<753::AID-BIMJ753>3.0.CO;2-K>. While person-centered analysis is increasingly common in psychology, education, and related fields, carrying it out is challenging. 
+Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step (hierarchical and iterative) cluster analysis as described in Bergman & El-Khouri (1999) <DOI:10.1002/(SICI)1521-4036(199910)41:6<753::AID-BIMJ753>3.0.CO;2-K>. While person-centered analysis is increasingly common in psychology, education, and related fields, carrying it out is challenging. 
 License: MIT + file LICENSE
 URL: https://github.com/jrosen48/prcr
 BugReports: https://github.com/jrosen48/prcr/issues
