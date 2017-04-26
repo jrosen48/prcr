@@ -94,7 +94,7 @@ calculate_statistics <- function(clustered_data){
     
     df_to_plot <- tidyr::gather_(clustering_stats[[6]], key_col = "Variable", value_col = "Value", names(clustering_stats[[6]])[names(clustering_stats[[6]]) != 'Cluster'])
     
-    p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Variable, y = df_to_plot$Value, fill = df_to_plot$Cluster)) +
+    p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
         ggplot2::geom_col(position = "dodge") +
         ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
     

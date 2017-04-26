@@ -1,10 +1,10 @@
 Package: prcr
 Type: Package
 Title: Person-Centered Analysis
-Version: 0.1.1
+Version: 0.1.2
 Author: person("Joshua", "M.", "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com")
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
-Description: The prcr package provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using cluster analysis. While person-centered analysis is increasingly common in psychology, education, and related fields, carrying it out is challenging. 
+Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step (hierarchical and k-means) cluster analysis (see Bergman & El-Khouri, 1999, for a description of the analytic approach). While person-centered analysis is increasingly common in psychology, education, and related fields, carrying it out is challenging. This package uses hierarchical and k-means clustering algorithms to create the profiles. It outputs summaries of the data (including a 'ggplot2' plot) and the raw data for use in subsequent analyses.  
 License: MIT + file LICENSE
 URL: https://github.com/jrosen48/prcr
 BugReports: https://github.com/jrosen48/prcr/issues
