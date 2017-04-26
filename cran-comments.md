@@ -1,10 +1,10 @@
 ## Changes in response to feedback from a previous submission
 
-* Added cran-comments.md to .rbuildignore to address request to remove non-standard file at top-level and changed news.md to NEWS.md to address this same issue.
+* Imitted the redundant "The prcr package" and just started the Description field "Provides ..."
 
-* Added newer vignette files to inst/doc directory.
+* Added quotes to 'ggplot2'
 
-* Remmoved redundant "R package to . . . " from DESCRIPTION.
+* Added a reference about the method in the Description field.
 
 ## Test environments
 

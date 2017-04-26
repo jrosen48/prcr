@@ -1,3 +1,9 @@
+# prcr 0.1.2
+
+* Added clusters to x-axis of ggplot2 object created from plot method
+
+* Updated R version to 3.4
+
 # prcr 0.1.1
 
 * Added a `NEWS.md` file to track changes to the package.
@@ -9,5 +15,3 @@
 # prcr 0.1.0
 
 * Initial release
-
-
