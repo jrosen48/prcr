@@ -1,11 +1,3 @@
-## Changes in response to feedback from a previous submission
-
-* Added cran-comments.md to .rbuildignore to address request to remove non-standard file at top-level and changed news.md to NEWS.md to address this same issue.
-
-* Added newer vignette files to inst/doc directory.
-
-* Remmoved redundant "R package to . . . " from DESCRIPTION.
-
 ## Test environments
 
 * local OS X install, R 3.3.1
