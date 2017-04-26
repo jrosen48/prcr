@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Changes in response to feedback from a previous submission
 
 * Imitted the redundant "The prcr package" and just started the Description field "Provides ..."
@@ -6,6 +7,8 @@
 
 * Added a reference about the method in the Description field.
 
+=======
+>>>>>>> 9ddf070ab2a8a78678cadd617c3c08539acf129e
 ## Test environments
 
 * local OS X install, R 3.3.1
