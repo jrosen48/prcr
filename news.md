@@ -1,11 +1,5 @@
 # prcr 0.1.2
 
-* Added clusters to x-axis of ggplot2 object created from plot method
-
-* Updated R version to 3.4
-
-# prcr 0.1.1
-
 * Changed axes for plot associated with plot method, so clusters are on the x-axis and variables are on the y-axis
 
 * Used R version 3.4
