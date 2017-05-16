@@ -118,7 +118,6 @@ calculate_statistics <- function(clustered_data, n_profiles){
     clustering_stats[[9]] <- dplyr::bind_cols(clustering_stats[[2]], tmp)
     names(clustering_stats)[[9]] <- "data_with_dummy_codes"
     clustering_stats[[2]]$cluster <- clustering_stats[[4]]$cluster
-    clustering_stats[[2]] <- dplyr::select_(clustering_stats[[2]], "cluster", dplyr::everything())
     return(clustering_stats)
 }
 
