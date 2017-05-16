@@ -21,19 +21,21 @@ In this example using the built-in to R `mtcars` data for fuel consumption and o
 
 ```{r}
 library(prcr)
-mtcars_df <- as.data.frame(mtcars[, c("disp", "hp", "wt")])
-two_profile_solution <- create_profiles(mtcars_df, 2, to_scale = T)
+df <- mtcars
+two_profile_solution <- create_profiles(df, disp, hp, wt, n_profiles = 2, to_scale = T)
 summary(two_profile_solution)
 print(two_profile_solution)
 plot(two_profile_solution)
 ```
 
-The output has the class `prcr` and has slots for additional information that can be extracted from it, such as the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).
+The output has the class `prcr` and has slots for additional information that can be extracted from it, such as the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids). Perhaps the most important are `data_with_dummy_code`, the original data frame with columns with dummy coded variables for each of the clusters added.
 
 ```{r}
 two_profile_solution$r_squared
 two_profile_solution$clustered_raw_data
 two_profile_solution$clustered_processed_data
+two_profile_solution$data
+two_profile_solution$data_with_dummy_code
 ```
 
 Functions for easily comparing the r-squared value for a range of cluster solutions, and for carrying out cross-validation of the clustering solution, will be added in future updates to the package. 

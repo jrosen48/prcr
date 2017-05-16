@@ -1,7 +1,3 @@
-## Changes in response to feedback from a previous submission
-
-* I percent encoded (using URLencode()) the angle bracket characters in the DOI in the Description field of the DESCRIPTION file.
-
 ## Test environments
 
 * local OS X install, R 3.3.1

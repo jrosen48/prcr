@@ -1,3 +1,9 @@
+# prcr 0.1.3
+
+* Added new interface for main (`create_profiles()`) function so that variables to create profiles must be specified, rather than every variable in the data frame being used to create profiles being used. This change means that the `data.frame` does not need to be subset before using this package, and also that it is easier to use cluster assignments in subsequent analyses because the original data frame with either a variable for the cluster assignments or dummy-coded variables for each cluster are returned.
+
+* Changed `n_clusters` argument in `create_profiles()` to `n_profiles`
+
 # prcr 0.1.2
 
 * Changed axes for plot associated with plot method, so clusters are on the x-axis and variables are on the y-axis

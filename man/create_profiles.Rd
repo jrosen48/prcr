@@ -4,15 +4,17 @@
 \alias{create_profiles}
 \title{Create profiles of observed variables using two-step cluster analysis}
 \usage{
-create_profiles(df, n_clusters, to_center = FALSE, to_scale = FALSE,
+create_profiles(df, ..., n_profiles, to_center = F, to_scale = F,
   distance_metric = "squared_euclidean", linkage = "complete")
 }
 \arguments{
-\item{df}{A `data.frame` with two or more columns with continuous variables}
+\item{df}{with two or more columns with continuous variables}
 
-\item{n_clusters}{The specified number of profiles to be found for the clustering solution}
+\item{...}{unquoted variable names separated by commas}
 
-\item{to_center}{Boolean (TRUE or FALSE) for whether to center the raw data with M = 0}
+\item{n_profiles}{The specified number of profiles to be found for the clustering solution}
+
+\item{to_center}{(TRUE or FALSE) for whether to center the raw data with M = 0}
 
 \item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
 
@@ -30,6 +32,6 @@ Create profiles of observed variables using two-step cluster analysis
 Function to create a specified number of profiles of observed variables using a two-step (hierarchical and k-means) cluster analysis.
 }
 \examples{
-df <- mtcars[, c("disp", "hp", "wt")]
-create_profiles(df, 2, to_scale = TRUE)
+df <- mtcars
+create_profiles(df, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
 }
