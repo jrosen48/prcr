@@ -200,7 +200,7 @@ plot_r_squared <- function(df,
     
     out$r_squared_value <- round(out$r_squared_value, 3)
     
-    p <- ggplot2::ggplot(out, ggplot2::aes(x = cluster, y = r_squared_value)) +
+    p <- ggplot2::ggplot(out, ggplot2::aes_(x = "cluster", y = "r_squared_value")) +
         ggplot2::geom_point() +
         ggplot2::geom_line()
 
