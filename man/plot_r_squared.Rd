@@ -26,8 +26,6 @@ plot_r_squared(df, ..., to_center = FALSE, to_scale = FALSE,
 \item{upper_bound}{the largest number of profiles in the range of number of profiles to explore; defaults to 9}
 
 \item{r_squared_table}{if TRUE, then a table, rather than a plot, is returned; defaults to FALSE}
-
-\item{n_profiles}{The specified number of profiles to be found for the clustering solution}
 }
 \value{
 A list containing a ggplot2 object and a tibble for the R^2 values
@@ -40,5 +38,5 @@ Returns ggplot2 plot of cluster centroids
 }
 \examples{
 df <- mtcars
-plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_bound = 2, upper_bound = 4)
+plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, lower_bound = 2, upper_bound = 4)
 }
