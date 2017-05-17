@@ -166,7 +166,7 @@ create_profiles <- function(df,
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
 #' @param lower_bound the smallest number of profiles in the range of number of profiles to explore; defaults to 2
 #' @param upper_bound the largest number of profiles in the range of number of profiles to explore; defaults to 9
-#' @return A ggplot2 object
+#' @return A list containing a ggplot2 object and a tibble for the R^2 values
 #' @export
 
 plot_r_squared <- function(df,    
