@@ -1,3 +1,11 @@
+# prcr 0.1.4
+
+* Added function `plot_r_squared()` to plot R^2 (r-squared) values for a range of number of profiles.
+
+* Fixed error in create_profiles() that returned only the cluster assignment for `.data`, rather than the original `data.frame` with the addition of the cluster assignment
+
+* Updated vignette
+ 
 # prcr 0.1.3
 
 * Added new interface for main (`create_profiles()`) function so that variables to create profiles must be specified, rather than every variable in the data frame being used to create profiles being used. This change means that the `data.frame` does not need to be subset before using this package, and also that it is easier to use cluster assignments in subsequent analyses because the original data frame with either a variable for the cluster assignments or dummy-coded variables for each cluster are returned.

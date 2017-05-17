@@ -166,17 +166,22 @@ create_profiles <- function(df,
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
 #' @param lower_bound the smallest number of profiles in the range of number of profiles to explore; defaults to 2
 #' @param upper_bound the largest number of profiles in the range of number of profiles to explore; defaults to 9
+#' @param r_squared_table if TRUE, then a table, rather than a plot, is returned; defaults to FALSE
 #' @return A list containing a ggplot2 object and a tibble for the R^2 values
+#' @examples
+#' df <- mtcars
+#' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_bound = 2, upper_bound = 4)
 #' @export
 
 plot_r_squared <- function(df,    
                            ...,
-                           to_center = F,
-                           to_scale = F,
+                           to_center = FALSE,
+                           to_scale = FALSE,
                            distance_metric = "squared_euclidean",
                            linkage = "complete",
                            lower_bound = 2, 
-                           upper_bound = 9) {
+                           upper_bound = 9,
+                           r_squared_table = FALSE) {
     
     out <- data.frame(
         cluster = lower_bound:upper_bound,
@@ -198,13 +203,14 @@ plot_r_squared <- function(df,
     p <- ggplot2::ggplot(out, ggplot2::aes(x = cluster, y = r_squared_value)) +
         ggplot2::geom_point() +
         ggplot2::geom_line()
-    
-    print(p)
-    
-    return(list(out, p))
-    
-}
 
+    if (r_squared_table == T) {
+        return(out)
+    } else {
+        print(p)
+        return(p)
+    }
+}
 
 #' Return plot of cluster centroids
 #' @details Returns ggplot2 plot of cluster centroids
