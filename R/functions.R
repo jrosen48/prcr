@@ -159,7 +159,6 @@ create_profiles <- function(df,
 #' @details Returns ggplot2 plot of cluster centroids
 #' @param df with two or more columns with continuous variables
 #' @param ... unquoted variable names separated by commas
-#' @param n_profiles The specified number of profiles to be found for the clustering solution
 #' @param to_center (TRUE or FALSE) for whether to center the raw data with M = 0
 #' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
 #' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
@@ -170,7 +169,7 @@ create_profiles <- function(df,
 #' @return A list containing a ggplot2 object and a tibble for the R^2 values
 #' @examples
 #' df <- mtcars
-#' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_bound = 2, upper_bound = 4)
+#' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, lower_bound = 2, upper_bound = 4)
 #' @export
 
 plot_r_squared <- function(df,    
@@ -200,7 +199,7 @@ plot_r_squared <- function(df,
     
     out$r_squared_value <- round(out$r_squared_value, 3)
     
-    p <- ggplot2::ggplot(out, ggplot2::aes_(x = "cluster", y = "r_squared_value")) +
+    p <- ggplot2::ggplot(out, ggplot2::aes_string(x = "cluster", y = "r_squared_value")) +
         ggplot2::geom_point() +
         ggplot2::geom_line()
 
