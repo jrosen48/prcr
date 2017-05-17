@@ -48,7 +48,7 @@ plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_b
 If the optional argument `r_squared_table` is `TRUE`, then a table, rather than a plot, is returned.
 
 ```{r}
-plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_bound = 2, upper_bound = 4, r_squared_table = T)
+plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, to_scale = TRUE, lower_bound = 2, upper_bound = 4, r_squared_table = TRUE)
 ```
 
 A function for carrying out cross-validation of the clustering solution, will be added in future updates to the package. 
