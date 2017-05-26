@@ -137,7 +137,7 @@ calculate_statistics <- function(clustered_data, n_profiles){
 #' @examples
 #' df <- mtcars
 #' create_profiles(df, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
-#' @export
+#' @export 
 
 create_profiles <- function(df, 
                             ...,
