@@ -108,7 +108,10 @@ calculate_statistics <- function(clustered_data, n_profiles){
     
     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
         ggplot2::geom_col(position = "dodge") +
-        ggplot2::theme(legend.title = ggplot2::element_blank()) # this should be y[[7]]
+        ggplot2::theme(legend.title = ggplot2::element_blank()) +
+        ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
+        ggplot2::xlab(NULL) +
+        ggplot2::ylab("Value")
     
     clustering_stats[[8]] <- p
     names(clustering_stats)[[8]] <- "ggplot_obj"
@@ -147,11 +150,11 @@ create_profiles <- function(df,
     y <- cluster_observations(prepped_data, n_profiles, distance_metric, linkage)
     if (class(y[[4]]) == "kmeans") {
         z <- calculate_statistics(y, n_profiles)
-        return(z)
+        invisible(z)
     } else {
         y[[5]] <- NA
         names(y)[[5]] <- "r_squared"
-        return(y)
+        invisible(y)
     }
 }
 
