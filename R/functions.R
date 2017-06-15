@@ -8,7 +8,7 @@ distance_function <- function(x, distance_metric){
     return(distance)
 }
 
-hclust_to_kmeans_function <- function(data, out, n_profiles){
+hclufinst_to_kmeans_function <- function(data, out, n_profiles){
     cut_hclust <- stats::cutree(out, n_profiles) # cuts the results of the hierarchical cluster at the specified # of clusters
     clusters_list <- list() # rewrite this to not loop (using purrr)
     for (i in seq(n_profiles)) { 
@@ -59,7 +59,19 @@ prepare_data <- function(df, ..., to_center, to_scale){
     df_ss_wo_incomplete_cases <- df_ss[cases_to_keep, ] # removes incomplete cases
     df_wo_incomplete_cases <- df[cases_to_keep, ]
     prepared_data <- prcr()
-    prepared_data[[1]] <- tibble::as_tibble(scale(as.matrix(df_ss_wo_incomplete_cases), to_center, to_scale))
+    
+    scale(as.matrix(df_ss_wo_incomplete_cases), to_center, to_scale)
+    
+    if (to_center == T) {
+        
+    }
+    
+    if (to_scale == T) {
+        
+    } 
+    
+    prepared_data[[1]] <- tibble::as_tibble()
+    
     names(prepared_data)[[1]] <- "prepared_tibble"
     class(prepared_data) <- c("prcr")
     attributes(prepared_data)$cases_to_keep <- cases_to_keep
@@ -93,7 +105,7 @@ cluster_observations <- function(prepared_data,
     return(clustered_data)
 }
 
-calculate_statistics <- function(clustered_data, n_profiles){
+calculate_statistics <- function(clustered_data, n_profiles, center_plot){
     clustering_stats <- clustered_data
     clustering_stats[[5]] <- clustering_stats[[4]]$betweenss / clustering_stats[[4]]$totss
     names(clustering_stats)[[5]] <- "r_squared"
@@ -105,13 +117,33 @@ calculate_statistics <- function(clustered_data, n_profiles){
     names(clustering_stats)[[7]] <- "clustered_processed_data"
     
     df_to_plot <- tidyr::gather_(clustering_stats[[7]], key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
-    
+
     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
         ggplot2::geom_col(position = "dodge") +
         ggplot2::theme(legend.title = ggplot2::element_blank()) +
         ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
         ggplot2::xlab(NULL) +
         ggplot2::ylab("Value")
+    
+    if (center_plot == T) {
+        
+        cluster_centroids <- tibble::as_tibble(clustering_stats[[4]]$centers)
+        cluster_centroids$Cluster <- paste0("Cluster ", 1:nrow(cluster_centroids), " (", clustering_stats[[4]]$size," obs.)")
+        clustering_stats[[7]] <- dplyr::select(cluster_centroids, dplyr::contains("Cluster"), dplyr::everything())
+        names(clustering_stats)[[7]] <- "clustered_processed_data"
+
+        tmp <- sapply(clustering_stats[[7]][, -1], function(x) scale(x, center = center_plot))
+        clustering_stats[[7]][, -1] <- tmp
+        df_to_plot <- tidyr::gather_(clustering_stats[[7]], key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
+        
+        p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
+            ggplot2::geom_col(position = "dodge") +
+            ggplot2::theme(legend.title = ggplot2::element_blank()) +
+            ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
+            ggplot2::xlab(NULL) +
+            ggplot2::ylab("Value")
+        
+    }
     
     clustering_stats[[8]] <- p
     names(clustering_stats)[[8]] <- "ggplot_obj"
@@ -129,10 +161,11 @@ calculate_statistics <- function(clustered_data, n_profiles){
 #' @param df with two or more columns with continuous variables
 #' @param ... unquoted variable names separated by commas
 #' @param n_profiles The specified number of profiles to be found for the clustering solution
-#' @param to_center (TRUE or FALSE) for whether to center the raw data with M = 0
+#' @param to_center Boolean (TRUE or FALSE) for whether to center the raw data with M = 0
 #' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
 #' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
+#' @param center_plot Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
 #' @examples
 #' df <- mtcars
@@ -145,11 +178,12 @@ create_profiles <- function(df,
                             to_center = F,
                             to_scale = F,
                             distance_metric = "squared_euclidean",
-                            linkage = "complete"){
-    prepped_data <- prepare_data(df, ..., to_center = to_center, to_scale = to_center)
+                            linkage = "complete",
+                            center_plot = F) {
+    prepped_data <- prepare_data(df, ..., to_center = to_center, to_scale = to_scale)
     y <- cluster_observations(prepped_data, n_profiles, distance_metric, linkage)
     if (class(y[[4]]) == "kmeans") {
-        z <- calculate_statistics(y, n_profiles)
+        z <- calculate_statistics(y, n_profiles, center_plot)
         invisible(z)
     } else {
         y[[5]] <- NA
