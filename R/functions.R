@@ -177,6 +177,7 @@ calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale
 #' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
 #' @param plot_centered_data Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
+#' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
 #' @examples
 #' df <- mtcars
