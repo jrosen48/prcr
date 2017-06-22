@@ -4,8 +4,9 @@
 \alias{create_profiles}
 \title{Create profiles of observed variables using two-step cluster analysis}
 \usage{
-create_profiles(df, ..., n_profiles, to_center = F, to_scale = F,
-  distance_metric = "squared_euclidean", linkage = "complete")
+create_profiles(df, ..., n_profiles, to_center = FALSE, to_scale = FALSE,
+  distance_metric = "squared_euclidean", linkage = "complete",
+  center_plot = FALSE)
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}
@@ -14,13 +15,15 @@ create_profiles(df, ..., n_profiles, to_center = F, to_scale = F,
 
 \item{n_profiles}{The specified number of profiles to be found for the clustering solution}
 
-\item{to_center}{(TRUE or FALSE) for whether to center the raw data with M = 0}
+\item{to_center}{Boolean (TRUE or FALSE) for whether to center the raw data with M = 0}
 
 \item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
 
 \item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
 
 \item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
+
+\item{center_plot}{Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)}
 }
 \value{
 A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
