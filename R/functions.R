@@ -79,8 +79,8 @@ p <- function(df, ..., to_center, to_scale){
     
     prepared_data[[1]] <- case_when(
         to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
-        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
-        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+        to_center == TRUE & to_scale == FALSE ~ mutate_all(df_ss_wo_incomplete_cases, center_vector)
+        to_center == FALSE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, scalevector)
     )
     
     names(prepared_data)[[1]] <- "prepared_tibble"
