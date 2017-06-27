@@ -77,11 +77,13 @@ p <- function(df, ..., to_center, to_scale){
     df_wo_incomplete_cases <- df[cases_to_keep, ]
     prepared_data[[10]] <- df_ss_wo_incomplete_cases
     
-    prepared_data[[1]] <- case_when(
-        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
-        to_center == TRUE & to_scale == FALSE ~ mutate_all(df_ss_wo_incomplete_cases, center_vector)
-        to_center == FALSE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, scalevector)
-    )
+    if (to_center == TRUE & to_scale == TRUE) {
+        prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+    } else if (to_center == TRUE & to_scale == FALSE) {
+        prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, center_vector)
+    } else if (to_center == FALSE & to_scale == TRUE) {
+        prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, scale_vector)
+    }
     
     names(prepared_data)[[1]] <- "prepared_tibble"
     class(prepared_data) <- c("prcr")
@@ -124,16 +126,16 @@ calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale
     
     clustering_stats[[6]] <- tibble::as_tibble(data.frame(clustering_stats[[1]], cluster = clustering_stats[[4]]$cluster))
     names(clustering_stats)[[6]] <- "clustered_raw_data"
-   
+    
     cluster_centroids <- tibble::as_tibble(clustering_stats[[4]]$centers)
-
+    
     cluster_centroids$Cluster <- paste0("Profile ", 1:nrow(cluster_centroids), " (", clustering_stats[[4]]$size," obs.)")
-
+    
     clustering_stats[[7]] <- dplyr::select(cluster_centroids, dplyr::contains("Cluster"), dplyr::everything())
     names(clustering_stats)[[7]] <- "clustered_processed_data"
     
     df_to_plot <- tidyr::gather_(clustering_stats[[7]], key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
-
+    
     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
         ggplot2::geom_col(position = "dodge") +
         ggplot2::theme(legend.title = ggplot2::element_blank()) +
@@ -282,7 +284,7 @@ plot_r_squared <- function(df,
     p <- ggplot2::ggplot(out, ggplot2::aes_string(x = "cluster", y = "r_squared_value")) +
         ggplot2::geom_point() +
         ggplot2::geom_line()
-
+    
     if (r_squared_table == T) {
         return(out)
     } else {
