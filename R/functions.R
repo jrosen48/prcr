@@ -1,3 +1,19 @@
+scale_vector <- function(x) {
+    x / stats::sd(x, na.rm = TRUE)
+}
+
+center_vector <- function(x) {
+    x - mean(x, na.rm = TRUE)
+}
+
+center_and_scale_vector <- function(x) {
+    if (stats::sd(x, na.rm = TRUE) == 0) {
+        x - mean(x, na.rm = TRUE)
+    } else {
+        (x - mean(x, na.rm = TRUE)) / stats::sd(x, na.rm = TRUE)
+    }
+}
+
 distance_function <- function(x, distance_metric){
     if (distance_metric != "squared_euclidean") {
         distance <- stats::dist(x, method = distance_metric)
@@ -60,7 +76,19 @@ p <- function(df, ..., to_center, to_scale){
     prepared_data <- prcr()
     df_wo_incomplete_cases <- df[cases_to_keep, ]
     prepared_data[[10]] <- df_ss_wo_incomplete_cases
-    prepared_data[[1]] <- tibble::as_tibble(scale(as.matrix(df_ss_wo_incomplete_cases), to_center, to_scale))
+    
+    if (to_center == TRUE & to_scale == TRUE) {
+        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+    } else if (to_center == TRUE) {
+        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, center_vector)
+    } else if (to_scale == TRUE) {
+        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, scale_vector)
+    } else {
+        prepared_data[[1]] <- as_tibble(df_ss_wo_incomplete_cases)
+    }
+        
+    # prepared_data[[1]] <- tibble::as_tibble(scale(as.matrix(df_ss_wo_incomplete_cases), to_center, to_scale))
+    
     names(prepared_data)[[1]] <- "prepared_tibble"
     class(prepared_data) <- c("prcr")
     attributes(prepared_data)$cases_to_keep <- cases_to_keep
