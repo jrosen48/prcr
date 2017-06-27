@@ -331,7 +331,4 @@ summary.prcr <- function(object, ...){
 print.prcr <- function(x, ...){
     cat("$clustered_processed_data\n\n")
     print(x$clustered_processed_data)
-    cat("\n")
-    cat("$clustered_raw_data\n\n")
-    print(x$clustered_raw_data)
 }
