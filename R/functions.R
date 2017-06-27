@@ -77,17 +77,11 @@ p <- function(df, ..., to_center, to_scale){
     df_wo_incomplete_cases <- df[cases_to_keep, ]
     prepared_data[[10]] <- df_ss_wo_incomplete_cases
     
-    if (to_center == TRUE & to_scale == TRUE) {
-        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
-    } else if (to_center == TRUE) {
-        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, center_vector)
-    } else if (to_scale == TRUE) {
-        prepared_data[[1]] <- mutate_all(df_ss_wo_incomplete_cases, scale_vector)
-    } else {
-        prepared_data[[1]] <- as_tibble(df_ss_wo_incomplete_cases)
-    }
-        
-    # prepared_data[[1]] <- tibble::as_tibble(scale(as.matrix(df_ss_wo_incomplete_cases), to_center, to_scale))
+    prepared_data[[1]] <- case_when(
+        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+        to_center == TRUE & to_scale == TRUE ~ mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
+    )
     
     names(prepared_data)[[1]] <- "prepared_tibble"
     class(prepared_data) <- c("prcr")
