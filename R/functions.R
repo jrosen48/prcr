@@ -83,6 +83,8 @@ p <- function(df, ..., to_center, to_scale){
         prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, center_vector)
     } else if (to_center == FALSE & to_scale == TRUE) {
         prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, scale_vector)
+    } else if (to_center == FALSE & to_scale == FALSE) {
+        prepared_data[[1]] <- df_ss_wo_incomplete_cases
     }
     
     names(prepared_data)[[1]] <- "prepared_tibble"
