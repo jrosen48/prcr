@@ -80,69 +80,53 @@ df &lt;-<span class="st"> </span>mtcars
 two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="../reference/create_profiles.html">create_profiles</a></span>(df, disp, hp, wt, <span class="dt">n_profiles =</span> <span class="dv">2</span>, <span class="dt">to_scale =</span> T)</code></pre></div>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 1 iteration</code></pre>
 <pre><code>## Clustered data: Using a 2 cluster solution</code></pre>
-<pre><code>## Calculated statistics: R-squared = 0.756</code></pre>
+<pre><code>## Calculated statistics: R-squared = 0.654</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(two_profile_solution)</code></pre></div>
-<pre><code>## 2 cluster solution (R-squared = 0.756)
+<pre><code>## 2 cluster solution (R-squared = 0.654)
 ## 
 ## Profile n and means:
 ## 
 ## # A tibble: 2 x 4
-##               Cluster     disp        hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Cluster 1 (18 obs.) 135.5389  98.05556 2.609056
-## 2 Cluster 2 (14 obs.) 353.1000 209.21429 3.999214</code></pre>
+##               Cluster     disp       hp       wt
+##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
+## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(two_profile_solution)</code></pre></div>
 <pre><code>## $clustered_processed_data
 ## 
 ## # A tibble: 2 x 4
-##               Cluster     disp        hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Cluster 1 (18 obs.) 135.5389  98.05556 2.609056
-## 2 Cluster 2 (14 obs.) 353.1000 209.21429 3.999214
-## 
-## $clustered_raw_data
-## 
-## # A tibble: 32 x 4
-##     disp    hp    wt cluster
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt;
-##  1 160.0   110 2.620       1
-##  2 160.0   110 2.875       1
-##  3 108.0    93 2.320       1
-##  4 258.0   110 3.215       1
-##  5 360.0   175 3.440       2
-##  6 225.0   105 3.460       1
-##  7 360.0   245 3.570       2
-##  8 146.7    62 3.190       1
-##  9 140.8    95 3.150       1
-## 10 167.6   123 3.440       1
-## # ... with 22 more rows</code></pre>
+##               Cluster     disp       hp       wt
+##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
+## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(two_profile_solution)</code></pre></div>
 <p><img src="introduction_to_prcr_files/figure-html/unnamed-chunk-1-1.png" width="672"></p>
 <p>The output has the class <code>prcr</code> and has slots for additional information that can be extracted from it, such as the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids). Perhaps the most important are <code>data_with_dummy_code</code>, the original data frame with columns with dummy coded variables for each of the clusters added.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>r_squared</code></pre></div>
-<pre><code>## [1] 0.7558058</code></pre>
+<pre><code>## [1] 0.6544283</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>clustered_raw_data</code></pre></div>
 <pre><code>## # A tibble: 32 x 4
-##     disp    hp    wt cluster
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;int&gt;
-##  1 160.0   110 2.620       1
-##  2 160.0   110 2.875       1
-##  3 108.0    93 2.320       1
-##  4 258.0   110 3.215       1
-##  5 360.0   175 3.440       2
-##  6 225.0   105 3.460       1
-##  7 360.0   245 3.570       2
-##  8 146.7    62 3.190       1
-##  9 140.8    95 3.150       1
-## 10 167.6   123 3.440       1
+##         disp        hp       wt cluster
+##        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;int&gt;
+##  1 1.2909608 1.6043669 2.677684       1
+##  2 1.2909608 1.6043669 2.938298       1
+##  3 0.8713986 1.3564193 2.371079       1
+##  4 2.0816744 1.6043669 3.285784       1
+##  5 2.9046619 2.5524020 3.515738       2
+##  6 1.8154137 1.5314412 3.536178       1
+##  7 2.9046619 3.5733627 3.648600       2
+##  8 1.1836497 0.9042796 3.260234       1
+##  9 1.1360455 1.3855896 3.219353       1
+## 10 1.3522815 1.7939739 3.515738       1
 ## # ... with 22 more rows</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>clustered_processed_data</code></pre></div>
 <pre><code>## # A tibble: 2 x 4
-##               Cluster     disp        hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Cluster 1 (18 obs.) 135.5389  98.05556 2.609056
-## 2 Cluster 2 (14 obs.) 353.1000 209.21429 3.999214</code></pre>
+##               Cluster     disp       hp       wt
+##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
+## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>data</code></pre></div>
 <pre><code>## # A tibble: 32 x 13
 ##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
@@ -180,14 +164,17 @@ two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="../
 <span class="kw"><a href="../reference/plot_r_squared.html">plot_r_squared</a></span>(df, mpg, wt, hp, qsec, <span class="dt">to_center =</span> <span class="ot">TRUE</span>, <span class="dt">to_scale =</span> <span class="ot">TRUE</span>, <span class="dt">lower_bound =</span> <span class="dv">2</span>, <span class="dt">upper_bound =</span> <span class="dv">4</span>)</code></pre></div>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 1 iteration</code></pre>
 <pre><code>## Clustered data: Using a 2 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.526</code></pre>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 2 iterations</code></pre>
 <pre><code>## Clustered data: Using a 3 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.648</code></pre>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 3 iterations</code></pre>
 <pre><code>## Clustered data: Using a 4 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.737</code></pre>
 <p><img src="introduction_to_prcr_files/figure-html/unnamed-chunk-3-1.png" width="672"><img src="introduction_to_prcr_files/figure-html/unnamed-chunk-3-2.png" width="672"></p>
@@ -195,14 +182,17 @@ two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="../
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_r_squared.html">plot_r_squared</a></span>(df, mpg, wt, hp, qsec, <span class="dt">to_center =</span> <span class="ot">TRUE</span>, <span class="dt">to_scale =</span> <span class="ot">TRUE</span>, <span class="dt">lower_bound =</span> <span class="dv">2</span>, <span class="dt">upper_bound =</span> <span class="dv">4</span>, <span class="dt">r_squared_table =</span> <span class="ot">TRUE</span>)</code></pre></div>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 1 iteration</code></pre>
 <pre><code>## Clustered data: Using a 2 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.526</code></pre>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 2 iterations</code></pre>
 <pre><code>## Clustered data: Using a 3 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.648</code></pre>
 <pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
 <pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
+<pre><code>## K-means algorithm converged: 3 iterations</code></pre>
 <pre><code>## Clustered data: Using a 4 cluster solution</code></pre>
 <pre><code>## Calculated statistics: R-squared = 0.737</code></pre>
 <pre><code>##   cluster r_squared_value
@@ -229,7 +219,7 @@ two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="../
 
 
       <footer><div class="copyright">
-  <p>Developed by Joshua Rosenberg M.</p>
+  <p>Developed by Joshua M Rosenberg.</p>
 </div>
 
 <div class="pkgdown">

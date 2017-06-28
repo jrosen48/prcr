@@ -67,13 +67,14 @@
 <a href="#example-using-mtcars" class="anchor"></a>Example using mtcars</h2>
 <p>In this example using the built-in to R <code>mtcars</code> data for fuel consumption and other information for 32 automobiles, the variables <code>disp</code> (for engine displacement, in cu. in.), <code>qsec</code> (for the 1/4 mile time, in seconds), and <code>wt</code> for weight (in 1000 lbs.) are clustered with a <code>2</code> cluster solution specified. Because the variables are in very different units, the <code>to_scale</code> argument is set to <code>TRUE</code>.</p>
 <div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r"><span class="kw">library</span>(prcr)
-mtcars_df &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(mtcars[, <span class="kw">c</span>(<span class="st">"disp"</span>, <span class="st">"hp"</span>, <span class="st">"wt"</span>)])
-two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_profiles.html">create_profiles</a></span>(mtcars_df, <span class="dv">2</span>, <span class="dt">to_scale =</span> T)
+df &lt;-<span class="st"> </span>mtcars
+two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_profiles.html">create_profiles</a></span>(df, disp, hp, wt, <span class="dt">n_profiles =</span> <span class="dv">2</span>, <span class="dt">to_scale =</span> T)
 <span class="kw">summary</span>(two_profile_solution)
 <span class="kw">print</span>(two_profile_solution)
 <span class="kw">plot</span>(two_profile_solution)</code></pre></div>
-<p>The output has the class <code>prcr</code> and has slots for additional information that can be extracted from it, such as the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).</p>
-<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">two_profile_solution<span class="op">$</span>r_squared
+<p>The output has the class <code>prcr</code> and has slots for additional information that can be extracted from it, such as the original data with the clustering assignment added, the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).</p>
+<div class="sourceCode"><pre class="sourceCode R"><code class="sourceCode r">two_profile_solution<span class="op">$</span>.data
+two_profile_solution<span class="op">$</span>r_squared
 two_profile_solution<span class="op">$</span>clustered_raw_data
 two_profile_solution<span class="op">$</span>clustered_processed_data</code></pre></div>
 <p>Functions for easily comparing the r-squared value for a range of cluster solutions, and for carrying out cross-validation of the clustering solution, will be added in future updates to the package.</p>
@@ -95,7 +96,7 @@ two_profile_solution<span class="op">$</span>clustered_processed_data</code></pr
 <p><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE.html">LICENSE</a></p>
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Joshua Rosenberg M <br><small class="roles"> Author, maintainer </small> </li>
+<li>Joshua M Rosenberg <br><small class="roles"> Author, maintainer </small> </li>
 <li><a href="authors.html">All authors...</a></li>
 </ul>
 </div>
@@ -103,7 +104,7 @@ two_profile_solution<span class="op">$</span>clustered_processed_data</code></pr
 
 
       <footer><div class="copyright">
-  <p>Developed by Joshua Rosenberg M.</p>
+  <p>Developed by Joshua M Rosenberg.</p>
 </div>
 
 <div class="pkgdown">
