@@ -278,15 +278,25 @@ plot_r_squared <- function(df,
         r_squared_value = rep(NA, (upper_bound - lower_bound) + 1)
     )
     
+    message("################################")
+    
     for (i in lower_bound:upper_bound) {
-        out[(i - 1), "r_squared_value"] <- create_profiles(df,
-                                                           ...,
-                                                           n_profiles = i, 
-                                                           to_center = to_center, 
-                                                           to_scale = to_scale, 
-                                                           distance_metric = distance_metric, 
-                                                           linkage = linkage)[[5]]
+        
+        message("Clustering data for iteration ", i)
+        
+        out[(i - 1), "r_squared_value"] <- 
+            suppressWarnings(
+                suppressMessages(
+                    create_profiles(df,
+                                    ...,
+                                    n_profiles = i, 
+                                    to_center = to_center, 
+                                    to_scale = to_scale, 
+                                    distance_metric = distance_metric, 
+                                    linkage = linkage)))[[5]]
     }
+    
+    message("################################")
     
     out$r_squared_value <- round(out$r_squared_value, 3)
     
@@ -297,10 +307,10 @@ plot_r_squared <- function(df,
         ggplot2::geom_line()
     
     if (r_squared_table == T) {
-        return(out)
+        suppressWarnings(return(out))
     } else {
-        print(p)
-        return(p)
+        suppressWarnings(print(p))
+        suppressWarnings(return(p))
     }
 }
 
@@ -324,7 +334,11 @@ cross_validate <- function(df,
                              kappa = rep(NA, k),
                              percentage_agree = rep(NA, k))
     
+    message("################################")
+    
     for (i in seq(k)){
+        
+        message("Clustering data for iteration ", i)
         
         df <- dplyr::select(df, ...)
         
@@ -341,15 +355,17 @@ cross_validate <- function(df,
         dat2_dist <- distance_function(dat2, "squared_euclidean")
         
         #create profiles - step 1 (cluster half the data)
-        two_prof_dat1 <- create_profiles(dat1, 
-                                         ...,
-                                         n_profiles = n_profiles, 
-                                         to_center = to_center, 
-                                         to_scale = to_center, 
-                                         distance_metric = distance_metric,
-                                         linkage = linkage)
         
-        # print(str(two_prof_dat1[[4]][1]))
+        two_prof_dat1 <- 
+            suppressWarnings(
+                suppressMessages(
+                    create_profiles(dat1, 
+                                    ...,
+                                    n_profiles = n_profiles, 
+                                    to_center = to_center, 
+                                    to_scale = to_center, 
+                                    distance_metric = distance_metric,
+                                    linkage = linkage)))
         
         if (is.na(two_prof_dat1[[4]][1])) {
             message("")
@@ -392,19 +408,21 @@ cross_validate <- function(df,
         Kap <- irr::kappa2(recode_tab)
         agreement <- irr::agree(recode_tab)
         
-        #message(paste0("Double-split cross validation Cohen's Kappa is ", round(as.numeric(Kap$value), 2)))
-        # message(paste0("Double-split cross validation percentage agreement is ", round(agreement$value / 100, 2)))
-        
         # out <- dplyr::data_frame(statistic = c("kappa", "percentage_agreement"),
         #                          value = c(round(as.numeric(Kap$value), 2), round(agreement$value / 100, 2)))
-
+        
         out$k_iteration[i] <- i
         out$kappa[i] <- round(as.numeric(Kap$value), 2)
         out$percentage_agree[i] <- round(agreement$value / 100, 2)
         
     }
     
-    return(out)    
+    message("################################")
+    
+    message(paste0("Mean Cohen's Kappa for ", k, " iterations is ", round(mean(out$kappa, na.rm = T), 2)))
+    message(paste0("Mean percentage agreement for ", k, " iterations is ", round(mean(out$percentage_agree, na.rm = T), 2)))
+    
+    invisible(out)    
 }
 
 #' Return plot of cluster centroids
