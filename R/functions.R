@@ -328,7 +328,7 @@ cross_validate <- function(df,
                            n_profiles,
                            distance_metric = "squared_euclidean",
                            linkage = "complete", 
-                           k = 20) {
+                           k = 30) {
     
     out <- dplyr::data_frame(k_iteration = rep(NA, k),
                              kappa = rep(NA, k),
