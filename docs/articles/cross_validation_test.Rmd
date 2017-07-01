@@ -1,0 +1,11 @@
+---
+title: "Cross-validation test"
+author: "Joshua Rosenberg"
+date: "7/1/2017"
+output: html_document
+---
+
+```{r}
+library(prcr)
+cross_validate(mtcars, disp, hp, n_profiles = 2, to_scale = TRUE)
+```

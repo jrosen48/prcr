@@ -321,6 +321,7 @@ plot_r_squared <- function(df,
 #' @return A ggplot2 object
 #' @export
 #' 
+
 cross_validate <- function(df,
                            ...,
                            to_center = FALSE,

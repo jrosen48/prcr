@@ -37,6 +37,5 @@ Create profiles of observed variables using two-step cluster analysis
 Function to create a specified number of profiles of observed variables using a two-step (hierarchical and k-means) cluster analysis.
 }
 \examples{
-df <- mtcars
-create_profiles(df, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
+create_profiles(mtcars, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
 }
