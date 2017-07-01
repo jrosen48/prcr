@@ -106,7 +106,13 @@ cluster_observations <- function(prepared_data,
     message(paste0("Hierarchical clustering carried out on: ", nrow(prepared_data[[1]]), " cases"))
     names(clustered_data)[[3]] <- "hierarchical_clustering_output"
     starting_points <- hclust_to_kmeans_function(prepared_data[[1]], clustered_data[[3]], n_profiles)
-    clustered_data[[4]] <- kmeans_function(prepared_data[[1]], starting_points) # Fits k-means ithm with hierarchical vals as start value
+    
+    clustered_data[[4]] <- kmeans_function(prepared_data[[1]], starting_points) # Fits k-means algorithm with hierarchical vals as start value
+    
+    if (length(clustered_data[[4]]) == 1) {
+        return(clustered_data)
+    }
+    
     if (clustered_data[[4]]$iter == 1) {
         message(paste0("K-means algorithm converged: ", clustered_data[[4]]$iter, " iteration"))
     } else {
@@ -117,7 +123,7 @@ cluster_observations <- function(prepared_data,
         attributes(clustered_data)$n_profiles <- n_profiles
         message("Clustered data: Using a ", n_profiles, " cluster solution")    
     }
-    return(clustered_data)
+    clustered_data
 }
 
 calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale, plot_centered_data, plot_raw_data){
@@ -206,8 +212,7 @@ calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale
 #' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
 #' @examples
-#' df <- mtcars
-#' create_profiles(df, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
+#' create_profiles(mtcars, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
 #' @export 
 
 create_profiles <- function(df, 
@@ -219,7 +224,9 @@ create_profiles <- function(df,
                             linkage = "complete",
                             plot_centered_data = FALSE,
                             plot_raw_data = FALSE) {
+    args <- match.call()
     prepped_data <- p(df, ..., to_center = to_center, to_scale = to_scale)
+    
     y <- cluster_observations(prepped_data, n_profiles, distance_metric, linkage)
     
     if (to_center == TRUE & plot_centered_data == TRUE) {
@@ -229,10 +236,12 @@ create_profiles <- function(df,
     
     if (class(y[[4]]) == "kmeans") {
         z <- calculate_statistics(y, n_profiles, to_center = to_center, to_scale = to_scale, plot_centered_data = plot_centered_data, plot_raw_data = plot_raw_data)
+        z[[11]] <- args
         invisible(z)
     } else {
         y[[5]] <- NA
         names(y)[[5]] <- "r_squared"
+        y[[6]] <- args
         invisible(y)
     }
 }
@@ -293,6 +302,109 @@ plot_r_squared <- function(df,
         print(p)
         return(p)
     }
+}
+
+#' Returns statistics from double-split cross validation
+#' @details Performs double-split cross validation and returns Cohen's Kappa and percentage agreement statistics.
+#' @param x A `prcr` object
+#' @param ... Additional arguments
+#' @return A ggplot2 object
+#' @export
+#' 
+cross_validate <- function(df,
+                           ...,
+                           to_center = FALSE,
+                           to_scale = FALSE,
+                           n_profiles,
+                           distance_metric = "squared_euclidean",
+                           linkage = "complete", 
+                           k = 20) {
+    
+    out <- dplyr::data_frame(k_iteration = rep(NA, k),
+                             kappa = rep(NA, k),
+                             percentage_agree = rep(NA, k))
+    
+    for (i in seq(k)){
+        
+        df <- dplyr::select(df, ...)
+        
+        df$ID <- 1:nrow(df)
+        
+        dat1 <- dplyr::sample_n(df, floor(nrow(df) / 2)) 
+        dat2 <- dplyr::filter(df, !(df$ID  %in% dat1$ID))
+        
+        dat1 <- dplyr::select(dat1, -ID)
+        row.names(dat1) <- NULL
+        dat2 <- dplyr::select(dat2, -ID)
+        
+        dat1_dist <- distance_function(dat1, "squared_euclidean")
+        dat2_dist <- distance_function(dat2, "squared_euclidean")
+        
+        #create profiles - step 1 (cluster half the data)
+        two_prof_dat1 <- create_profiles(dat1, 
+                                         ...,
+                                         n_profiles = n_profiles, 
+                                         to_center = to_center, 
+                                         to_scale = to_center, 
+                                         distance_metric = distance_metric,
+                                         linkage = linkage)
+        
+        # print(str(two_prof_dat1[[4]][1]))
+        
+        if (is.na(two_prof_dat1[[4]][1])) {
+            message("")
+            message("Could not calculate agreement because k-means algorithm did not converge")
+            out$k_iteration[i] <- i
+            out$kappa[i] <- NA
+            out$percentage_agree[i] <- NA
+            next()
+        }
+        
+        two_prof_cross <- two_prof_dat1$clustered_raw_data
+        
+        # # step 2 (cluster the other half of the data)
+        # two_prof_dat2 <- create_profiles(dat4, 
+        #                                  disp, hp, wt,
+        #                                  n_profiles=2,
+        #                                  to_center =T,
+        #                                  to_scale = T,
+        #                                  distance_metric = "squared_euclidean",
+        #                                  linkage="complete")
+        # two_prof_cross<-two_prof_dat2$clustered_raw_data
+        
+        # step 3 (Assign observations in one half (say, sample 2) . . . 
+        # . . . to the profile to which they are most similar in the other half (say, sample 1))
+        #reclassify by nearest neighbor
+        
+        two_prof_cross$cluster_nn <- class::knn1(dat1, dat2, two_prof_cross$cluster)
+        
+        #create table of agreements
+        two_prof_cross$cluster.f <- with(two_prof_cross, factor(cluster))
+        two_prof_tab <- with(two_prof_cross, table(cluster.f, cluster_nn))
+        
+        #solve assignment
+        res <- lpSolve::lp.assign(-two_prof_tab)
+        l <- apply(res$solution > 0.5, 1, which)
+        #recode
+        two_prof_cross$cluster_nn_rc <- l[two_prof_cross$cluster_nn]
+        recode_tab <- two_prof_cross[,c("cluster.f", "cluster_nn_rc")]
+        
+        Kap <- irr::kappa2(recode_tab)
+        agreement <- irr::agree(recode_tab)
+        
+        #message(paste0("Double-split cross validation Cohen's Kappa is ", round(as.numeric(Kap$value), 2)))
+        # message(paste0("Double-split cross validation percentage agreement is ", round(agreement$value / 100, 2)))
+        
+        # out <- dplyr::data_frame(statistic = c("kappa", "percentage_agreement"),
+        #                          value = c(round(as.numeric(Kap$value), 2), round(agreement$value / 100, 2)))
+
+        out$k_iteration[i] <- i
+        out$kappa[i] <- round(as.numeric(Kap$value), 2)
+        out$percentage_agree[i] <- round(agreement$value / 100, 2)
+        
+    }
+    
+    return(out)    
 }
 
 #' Return plot of cluster centroids
