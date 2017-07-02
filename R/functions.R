@@ -45,11 +45,11 @@ try_kmeans <- function(x, s) {
             stats::kmeans(x, s, iter.max = 50)
         },
         error = function(cond) {
-            message(cond)
+            # message(cond)
             return(NA)
         },
         warning = function(cond) {
-            message(cond)
+            # message(cond)
             return(NA)
         }
     )    
@@ -471,11 +471,15 @@ cross_validate <- function(df,
                            lower_bound = 2,
                            upper_bound = 9) {
     
+    message("################################")
+    
     if (n_profiles == "iterate") {
         
         out_list <- list()
         
         for (i in lower_bound:upper_bound){
+            
+            message(paste0("Clustering for n_profiles = ", i))
             
             out <- suppressWarnings(
                 suppressMessages(core_cross_validate(df,
@@ -489,17 +493,17 @@ cross_validate <- function(df,
             
             out_list[[i - 1]] <- out
             
+            
+            
         }
         
         profile <- paste0("Profile ", lower_bound:upper_bound)
 
         mean_kappa <- purrr::map_dbl(out_list, function(x) mean(x$kappa, na.rm = T))
-        print(str(mean_kappa))
+
         mean_percentage_agree <- purrr::map_dbl(out_list, function(x) mean(x$percentage_agree, na.rm = T))
         
         out <- data.frame(profile, mean_kappa, mean_percentage_agree)
-        
-        return(out)
         
     } else {
         
@@ -515,6 +519,8 @@ cross_validate <- function(df,
     }
     
     return(out)
+    
+    message("################################")
     
 }
 
