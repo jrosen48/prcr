@@ -424,18 +424,36 @@ cross_validate <- function(df,
         
         recode_df <- dplyr::select(two_prof_cross_2, cluster_nn, cluster_nn_rc)
         
-        Kap <- irr::kappa2(recode_df)
+        try_kappa <- function(df) {
+            out <- tryCatch(
+                {
+                    x <- irr::kappam.fleiss(df)
+                    x$value
+                },
+                error = function(cond) {
+                    message(cond)
+                    return(NA)
+                },
+                warning = function(cond) {
+                    message(cond)
+                    return(NA)
+                }
+            )    
+            return(out)
+        }
+        
+        Kap <- try_kappa(recode_df)
         agreement <- irr::agree(recode_df)
         
         out$k_iteration[i] <- i
-        out$kappa[i] <- round(as.numeric(Kap$value), 2)
+        out$kappa[i] <- round(as.numeric(Kap), 2)
         out$percentage_agree[i] <- round(agreement$value / 100, 2)
         
     }
     
     message("################################")
     
-    message(paste0("Mean Cohen's Kappa for ", k, " iterations is ", round(mean(out$kappa, na.rm = T), 2)))
+    message(paste0("Mean Fleiss's Kappa for ", k, " iterations is ", round(mean(out$kappa, na.rm = T), 2)))
     message(paste0("Mean percentage agreement for ", k, " iterations is ", round(mean(out$percentage_agree, na.rm = T), 2)))
     
     invisible(out)    
