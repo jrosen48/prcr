@@ -345,17 +345,20 @@ cross_validate <- function(df,
         
         df$ID <- 1:nrow(df)
         
-        dat1 <- dplyr::sample_n(df, floor(nrow(df) / 2)) 
-        dat2 <- dplyr::filter(df, !(df$ID  %in% dat1$ID))
+        if (nrow(df) %% 2 == 0) {
+            dat1 <- dplyr::sample_n(df, nrow(df) / 2)
+            dat2 <- dplyr::filter(df, !(df$ID  %in% dat1$ID))
+        } else {
+            dat1 <- dplyr::sample_n(df, ceiling(nrow(df) / 2)) 
+            dat2 <- dplyr::filter(df, !(df$ID  %in% dat1$ID))
+            dat1 <- dat1[-nrow(dat1), ]
+        }
         
         dat1 <- dplyr::select(dat1, -ID)
         row.names(dat1) <- NULL
         dat2 <- dplyr::select(dat2, -ID)
         
-        dat1_dist <- distance_function(dat1, "squared_euclidean")
-        dat2_dist <- distance_function(dat2, "squared_euclidean")
-        
-        #create profiles - step 1 (cluster half the data)
+        # step 1 (cluster half the data)
         
         two_prof_dat1 <- 
             suppressWarnings(
@@ -377,40 +380,52 @@ cross_validate <- function(df,
             next()
         }
         
-        two_prof_cross <- two_prof_dat1$clustered_raw_data
+        # these are sample 1 data and cluster assignments
+        two_prof_cross_1 <- two_prof_dat1$clustered_raw_data 
         
-        # # step 2 (cluster the other half of the data)
-        # two_prof_dat2 <- create_profiles(dat4, 
-        #                                  disp, hp, wt,
-        #                                  n_profiles=2,
-        #                                  to_center =T,
-        #                                  to_scale = T,
-        #                                  distance_metric = "squared_euclidean",
-        #                                  linkage="complete")
-        # two_prof_cross<-two_prof_dat2$clustered_raw_data
+        # step 2 (cluster the other half of the data)
+        two_prof_dat2 <- 
+            suppressWarnings(
+                suppressMessages(
+                    create_profiles(dat2, 
+                                    ...,
+                                    n_profiles = n_profiles, 
+                                    to_center = to_center, 
+                                    to_scale = to_center, 
+                                    distance_metric = distance_metric,
+                                    linkage = linkage)))
+        
+        # these are sample 2 data and cluster assignments
+        two_prof_cross_2 <- two_prof_dat2$clustered_raw_data 
         
         # step 3 (Assign observations in one half (say, sample 2) . . . 
         # . . . to the profile to which they are most similar in the other half (say, sample 1))
         #reclassify by nearest neighbor
         
-        two_prof_cross$cluster_nn <- class::knn1(dat1, dat2, two_prof_cross$cluster)
+        two_prof_cross_2$cluster_nn <- class::knn1(dat1, dat2, two_prof_cross_1$cluster) 
         
-        #create table of agreements
-        two_prof_cross$cluster.f <- with(two_prof_cross, factor(cluster))
-        two_prof_tab <- with(two_prof_cross, table(cluster.f, cluster_nn))
+        # step 4 (Re-code the profiles in sample 1 on the basis of which profile they are the most similar to in sample 2 . . . 
+        # . . . optimizing for the re-coding  that maximizes the agreement across all profiles)
+        
+        #two_prof_cross$cluster.f <- two_prof_cross$cluster
+        
+        two_prof_df <- data_frame(orig_cluster = two_prof_cross_2$cluster, cluster_nn = two_prof_cross_2$cluster_nn)
+        two_prof_df$cluster_nn <- as.integer(two_prof_df$cluster_nn)
+        two_prof_tab <- table(two_prof_df)
         
         #solve assignment
         res <- lpSolve::lp.assign(-two_prof_tab)
+        
         l <- apply(res$solution > 0.5, 1, which)
-        #recode
-        two_prof_cross$cluster_nn_rc <- l[two_prof_cross$cluster_nn]
-        recode_tab <- two_prof_cross[,c("cluster.f", "cluster_nn_rc")]
         
-        Kap <- irr::kappa2(recode_tab)
-        agreement <- irr::agree(recode_tab)
+        # step 5 (Calculate the agreement between re-coded sample 1 observations assigned to the sample 2 profile to which they are most similar . . . 
+        # . . . and the original sample 1 profiles
+        two_prof_cross_2$cluster_nn_rc <- l[two_prof_cross_2$cluster]
         
-        # out <- dplyr::data_frame(statistic = c("kappa", "percentage_agreement"),
-        #                          value = c(round(as.numeric(Kap$value), 2), round(agreement$value / 100, 2)))
+        recode_df <- dplyr::select(two_prof_cross_2, cluster_nn, cluster_nn_rc)
+        
+        Kap <- irr::kappa2(recode_df)
+        agreement <- irr::agree(recode_df)
         
         out$k_iteration[i] <- i
         out$kappa[i] <- round(as.numeric(Kap$value), 2)

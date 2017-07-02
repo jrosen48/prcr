@@ -1,11 +1,54 @@
 ---
 title: "Cross-validation test"
 author: "Joshua Rosenberg"
-date: "7/1/2017"
+date: "7/1/2017"out
 output: html_document
 ---
 
 ```{r}
 library(prcr)
-cross_validate(mtcars, disp, hp, n_profiles = 2, to_scale = TRUE)
+library(tidyverse)
+
+ctk <- read_csv("~/downloads/ctk.csv")
+
+esm_df <- haven::read_sav('/Users/joshuarosenberg/Dropbox/1_Research/SciMo/JRST\ MEP\ Paper\ Final\ Docs/esm_data.sav')
+
+to_remove <- esm_df$stud_ID == "AXR050594" & esm_df$month == 10 & esm_df$day == 20 & esm_df$year == 8 & esm_df$signal == 2 # removing 10/20/8, ID = "AXR050594", second beeper
+table(to_remove)
+nrow(esm_df)
+esm_df <- esm_df[!to_remove, ]
+nrow(esm_df) # - 1 case
+
+df <- esm_df %>%
+    mutate(behavioral_scale = ifelse(!is.na(conc) & !is.na(hardwk), (conc + hardwk) / 2, 
+                                     ifelse(is.na(conc), hardwk, conc)),
+           cognitive_scale = ifelse(!is.na(imp_y) & !is.na(imp_fut), (imp_y + imp_fut) / 2, 
+                                    ifelse(is.na(imp_y), imp_fut, imp_y)),
+           affective_scale = ifelse(!is.na(enjoy) & !is.na(interest), (enjoy + interest) / 2, 
+                                    ifelse(is.na(enjoy), interest, enjoy)))
+
+df <- df[ctk$ctk, ]
+
+x <- create_profiles(df,
+                     behavioral_scale,
+                     cognitive_scale,
+                     affective_scale,
+                     n_profiles = 6,
+                     to_center = T,
+                     to_scale = T)
+
+plot(x)
+
+cv_output <- cross_validate(df,
+                            behavioral_scale,
+                            cognitive_scale,
+                            affective_scale,
+                            n_profiles = 6,
+                            to_center = T,
+                            to_scale = T,
+                            k = 5)
+
+cv_output
+
+knitr::kable(cv_output)
 ```
