@@ -371,18 +371,6 @@ cross_validate <- function(df,
                                     distance_metric = distance_metric,
                                     linkage = linkage)))
         
-        if (is.na(two_prof_dat1[[4]][1])) {
-            message("")
-            message("Could not calculate agreement because k-means algorithm did not converge")
-            out$k_iteration[i] <- i
-            out$kappa[i] <- NA
-            out$percentage_agree[i] <- NA
-            next()
-        }
-        
-        # these are sample 1 data and cluster assignments
-        two_prof_cross_1 <- two_prof_dat1$clustered_raw_data 
-        
         # step 2 (cluster the other half of the data)
         two_prof_dat2 <- 
             suppressWarnings(
@@ -394,6 +382,18 @@ cross_validate <- function(df,
                                     to_scale = to_center, 
                                     distance_metric = distance_metric,
                                     linkage = linkage)))
+        
+        if (is.na(two_prof_dat1[[4]][1]) | is.na(two_prof_dat2[[4]][1]) ) {
+            message("")
+            message("Could not calculate agreement because k-means algorithm did not converge")
+            out$k_iteration[i] <- i
+            out$kappa[i] <- NA
+            out$percentage_agree[i] <- NA
+            next()
+        }
+        
+        # these are sample 1 data and cluster assignments
+        two_prof_cross_1 <- two_prof_dat1$clustered_raw_data 
         
         # these are sample 2 data and cluster assignments
         two_prof_cross_2 <- two_prof_dat2$clustered_raw_data 
@@ -409,7 +409,7 @@ cross_validate <- function(df,
         
         #two_prof_cross$cluster.f <- two_prof_cross$cluster
         
-        two_prof_df <- data_frame(orig_cluster = two_prof_cross_2$cluster, cluster_nn = two_prof_cross_2$cluster_nn)
+        two_prof_df <- dplyr::data_frame(orig_cluster = two_prof_cross_2$cluster, cluster_nn = two_prof_cross_2$cluster_nn)
         two_prof_df$cluster_nn <- as.integer(two_prof_df$cluster_nn)
         two_prof_tab <- table(two_prof_df)
         

@@ -1,11 +1,15 @@
 ---
 title: "Cross-validation test"
 author: "Joshua Rosenberg"
-date: "7/1/2017"out
-output: html_document
+date: "7/1/2017"
+output:
+  pdf_document: default
+  html_document: default
 ---
 
-```{r}
+# Loading data, setting up 
+
+```{r, eval = T, echo = F, message = F, warning = F, error = F}
 library(prcr)
 library(tidyverse)
 
@@ -14,10 +18,7 @@ ctk <- read_csv("~/downloads/ctk.csv")
 esm_df <- haven::read_sav('/Users/joshuarosenberg/Dropbox/1_Research/SciMo/JRST\ MEP\ Paper\ Final\ Docs/esm_data.sav')
 
 to_remove <- esm_df$stud_ID == "AXR050594" & esm_df$month == 10 & esm_df$day == 20 & esm_df$year == 8 & esm_df$signal == 2 # removing 10/20/8, ID = "AXR050594", second beeper
-table(to_remove)
-nrow(esm_df)
 esm_df <- esm_df[!to_remove, ]
-nrow(esm_df) # - 1 case
 
 df <- esm_df %>%
     mutate(behavioral_scale = ifelse(!is.na(conc) & !is.na(hardwk), (conc + hardwk) / 2, 
@@ -28,7 +29,11 @@ df <- esm_df %>%
                                     ifelse(is.na(enjoy), interest, enjoy)))
 
 df <- df[ctk$ctk, ]
+```
 
+# Cluster data
+
+```{r}
 x <- create_profiles(df,
                      behavioral_scale,
                      cognitive_scale,
@@ -38,6 +43,11 @@ x <- create_profiles(df,
                      to_scale = T)
 
 plot(x)
+```
+
+# Cross-validate 
+
+```{r}
 
 cv_output <- cross_validate(df,
                             behavioral_scale,
@@ -46,9 +56,7 @@ cv_output <- cross_validate(df,
                             n_profiles = 6,
                             to_center = T,
                             to_scale = T,
-                            k = 5)
-
-cv_output
+                            k = 30)
 
 knitr::kable(cv_output)
 ```
