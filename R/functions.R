@@ -314,22 +314,14 @@ plot_r_squared <- function(df,
     }
 }
 
-#' Returns statistics from double-split cross validation
-#' @details Performs double-split cross validation and returns Cohen's Kappa and percentage agreement statistics.
-#' @param x A `prcr` object
-#' @param ... Additional arguments
-#' @return A ggplot2 object
-#' @export
-#' 
-
-cross_validate <- function(df,
-                           ...,
-                           to_center = FALSE,
-                           to_scale = FALSE,
-                           n_profiles,
-                           distance_metric = "squared_euclidean",
-                           linkage = "complete", 
-                           k = 30) {
+core_cross_validate <- function(df,
+                                ...,
+                                to_center,
+                                to_scale,
+                                n_profiles,
+                                distance_metric,
+                                linkage,
+                                k) {
     
     out <- dplyr::data_frame(k_iteration = rep(NA, k),
                              kappa = rep(NA, k),
@@ -456,7 +448,74 @@ cross_validate <- function(df,
     message(paste0("Mean Fleiss's Kappa for ", k, " iterations is ", round(mean(out$kappa, na.rm = T), 2)))
     message(paste0("Mean percentage agreement for ", k, " iterations is ", round(mean(out$percentage_agree, na.rm = T), 2)))
     
-    invisible(out)    
+    out
+    
+}
+
+#' Returns statistics from double-split cross validation
+#' @details Performs double-split cross validation and returns Cohen's Kappa and percentage agreement statistics.
+#' @param x A `prcr` object
+#' @param ... Additional arguments
+#' @return A ggplot2 object
+#' @export
+#' 
+
+cross_validate <- function(df,
+                           ...,
+                           to_center = FALSE,
+                           to_scale = FALSE,
+                           n_profiles,
+                           distance_metric = "squared_euclidean",
+                           linkage = "complete", 
+                           k = 30,
+                           lower_bound = 2,
+                           upper_bound = 9) {
+    
+    if (n_profiles == "iterate") {
+        
+        out_list <- list()
+        
+        for (i in lower_bound:upper_bound){
+            
+            out <- suppressWarnings(
+                suppressMessages(core_cross_validate(df,
+                                                     ...,
+                                                     to_center = to_center,
+                                                     to_scale = to_scale,
+                                                     n_profiles = i,
+                                                     distance_metric = distance_metric,
+                                                     linkage = linkage, 
+                                                     k = k)))
+            
+            out_list[[i - 1]] <- out
+            
+        }
+        
+        profile <- paste0("Profile ", lower_bound:upper_bound)
+
+        mean_kappa <- purrr::map_dbl(out_list, function(x) mean(x$kappa, na.rm = T))
+        print(str(mean_kappa))
+        mean_percentage_agree <- purrr::map_dbl(out_list, function(x) mean(x$percentage_agree, na.rm = T))
+        
+        out <- data.frame(profile, mean_kappa, mean_percentage_agree)
+        
+        return(out)
+        
+    } else {
+        
+        out <- core_cross_validate(df,
+                                   ...,
+                                   to_center = to_center,
+                                   to_scale = to_scale,
+                                   n_profiles = n_profiles,
+                                   distance_metric = distance_metric,
+                                   linkage = linkage, 
+                                   k = k)
+        
+    }
+    
+    return(out)
+    
 }
 
 #' Return plot of cluster centroids
