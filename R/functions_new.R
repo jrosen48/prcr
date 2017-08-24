@@ -103,7 +103,7 @@ cluster_observations <- function(df,
                                  linkage = "complete"){
     
     df <- prepare_data(df, ..., to_center = to_center, to_scale = to_scale)
-    
+     
     distance_matrix <- distance_function(df, distance_metric)
     clustered_data <- df
     clustered_data <- stats::hclust(distance_matrix, method = linkage) # hierarhical clustering
