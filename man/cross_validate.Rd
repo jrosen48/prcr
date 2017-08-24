@@ -5,7 +5,8 @@
 \title{Returns statistics from double-split cross validation}
 \usage{
 cross_validate(df, ..., to_center = FALSE, to_scale = FALSE, n_profiles,
-  distance_metric = "squared_euclidean", linkage = "complete", k = 30)
+  distance_metric = "squared_euclidean", linkage = "complete", k = 30,
+  lower_bound = 2, upper_bound = 9)
 }
 \arguments{
 \item{...}{Additional arguments}
