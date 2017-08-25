@@ -1,6 +1,8 @@
 # prcr 0.1.5
 
-* add an argument to `create_profiles()` to remove multivariate outliers based on Hadi's (1994) procedure (thanks to Rebecca Steingut for this contribution)
+* add a function, `detect_outliers()` to detect multivariate outliers based on Hadi's (1994) procedure (thanks to Rebecca Steingut for this contribution) 
+
+    - Note that this will (in this version) be carried out separate from the `create_profiles()` function
 
 * add `plot_raw_data` and `plot_centered_data` as arguments (that can be specified as `TRUE` but default to `FALSE`) `create_profiles()` to change plot of profile centroids (thanks again to Rebecca for input that led to making this addition)
 

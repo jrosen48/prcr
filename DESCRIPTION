@@ -8,7 +8,7 @@ Authors@R: c(
     person(c("Patrick", "N"), "Beymer", role = "aut", email = "beymerpa@msu.edu"),
     person(c("Rebecca", "R"), "Steingut", role = "ctb", email = "rebeccarosesteingut@gmail.com")
     )
-Maintainer: Joshua M. Rosenberg <jmichaelrosenberg@gmail.com>
+Maintainer: Joshua M Rosenberg <jmichaelrosenberg@gmail.com>
 Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step clustering procedure. As described in Bergman and El-Khouri (1999) <DOI:10.1002/(SICI)1521-4036(199910)41:6%3C753::AID-BIMJ753%3E3.0.CO;2-K>, hierarchical clustering is performed to determine the initial partition for the subsequent k-means clustering procedure.
 License: MIT + file LICENSE
 URL: https://github.com/jrosen48/prcr

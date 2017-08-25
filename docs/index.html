@@ -15,7 +15,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -55,138 +55,51 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
-    
-
-    
-    
-<div class="contents">
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-<div id="prcr" class="section level1">
+  <div class="contents col-md-9">
+    <div id="prcr" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#prcr" class="anchor"></a>prcr</h1></div>
 <p><code>prcr</code> is an <code>R</code> package for person-centered analysis. Person-centered analyses focus on clusters, or profiles, of observations, and their change over time or differences across factors. See <a href="http://onlinelibrary.wiley.com/doi/10.1002/(SICI)1521-4036(199910)41:6%3C753::AID-BIMJ753%3E3.0.CO;2-K/abstract">Bergman and El-Khouri (1999)</a> for a description of the analytic approach. See <a href="http://www.tandfonline.com/doi/abs/10.1080/00220973.2013.876225">Corpus and Wormington (2014)</a> for an example of person-centered analysis in psychology and education.</p>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>You can install prcr from CRAN with:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"prcr"</span>)</code></pre></div>
+<p>You can install development version from GitHub with:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages("devtools")</span>
+devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"jrosen48/prcr"</span>)</code></pre></div>
 </div>
-<div id="example" class="section level1">
-<h1 class="hasAnchor">
-<a href="#example" class="anchor"></a>Example</h1>
-<p>In this example using the built-in to R <code>mtcars</code> data for fuel consumption and other information for 32 automobiles, the variables <code>disp</code> (for engine displacement, in cu. in.), <code>qsec</code> (for the 1/4 mile time, in seconds), and <code>wt</code> for weight (in 1000 lbs.) are clustered with a <code>2</code> cluster solution specified. Because the variables are in very different units, the <code>to_scale</code> argument is set to <code>TRUE</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(prcr)
-
-df &lt;-<span class="st"> </span>mtcars
-
-two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_profiles.html">create_profiles</a></span>(df, 
-                                        disp, hp, wt,
-                                        <span class="dt">n_profiles =</span> <span class="dv">2</span>, 
-                                        <span class="dt">to_scale =</span> T)
-<span class="co">#&gt; Prepared data: Removed 0 incomplete cases</span>
-<span class="co">#&gt; Hierarchical clustering carried out on: 32 cases</span>
-<span class="co">#&gt; K-means algorithm converged: 1 iteration</span>
-<span class="co">#&gt; Clustered data: Using a 2 cluster solution</span>
-<span class="co">#&gt; Calculated statistics: R-squared = 0.654</span>
-
-<span class="kw">summary</span>(two_profile_solution)
-<span class="co">#&gt; 2 cluster solution (R-squared = 0.654)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Profile n and means:</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # A tibble: 2 x 4</span>
-<span class="co">#&gt;               Cluster     disp       hp       wt</span>
-<span class="co">#&gt;                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499</span>
-<span class="co">#&gt; 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</span>
-
-<span class="kw">print</span>(two_profile_solution)
-<span class="co">#&gt; $clustered_processed_data</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; # A tibble: 2 x 4</span>
-<span class="co">#&gt;               Cluster     disp       hp       wt</span>
-<span class="co">#&gt;                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499</span>
-<span class="co">#&gt; 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</span>
-
-<span class="kw">plot</span>(two_profile_solution)</code></pre></div>
-<p><img src="README-unnamed-chunk-2-1.png" width="672"></p>
-<p>The output has the class <code>prcr</code> and has slots for additional information that can be extracted from it, such as the original data with the clustering assignment added, the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>.data
-<span class="co">#&gt; # A tibble: 32 x 12</span>
-<span class="co">#&gt;      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb</span>
-<span class="co">#&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1  21.0     6 160.0   110  3.90 2.620 16.46     0     1     4     4</span>
-<span class="co">#&gt;  2  21.0     6 160.0   110  3.90 2.875 17.02     0     1     4     4</span>
-<span class="co">#&gt;  3  22.8     4 108.0    93  3.85 2.320 18.61     1     1     4     1</span>
-<span class="co">#&gt;  4  21.4     6 258.0   110  3.08 3.215 19.44     1     0     3     1</span>
-<span class="co">#&gt;  5  18.7     8 360.0   175  3.15 3.440 17.02     0     0     3     2</span>
-<span class="co">#&gt;  6  18.1     6 225.0   105  2.76 3.460 20.22     1     0     3     1</span>
-<span class="co">#&gt;  7  14.3     8 360.0   245  3.21 3.570 15.84     0     0     3     4</span>
-<span class="co">#&gt;  8  24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2</span>
-<span class="co">#&gt;  9  22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2</span>
-<span class="co">#&gt; 10  19.2     6 167.6   123  3.92 3.440 18.30     1     0     4     4</span>
-<span class="co">#&gt; # ... with 22 more rows, and 1 more variables: cluster &lt;int&gt;</span>
-two_profile_solution<span class="op">$</span>r_squared
-<span class="co">#&gt; [1] 0.6544283</span>
-two_profile_solution<span class="op">$</span>clustered_raw_data
-<span class="co">#&gt; # A tibble: 32 x 4</span>
-<span class="co">#&gt;         disp        hp       wt cluster</span>
-<span class="co">#&gt;        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;int&gt;</span>
-<span class="co">#&gt;  1 1.2909608 1.6043669 2.677684       1</span>
-<span class="co">#&gt;  2 1.2909608 1.6043669 2.938298       1</span>
-<span class="co">#&gt;  3 0.8713986 1.3564193 2.371079       1</span>
-<span class="co">#&gt;  4 2.0816744 1.6043669 3.285784       1</span>
-<span class="co">#&gt;  5 2.9046619 2.5524020 3.515738       2</span>
-<span class="co">#&gt;  6 1.8154137 1.5314412 3.536178       1</span>
-<span class="co">#&gt;  7 2.9046619 3.5733627 3.648600       2</span>
-<span class="co">#&gt;  8 1.1836497 0.9042796 3.260234       1</span>
-<span class="co">#&gt;  9 1.1360455 1.3855896 3.219353       1</span>
-<span class="co">#&gt; 10 1.3522815 1.7939739 3.515738       1</span>
-<span class="co">#&gt; # ... with 22 more rows</span>
-two_profile_solution<span class="op">$</span>clustered_processed_data
-<span class="co">#&gt; # A tibble: 2 x 4</span>
-<span class="co">#&gt;               Cluster     disp       hp       wt</span>
-<span class="co">#&gt;                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499</span>
-<span class="co">#&gt; 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</span></code></pre></div>
-<p>Comparison of R-squared values can be carried out as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">r_squared_output &lt;-<span class="st"> </span><span class="kw"><a href="reference/plot_r_squared.html">plot_r_squared</a></span>(df, 
-                                   disp, hp, wt,
-                                   <span class="dt">to_scale =</span> T,
-                                   <span class="dt">r_squared_table =</span> <span class="ot">TRUE</span>,
-                                   <span class="dt">lower_bound =</span> <span class="dv">2</span>, <span class="dt">upper_bound =</span> <span class="dv">4</span>)
-r_squared_output
-<span class="co">#&gt;   cluster r_squared_value</span>
-<span class="co">#&gt; 1       2           0.654</span>
-<span class="co">#&gt; 2       3           0.750</span>
-<span class="co">#&gt; 3       4           0.833</span></code></pre></div>
-<p>Cross-validation is now able to be carried out, in this example for the two-profile solution, although <code>n_profiles</code> can also be set to the character string<code>"iterate"</code> in order to explore cross-validation output for a range of profile solutions:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cross_validation_output &lt;-<span class="st"> </span><span class="kw"><a href="reference/cross_validate.html">cross_validate</a></span>(df,
-                                          disp, hp, wt,
-                                          <span class="dt">to_scale =</span> <span class="ot">TRUE</span>,
-                                          <span class="dt">n_profiles =</span> <span class="dv">2</span>,
-                                          <span class="dt">distance_metric =</span> <span class="st">"squared_euclidean"</span>,
-                                          <span class="dt">linkage =</span> <span class="st">"complete"</span>, 
-                                          <span class="dt">k =</span> <span class="dv">30</span>)
-cross_validation_output
-<span class="co">#&gt; # A tibble: 30 x 3</span>
-<span class="co">#&gt;    k_iteration kappa percentage_agree</span>
-<span class="co">#&gt;          &lt;int&gt; &lt;dbl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt;  1           1  0.87             0.94</span>
-<span class="co">#&gt;  2           2  1.00             1.00</span>
-<span class="co">#&gt;  3           3  0.87             0.94</span>
-<span class="co">#&gt;  4           4  1.00             1.00</span>
-<span class="co">#&gt;  5           5  0.87             0.94</span>
-<span class="co">#&gt;  6           6  1.00             1.00</span>
-<span class="co">#&gt;  7           7  0.87             0.94</span>
-<span class="co">#&gt;  8           8  0.87             0.94</span>
-<span class="co">#&gt;  9           9    NA               NA</span>
-<span class="co">#&gt; 10          10  0.87             0.94</span>
-<span class="co">#&gt; # ... with 20 more rows</span></code></pre></div>
+<div id="example" class="section level2">
+<h2 class="hasAnchor">
+<a href="#example" class="anchor"></a>Example</h2>
+<p>See examples of use of prcr in the <a href="https://jrosen48.github.io/prcr/articles/introduction_to_prcr.html">Introduction to prcr vignette</a>.</p>
+</div>
+<div id="code-of-conduct" class="section level2">
+<h2 class="hasAnchor">
+<a href="#code-of-conduct" class="anchor"></a>Code of Conduct</h2>
+<p>Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms below.</p>
+<p>This Code of Conduct is adapted from the Contributor Covenant (<a href="http:contributor-covenant.org" class="uri">http:contributor-covenant.org</a>), version 1.0.0, available at <a href="http://contributor-covenant.org/version/1/0/0/" class="uri">http://contributor-covenant.org/version/1/0/0/</a></p>
+<blockquote>
+<p>As contributors and maintainers of this project, we pledge to respect all people who contribute through reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities.</p>
+</blockquote>
+<blockquote>
+<p>We are committed to making participation in this project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, or religion.</p>
+</blockquote>
+<blockquote>
+<p>Examples of unacceptable behavior by participants include the use of sexual language or imagery, derogatory comments or personal attacks, trolling, public or private harassment, insults, or other unprofessional conduct.</p>
+</blockquote>
+<blockquote>
+<p>Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct. Project maintainers who do not follow the Code of Conduct may be removed from the project team.</p>
+</blockquote>
+<blockquote>
+<p>Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by opening an issue or contacting one or more of the project maintainers.</p>
+</blockquote>
 </div>
 </div>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2 class="hasAnchor">
-<a href="#sidebar" class="anchor"></a>Links</h2>
+  <div class="col-md-3" id="sidebar">
+    <h2>Links</h2>
 <ul class="list-unstyled">
 <li>Download from CRAN at <br><a href="https://cran.r-project.org/package=prcr">https://​cran.r-project.org/​package=prcr</a>
 </li>
@@ -205,7 +118,6 @@ cross_validation_output
 <li><a href="authors.html">All authors...</a></li>
 </ul>
 </div>
-
 </div>
 
 

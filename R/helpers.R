@@ -69,23 +69,30 @@ prcr <- function() {
     structure(list(), class = "prcr")
 }
 
-p <- function(df, ..., to_center, to_scale, remove_mv_outliers){
+p <- function(df, ..., to_center, to_scale){
     if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
     df <- tibble::as_tibble(df)
     df_ss <- dplyr::select(df, ...)
+    
     cases_to_keep <- stats::complete.cases(df_ss) # to use later for comparing function to index which cases to keep
+    
+    # cases_to_keep <- dplyr::data_frame(row_names = 1:nrow(df_ss),
+    #                                    keep = cases_to_keep)
+    
     df_ss_wo_incomplete_cases <- df_ss[cases_to_keep, ] # removes incomplete cases
     
-    if (remove_mv_outliers == TRUE) {
-        outliers <- detect_outliers(df_ss_wo_incomplete_cases)
-        prepared_data[[11]] <- outliers
-        names(prepared_data[[11]]) <- "outliers"
-        message("Removed ", length(outliers), " multivariate outliers; view the outliers slot of the output to view the cases removed")
-        df_ss_wo_incomplete_cases <- df_ss_wo_incomplete_cases[-outliers, ]
-    }
-    
     prepared_data <- prcr()
+    
+    # if (remove_mv_outliers == TRUE) {
+    #     outliers <- detect_outliers(df_ss_wo_incomplete_cases)
+    #     prepared_data[[11]] <- outliers
+    #     names(prepared_data[[11]]) <- "outliers"
+    #     message("Removed ", length(outliers), " multivariate outliers; view the outliers slot of the output to view the cases removed")
+    #     df_ss_wo_incomplete_cases <- df_ss_wo_incomplete_cases[-outliers, ]
+    # }
+    
     df_wo_incomplete_cases <- df[cases_to_keep, ]
+    
     prepared_data[[10]] <- df_ss_wo_incomplete_cases
     
     if (to_center == TRUE & to_scale == TRUE) {
@@ -204,112 +211,10 @@ calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale
     message("Calculated statistics: R-squared = ", round(clustering_stats[[5]], 3))
     tmp <- as.data.frame(stats::model.matrix(~ factor(clustering_stats[[4]]$cluster) - 1))
     names(tmp) <- paste0("cluster_", 1:n_profiles)
+    
     clustering_stats[[9]] <- dplyr::bind_cols(clustering_stats[[2]], tmp)
+    
     names(clustering_stats)[[9]] <- "data_with_dummy_codes"
     clustering_stats[[2]]$cluster <- clustering_stats[[4]]$cluster
     return(clustering_stats)
-}
-
-outlierHadi <- function(X) {
-    # -----------------------------------------------------------------
-    #  Hadi, Ali S. (1994), "A Modification of a Method for the
-    #  Detection of Outliers in Multivariate Samples," Journal of the
-    #  Royal Statistical Society (B), 2, 393-396.
-    # -----------------------------------------------------------------
-    n <- dim(X) [1]
-    p <- dim(X) [2]
-    h <- trunc((n + p + 1)/2)     
-    id <- 1:n
-    r <- p
-    out <- 0
-    cf <- (1 + ((p + 1)/(n - p)) + (2/(n - 1 - (3*p))) )^2
-    # cf <- (1 + ((p + 1)/(n - p)) + (1/(n - p - h)) )^2
-    alpha <- 0.05
-    tol <- max(10^-(p+5), 10^-12)
-    # -----------------------------------------------------------------
-    # **  Compute Mahalanobis distance
-    # -----------------------------------------------------------------
-    C <- apply(X, 2, mean)
-    S <- stats::var(X)
-    if (det(S) < tol) stop ()
-    D <- stats::mahalanobis(X, C, S)
-    mah.out <- 0
-    cv <- stats::qchisq(1-(alpha/n), p)
-    for (i in 1:n) if (D[i] >= cv) mah.out <- cbind(mah.out, i)
-    mah.out <- mah.out[-1]
-    mah <- sqrt(D)
-    Xbar <- C
-    Covariance <- S   #
-    # ----------------------------------------------------------------
-    # **  Step 0
-    # ----------------------------------------------------------------
-    #  **  Compute Di(Cm, Sm)
-    C <- apply(X, 2, stats::median)
-    #original code was 
-    #  C <- t(array(C, dim = c(n, p)))
-    #but resulted in nonconformable arrays. 
-    #so i removed the transpose
-    C <- array(C, dim = c(n, p))
-    Y <- X - C
-    S <- ((n - 1)^-1)*(t(Y) %*% Y)
-    D <- stats::mahalanobis(X, C[1, ], S)
-    Z <- sort.list(D)
-    # ----------------------------------------------------------------
-    #  **  Compute Di(Cv, Sv)
-    repeat {
-        Y <- X[Z[1:h], ]
-        C <- apply(Y, 2, mean)
-        S <- stats::var(Y)
-        if (det(S) > tol) {
-            D <- stats::mahalanobis(X, C, S)
-            Z <- sort.list(D); break }
-        else h <- h + 1
-    }
-    # ----------------------------------------------------------------
-    #  **  Step 1
-    # ----------------------------------------------------------------
-    repeat {
-        r <- r + 1
-        if ( h < r) break
-        Y <- X[Z[1:r],]
-        C <- apply(Y, 2, mean)
-        S <- stats::var(Y)
-        if (det(S) > tol) {
-            D <- stats::mahalanobis(X, C, S)
-            Z <- sort.list(D) }
-    }
-    #**  Step 3
-    # ----------------------------------------------------------------
-    #  **  Compute Di(Cb, Sb)
-    repeat {
-        Y <- X[Z[1:h],]
-        C <- apply(Y, 2, mean)
-        S <- stats::var(Y)
-        if (det(S) > tol) {
-            D <- stats::mahalanobis(X, C, S)
-            Z <- sort.list(D)
-            if (D[Z[h + 1]] >= (cf*stats::qchisq(1-(alpha/n), p))) {
-                out <- Z[(h + 1) : n]
-                break }
-            else { h <- h + 1
-            if (n <= h) break }
-        }
-        else { h <- h + 1
-        if (n <= h) break }
-    }
-    D <- sqrt(D/cf)
-    dst <- cbind(id, mah, D)
-    Outliers <- out
-    Cb <- C;
-    Sb <- S
-    Distances <- dst
-    result <- list(Xbar = Xbar, Covariance = Covariance, mah.out = mah.out, 
-                   Outliers = Outliers, Cb = Cb, Sb = Sb, Distances = Distances )
-    class( result ) <- "outlierHadi"
-    return( result )
-}
-
-detect_outliers <- function(df) {
-    x <- outlierHadi(as.matrix(df))
-    mv_outliers <- sort(x$Outliers)
 }

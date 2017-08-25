@@ -9,7 +9,6 @@
 #' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
 #' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
-#' @param remove_mv_outliers Boolean (TRUE or FALSE) for whether to identify and remove multivariate outliers based on Hadi's (1994) approach
 #' @param plot_centered_data Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
 #' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
@@ -24,11 +23,10 @@ create_profiles <- function(df,
                             to_scale = FALSE,
                             distance_metric = "squared_euclidean",
                             linkage = "complete",
-                            remove_mv_outliers = FALSE,
                             plot_centered_data = FALSE,
                             plot_raw_data = FALSE) {
     args <- match.call()
-    prepped_data <- p(df, ..., to_center = to_center, to_scale = to_scale, remove_mv_outliers = remove_mv_outliers)
+    prepped_data <- p(df, ..., to_center = to_center, to_scale = to_scale)
     
     y <- cluster_observations(prepped_data, n_profiles, distance_metric, linkage)
     
@@ -333,6 +331,25 @@ cross_validate <- function(df,
     
     message("################################")
     
+}
+
+#' Identifies potential outliers
+#' @details * add an argument to `create_profiles()` to remove multivariate outliers based on Hadi's (1994) procedure
+#' @param df data.frame (or tibble) with variables to be clustered; all variables must be complete cases
+#' @param return_index Boolean (TRUE or FALSE) for whether to return only the row indices of the possible multivariate outliers; if FALSE, then all of the output from the function (including the indices) is returned
+#' @return either the row indices of possible multivariate outliers or all of the output from the function, depending on the value of return_index
+#' @export
+#' 
+
+detect_outliers <- function(df, return_index = TRUE) {
+    x <- outlierHadi(as.matrix(df))
+    if (return_index == TRUE) {
+        print(sort(x$Outliers))
+        mv_outliers <- sort(x$Outliers)
+    } else {
+        print(x)
+        x
+    }
 }
 
 #' Return plot of cluster centroids

@@ -89,10 +89,16 @@
 <h1 class="hasAnchor">
 <a href="#prcr-0-1-5" class="anchor"></a>prcr 0.1.5</h1>
 <ul>
-<li><p>change <code><a href="../reference/create_profiles.html">create_profiles()</a></code>, to now return a <code>.data</code> slot, so the original data can be used for analyses</p></li>
-<li><p>add <code>plot_raw_data</code> and <code>plot_centered_data</code> as arguments (that can be specified as <code>TRUE</code> but default to <code>FALSE</code>) <code><a href="../reference/create_profiles.html">create_profiles()</a></code> to change plot of profile centroids</p></li>
+<li>
+<p>add a function, <code><a href="../reference/detect_outliers.html">detect_outliers()</a></code> to detect multivariate outliers based on Hadi’s (1994) procedure (thanks to Rebecca Steingut for this contribution)</p>
+<ul>
+<li>Note that this will (in this version) be carried out separate from the <code><a href="../reference/create_profiles.html">create_profiles()</a></code> function</li>
+</ul>
+</li>
+<li><p>add <code>plot_raw_data</code> and <code>plot_centered_data</code> as arguments (that can be specified as <code>TRUE</code> but default to <code>FALSE</code>) <code><a href="../reference/create_profiles.html">create_profiles()</a></code> to change plot of profile centroids (thanks again to Rebecca for input that led to making this addition)</p></li>
 <li><p>add of a new function, <code><a href="../reference/cross_validate.html">cross_validate()</a></code>, to perform double split-half cross-validation</p></li>
 <li><p>make minor changes to how centering and scaling of data is carried out</p></li>
+<li><p>change <code><a href="../reference/create_profiles.html">create_profiles()</a></code>, to now return a <code>.data</code> slot, so the original data can be used for subsequent analyses</p></li>
 </ul>
 </div>
     <div id="prcr-0-1-4" class="section level1">

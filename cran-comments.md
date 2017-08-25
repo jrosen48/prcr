@@ -9,7 +9,7 @@
 
 * This is a new release.
 
-* I added my initial to my name as the maintainer
+* I added a middle initial to my name as the maintainer, matching my name as an author
 
 ## Reverse dependencies
 
