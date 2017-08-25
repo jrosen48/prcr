@@ -9,9 +9,25 @@ cross_validate(df, ..., to_center = FALSE, to_scale = FALSE, n_profiles,
   lower_bound = 2, upper_bound = 9)
 }
 \arguments{
-\item{...}{Additional arguments}
+\item{df}{with two or more columns with continuous variables}
 
-\item{x}{A `prcr` object}
+\item{...}{unquoted variable names separated by commas}
+
+\item{to_center}{(TRUE or FALSE) for whether to center the raw data with M = 0}
+
+\item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
+
+\item{n_profiles}{the number of profiles in the solution to cross-validate; or, the character string "iterate" to perform cross-validation for 2 to 9 profile solutions}
+
+\item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
+
+\item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
+
+\item{k}{the number of iterations}
+
+\item{lower_bound}{if n_profiles = "iterate", then this is the smallest number of profiles in the range of number of profiles to explore; defaults to 2}
+
+\item{upper_bound}{if n_profiles = "iterate", then this is the largest number of profiles in the range of number of profiles to explore; defaults to 9}
 }
 \value{
 A ggplot2 object

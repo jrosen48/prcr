@@ -18,7 +18,11 @@ Imports:
     dplyr,
     tidyr,
     ggplot2,
-    tibble
+    tibble,
+    irr,
+    lpSolve,
+    purrr,
+    class
 Suggests:
     rmarkdown,
     knitr

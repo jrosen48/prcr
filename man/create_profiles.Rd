@@ -6,7 +6,8 @@
 \usage{
 create_profiles(df, ..., n_profiles, to_center = FALSE, to_scale = FALSE,
   distance_metric = "squared_euclidean", linkage = "complete",
-  plot_centered_data = FALSE, plot_raw_data = FALSE)
+  remove_mv_outliers = FALSE, plot_centered_data = FALSE,
+  plot_raw_data = FALSE)
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}
@@ -22,6 +23,8 @@ create_profiles(df, ..., n_profiles, to_center = FALSE, to_scale = FALSE,
 \item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
 
 \item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
+
+\item{remove_mv_outliers}{Boolean (TRUE or FALSE) for whether to identify and remove multivariate outliers based on Hadi's (1994) approach}
 
 \item{plot_centered_data}{Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)}
 
