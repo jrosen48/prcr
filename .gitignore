@@ -1,7 +1,6 @@
 .R/command_and_control.R
 .Rproj.user
 prcr.Rproj
-*.png
 Rhistory
 .Rhistory
 *.csv
@@ -11,6 +10,4 @@ Rbuildignore
 gitignore
 .Rproj
 .RData
-ilp.R
-mbc.R
 inst/doc
