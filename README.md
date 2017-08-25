@@ -122,15 +122,15 @@ cross_validation_output
 #> # A tibble: 30 x 3
 #>    k_iteration kappa percentage_agree
 #>          <int> <dbl>            <dbl>
-#>  1           1  1.00             1.00
+#>  1           1    NA               NA
 #>  2           2  0.87             0.94
 #>  3           3  1.00             1.00
 #>  4           4  1.00             1.00
-#>  5           5  1.00             1.00
+#>  5           5  0.87             0.94
 #>  6           6    NA               NA
-#>  7           7    NA               NA
-#>  8           8  0.87             0.94
-#>  9           9  0.87             0.94
+#>  7           7  1.00             1.00
+#>  8           8  1.00             1.00
+#>  9           9    NA               NA
 #> 10          10  0.87             0.94
 #> # ... with 20 more rows
 ```
