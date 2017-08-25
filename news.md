@@ -1,12 +1,14 @@
 # prcr 0.1.5
 
-* change `create_profiles()`, to now return a `.data` slot, so the original data can be used for analyses
+* add an argument to `create_profiles()` to remove multivariate outliers based on Hadi's (1994) procedure (thanks to Rebecca Steingut for this contribution)
 
-* add `plot_raw_data` and `plot_centered_data` as arguments (that can be specified as `TRUE` but default to `FALSE`) `create_profiles()` to change plot of profile centroids 
+* add `plot_raw_data` and `plot_centered_data` as arguments (that can be specified as `TRUE` but default to `FALSE`) `create_profiles()` to change plot of profile centroids (thanks again to Rebecca for input that led to making this addition)
 
 * add of a new function, `cross_validate()`, to perform double split-half cross-validation
 
 * make minor changes to how centering and scaling of data is carried out
+
+* change `create_profiles()`, to now return a `.data` slot, so the original data can be used for subsequent analyses
 
 # prcr 0.1.4
 
