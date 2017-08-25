@@ -149,9 +149,9 @@ core_cross_validate <- function(df,
             dat1 <- dat1[-nrow(dat1), ]
         }
         
-        dat1 <- dplyr::select(dat1, -dat1$ID)
+        dat1$ID <- NULL
         row.names(dat1) <- NULL
-        dat2 <- dplyr::select(dat2, -dat1$ID)
+        dat2$ID <- NULL
         
         # step 1 (cluster half the data)
         

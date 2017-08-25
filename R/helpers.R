@@ -230,11 +230,11 @@ outlierHadi <- function(X) {
     # **  Compute Mahalanobis distance
     # -----------------------------------------------------------------
     C <- apply(X, 2, mean)
-    S <- var(X)
+    S <- stats::var(X)
     if (det(S) < tol) stop ()
-    D <- mahalanobis(X, C, S)
+    D <- stats::mahalanobis(X, C, S)
     mah.out <- 0
-    cv <- qchisq(1-(alpha/n), p)
+    cv <- stats::qchisq(1-(alpha/n), p)
     for (i in 1:n) if (D[i] >= cv) mah.out <- cbind(mah.out, i)
     mah.out <- mah.out[-1]
     mah <- sqrt(D)
@@ -244,7 +244,7 @@ outlierHadi <- function(X) {
     # **  Step 0
     # ----------------------------------------------------------------
     #  **  Compute Di(Cm, Sm)
-    C <- apply(X, 2, median)
+    C <- apply(X, 2, stats::median)
     #original code was 
     #  C <- t(array(C, dim = c(n, p)))
     #but resulted in nonconformable arrays. 
@@ -252,16 +252,16 @@ outlierHadi <- function(X) {
     C <- array(C, dim = c(n, p))
     Y <- X - C
     S <- ((n - 1)^-1)*(t(Y) %*% Y)
-    D <- mahalanobis(X, C[1, ], S)
+    D <- stats::mahalanobis(X, C[1, ], S)
     Z <- sort.list(D)
     # ----------------------------------------------------------------
     #  **  Compute Di(Cv, Sv)
     repeat {
         Y <- X[Z[1:h], ]
         C <- apply(Y, 2, mean)
-        S <- var(Y)
+        S <- stats::var(Y)
         if (det(S) > tol) {
-            D <- mahalanobis(X, C, S)
+            D <- stats::mahalanobis(X, C, S)
             Z <- sort.list(D); break }
         else h <- h + 1
     }
@@ -273,9 +273,9 @@ outlierHadi <- function(X) {
         if ( h < r) break
         Y <- X[Z[1:r],]
         C <- apply(Y, 2, mean)
-        S <- var(Y)
+        S <- stats::var(Y)
         if (det(S) > tol) {
-            D <- mahalanobis(X, C, S)
+            D <- stats::mahalanobis(X, C, S)
             Z <- sort.list(D) }
     }
     #**  Step 3
@@ -284,11 +284,11 @@ outlierHadi <- function(X) {
     repeat {
         Y <- X[Z[1:h],]
         C <- apply(Y, 2, mean)
-        S <- var(Y)
+        S <- stats::var(Y)
         if (det(S) > tol) {
-            D <- mahalanobis(X, C, S)
+            D <- stats::mahalanobis(X, C, S)
             Z <- sort.list(D)
-            if (D[Z[h + 1]] >= (cf*qchisq(1-(alpha/n), p))) {
+            if (D[Z[h + 1]] >= (cf*stats::qchisq(1-(alpha/n), p))) {
                 out <- Z[(h + 1) : n]
                 break }
             else { h <- h + 1
