@@ -9,6 +9,8 @@
 
 * This is a new release.
 
+* I added my initial to my name as the maintainer
+
 ## Reverse dependencies
 
 This is a new release, so there are no reverse dependencies.
