@@ -4,9 +4,9 @@
 \alias{create_profiles}
 \title{Create profiles of observed variables using two-step cluster analysis}
 \usage{
-create_profiles(df, ..., n_profiles, to_center = FALSE, to_scale = FALSE,
-  distance_metric = "squared_euclidean", linkage = "complete",
-  plot_centered_data = FALSE, plot_raw_data = FALSE)
+create_profiles(df, ..., n_profiles, center_data = TRUE, scale_data = TRUE,
+  distance_metric = "euclidean", linkage = "complete",
+  to_return = "clustered_data")
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}
@@ -15,13 +15,13 @@ create_profiles(df, ..., n_profiles, to_center = FALSE, to_scale = FALSE,
 
 \item{n_profiles}{The specified number of profiles to be found for the clustering solution}
 
-\item{to_center}{Boolean (TRUE or FALSE) for whether to center the raw data with M = 0}
-
-\item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
-
 \item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
 
 \item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
+
+\item{to_center}{Boolean (TRUE or FALSE) for whether to center the raw data with M = 0}
+
+\item{to_scale}{Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1}
 
 \item{plot_centered_data}{Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)}
 
