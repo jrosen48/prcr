@@ -1,110 +1,77 @@
 # functions_new.R
 
-# prcr <- function() {
-#     structure(data.frame(), class = "prcr")
-# }
+#' # Create profiles
+#' @details Create profiles using cluster analysis or mixture modeling
+#' @param df with two or more columns with continuous variables
+#' @param ... unquoted variable names separated by commas
+#' @param to_center (TRUE or FALSE) for whether to center the raw data with M = 0
+#' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
+#' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
+#' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
+#' @param lower_bound the smallest number of profiles in the range of number of profiles to explore; defaults to 2
+#' @param upper_bound the largest number of profiles in the range of number of profiles to explore; defaults to 9
+#' @param r_squared_table if TRUE, then a table, rather than a plot, is returned; defaults to FALSE
+#' @import dplyr
+#' @importFrom mclust mclustBIC
+#' @return A list containing a ggplot2 object and a tibble for the R^2 values
+#' @examples
+#' df <- mtcars
+#' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, lower_bound = 2, upper_bound = 4)
+#' @export
 
-prepare_data <- function(df, ..., to_center, to_scale){
-    if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
-    
-    df <- tibble::as_tibble(df)
-    
-    if (rlang::dots_n(...) > 1) {
-        df_ss <- dplyr::select(df, ...)
-    } else {
-        df_ss <- dplyr::select(df, everything())
-    }
-    
-    cases_to_keep <- stats::complete.cases(df_ss) # to use later for comparing function to index which cases to keep
-    df_complete <- df_ss[cases_to_keep, ] # removes incomplete cases
-    
-    # prepared_data[[10]] <- df_ss_wo_incomplete_cases
-    
-    if (to_center == TRUE & to_scale == TRUE) {
-        df_complete <- dplyr::mutate_all(df_complete, center_and_scale_vector)
-    } else if (to_center == TRUE & to_scale == FALSE) {
-        df_complete <- dplyr::mutate_all(df_complete, center_vector)
-    } else if (to_center == FALSE & to_scale == TRUE) {
-        df_complete <- dplyr::mutate_all(df_complete, scale_vector)
-    } else if (to_center == FALSE & to_scale == FALSE) {
-        df_complete <- df_complete
-    }
-    
-    
-    # class(df_complete)
-    #names(prepared_data)[[1]] <- "prepared_tibble"
-    #class(prepared_data) <- c("prcr")
-    
-    attributes(df_complete)$orig_data <- df
-    attributes(df_complete)$cases_to_keep <- cases_to_keep
-    attributes(df_complete)$.data <- df_ss[cases_to_keep, ]
-    
-    # prepared_data[[2]] <- df_wo_incomplete_cases
-    # names(prepared_data)[[2]] <- ".data"
-    row.names(df_complete) <- NULL
-    
-    class(df_complete) <- c("tbl_df", "tbl", "data.frame", "prcr")
-    
-    message("Prepared data: Removed ", sum(!cases_to_keep), " incomplete cases")
-    return(df_complete)
-}
-
-
-create_profiles <- function(df,
+prcr_create_profiles <- function(df,
                             ...,
                             n_profiles,
+                            model_name = "VVV",
                             center_data = TRUE,
                             scale_data = TRUE,
                             distance_metric = "euclidean",
                             linkage = "complete",
-                            to_return = "clustered_data"){
+                            to_return = "tibble",
+                            method = "mixture") {
     
     df <- prepare_data(df, ..., to_center = center_data, to_scale = scale_data)
+    df <- dplyr::tbl_df(df)
     
-    distance_matrix <- distance_function(df, distance_metric)
+    # For clustering
     
-    hclust_output <- stats::hclust(distance_matrix, method = linkage) # hierarhical clustering
-    
-    attributes(df)$hclust_output <- hclust_output
-    
-    message(paste0("Hierarchical clustering carried out on: ", nrow(df), " cases"))
-    #names(hclust_output)[[3]] <- "hierarchical_clustering_output"
-    starting_centroids <- hclust_to_kmeans_function(df, hclust_output, n_profiles = n_profiles)
-    
-    kmeans_output <- possibly_kmeans(df, dplyr::select(starting_centroids, -classification)) # Fits k-means algorithm with hierarchical vals as start value
-    
-    attributes(df)$kmeans_output <- kmeans_output
-    
-    if (length(kmeans_output) == 1) {
-        return(kmeans_output)
-    }
-    
-    if (kmeans_output$iter == 1) {
-        message(paste0("K-means algorithm converged: ", kmeans_output$iter, " iteration"))
-    } else {
-        message(paste0("K-means algorithm converged: ", kmeans_output$iter, " iterations"))
-    }
-    #names(kmeans_output) <- "kmeans_clustering_output"
-    if (is.kmeans(kmeans_output)) {
+    if (method == "clustering") {
+        distance_matrix <- distance_function(df, distance_metric)
+        hclust_output <- stats::hclust(distance_matrix, method = linkage) # hierarhical clustering
+        attributes(df)$hclust_output <- hclust_output
+        message(paste0("Hierarchical clustering carried out on: ", nrow(df), " cases"))
+        starting_centroids <- hclust_to_kmeans_function(df, hclust_output, n_profiles = n_profiles)
+        kmeans_output <- possibly_kmeans(df, dplyr::select(starting_centroids, -classification)) # Fits k-means algorithm with hierarchical vals as start value
+        attributes(df)$kmeans_output <- kmeans_output
+        
+        if (length(kmeans_output) == 1) { # this is to test if k-means did not converge
+            return(kmeans_output)
+        }
+        
+        # messages
+        if (kmeans_output$iter == 1) {
+            message(paste0("K-means algorithm converged: ", kmeans_output$iter, " iteration"))
+        } else { message(paste0("K-means algorithm converged: ", kmeans_output$iter, " iterations"))
+        }
+        
         attributes(hclust_output)$n_profiles <- n_profiles
-        message("Clustered data: Using a ", n_profiles, " cluster solution")    
+        message("Clustered data: Using a ", n_profiles, " cluster solution")
+        
     }
     
-    # NEED TO RENAME
+    # For mixture modeling
     
-    tmp <- data_frame(row_names = as.character(1:length(attributes(df)$cases_to_keep)),
-                      condition = attributes(df)$cases_to_keep)
+    if (method == "mixture") {
+        x <- create_profiles_mclust(df, n_profiles = n_profiles, model_name = model_name, to_return = to_return)
+        return(tbl_df(x)) 
+    }
     
-    tmp_clustered_vars <- filter(tmp, condition == TRUE)
-    
-    tmp_clustered_vars <- data_frame(row_names = tmp_clustered_vars$row_names,
-                                     profile = kmeans_output$cluster)
-    
-    tmp_all_vars <- left_join(tmp, tmp_clustered_vars, by = "row_names")
-    
+    # This is processing the filtered cases
+    tmp <- dplyr::data_frame(row_names = as.character(1:length(attributes(df)$cases_to_keep)), condition = attributes(df)$cases_to_keep)
+    tmp_clustered_vars <- dplyr::filter(tmp, condition == TRUE)
+    tmp_clustered_vars <- dplyr::data_frame(row_names = tmp_clustered_vars$row_names, profile = kmeans_output$cluster)
+    tmp_all_vars <- dplyr::left_join(tmp, tmp_clustered_vars, by = "row_names")
     attributes(df)$orig_data <- tibble::rownames_to_column(attributes(df)$orig_data, var = "row_names")
-    
-    # NEED TO ADD ATTRIBUTES TO OTHER CONDITIONS
     
     if (to_return == "clustered_data") {
         return_df <- df
@@ -113,14 +80,13 @@ create_profiles <- function(df,
         return_df <- attributes(df)$.data
         return_df$profile <- tmp_clustered_vars$profile
     } else if (to_return == "raw_unprocessed_data") {
-        return_df <- left_join(tmp_all_vars, attributes(df)$orig_data, by = "row_names")
-        return_df <- select(return_df, everything(), -row_names, -condition)
-        return_df <- select(return_df, everything(), -profile, profile)
+        return_df <- dplyr::left_join(tmp_all_vars, attributes(df)$orig_data, by = "row_names")
+        return_df <- dplyr::select(return_df, dplyr::everything(), -row_names, -condition)
+        return_df <- dplyr::select(return_df, dplyr::everything(), -profile, profile)
         #return_df$profile <- tmp$profile
     }
     
-    return_df
-    
+    tbl_df(return_df)
 }
 
 # ADD SD
@@ -130,17 +96,21 @@ create_profiles <- function(df,
 #' @param x A `prcr` object
 #' @param ... Additional arguments
 #' @return A ggplot2 object
+#' @import tidyr
+#' @import dplyr
+#' @import ggplot2
+#' @importFrom dplyr "%>%"
 #' @export
 
 plot_profiles<- function(x, ...){
     # if (is.prcr(x) != TRUE) stop("is not a `prcr` object")
     
     x %>% 
-        group_by(profile) %>% 
-        summarize_all(mean) %>% 
-        gather(var, val, -profile) %>%
-        ggplot(aes(x = profile, y = val, fill = var)) +
-        geom_col(position = "dodge")
+        dplyr::group_by(profile) %>% 
+        dplyr::summarize_all(mean) %>% 
+        tidyr::gather(var, val, -profile) %>%
+        ggplot2::ggplot(ggplot2::aes(x = profile, y = val, fill = var)) +
+        ggplot2::geom_col(position = "dodge")
 }
 
 # Test code
@@ -165,7 +135,6 @@ plot_profiles<- function(x, ...){
 #' df <- mtcars
 #' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, lower_bound = 2, upper_bound = 4)
 #' @export
-#' #
 
 plot_r_squared <- function(df,    
                            ...,
@@ -189,15 +158,13 @@ plot_r_squared <- function(df,
         message("Clustering data for iteration ", i)
         
         out[(i - 1), "r_squared_value"] <- 
-            suppressWarnings(
-                suppressMessages(
-                    create_profiles(df,
-                                    ...,
-                                    n_profiles = i, 
-                                    to_center = to_center, 
-                                    to_scale = to_scale, 
-                                    distance_metric = distance_metric, 
-                                    linkage = linkage)))[[5]]
+            create_profiles(df,
+                            ...,
+                            n_profiles = i, 
+                            to_center = to_center, 
+                            to_scale = to_scale, 
+                            distance_metric = distance_metric, 
+                            linkage = linkage)[[5]]
     }
     
     message("################################")

@@ -1,6 +1,5 @@
 # helper functions
 
-
 scale_vector <- function(x) {
     x / stats::sd(x, na.rm = TRUE)
 }
@@ -47,7 +46,7 @@ hclust_to_kmeans_function <- function(df, hclust_output, n_profiles){
         summarize_all(mean)
 }
 
-possibly_kmeans <- possibly(kmeans, NA)
+possibly_kmeans <- purrr::possibly(kmeans, NA)
 
 is.kmeans <- function(x) inherits(x, "kmeans")
 
@@ -197,4 +196,49 @@ remove_uv_main_func <- function(data, removed_obs_df, cases_to_keep){
 detect_outliers <- function(df) {
     outlierHadi(as.matrix(df))
     # need to add UV outlier detector
+}
+
+prepare_data <- function(df, ..., to_center, to_scale){
+    if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
+    
+    df <- tibble::as_tibble(df)
+    
+    if (rlang::dots_n(...) > 1) {
+        df_ss <- dplyr::select(df, ...)
+    } else {
+        df_ss <- dplyr::select(df, everything())
+    }
+    
+    cases_to_keep <- stats::complete.cases(df_ss) # to use later for comparing function to index which cases to keep
+    df_complete <- df_ss[cases_to_keep, ] # removes incomplete cases
+    
+    # prepared_data[[10]] <- df_ss_wo_incomplete_cases
+    
+    if (to_center == TRUE & to_scale == TRUE) {
+        df_complete <- dplyr::mutate_all(df_complete, center_and_scale_vector)
+    } else if (to_center == TRUE & to_scale == FALSE) {
+        df_complete <- dplyr::mutate_all(df_complete, center_vector)
+    } else if (to_center == FALSE & to_scale == TRUE) {
+        df_complete <- dplyr::mutate_all(df_complete, scale_vector)
+    } else if (to_center == FALSE & to_scale == FALSE) {
+        df_complete <- df_complete
+    }
+    
+    
+    # class(df_complete)
+    #names(prepared_data)[[1]] <- "prepared_tibble"
+    #class(prepared_data) <- c("prcr")
+    
+    attributes(df_complete)$orig_data <- df
+    attributes(df_complete)$cases_to_keep <- cases_to_keep
+    attributes(df_complete)$.data <- df_ss[cases_to_keep, ]
+    
+    # prepared_data[[2]] <- df_wo_incomplete_cases
+    # names(prepared_data)[[2]] <- ".data"
+    row.names(df_complete) <- NULL
+    
+    class(df_complete) <- c("tbl_df", "tbl", "data.frame", "prcr")
+    
+    message("Prepared data: Removed ", sum(!cases_to_keep), " incomplete cases")
+    return(df_complete)
 }

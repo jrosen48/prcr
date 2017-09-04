@@ -1,6 +1,6 @@
 Package: prcr
 Type: Package
-Title: Person-Centered Analysis
+Title: Easily and Efficiently Carry out Person Centered (or Oriented) Analysis
 Version: 0.1.4
 Authors@R: c(
     person(c("Joshua", "M"), "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com"),
@@ -8,7 +8,7 @@ Authors@R: c(
     person(c("Patrick", "N"), "Beymer", role = "ctb", email = "beymerpa@msu.edu")
     )
 Maintainer: Joshua Rosenberg <jmichaelrosenberg@gmail.com>
-Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step clustering procedure and Gaussian mixture modeling.
+Description: Provides an easy-to-use yet adaptable set of tools to conduct person-center analysis using a two-step clustering procedure or Gaussian mixture modeling.
     As described in Bergman and El-Khouri (1999) <DOI:10.1002/(SICI)1521-4036(199910)41:6%3C753::AID-BIMJ753%3E3.0.CO;2-K>, hierarchical clustering is performed to
     determine the initial partition for the subsequent k-means clustering procedure. Provides functionality in terms of how the residual covariance matrix of the clustered
     variables is structured familiar to those who use Latent Profile Analysis. Follows a tidy philosophy, in that output is in the form of a tibble (a data.frame) that can
