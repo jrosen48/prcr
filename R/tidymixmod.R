@@ -1,55 +1,18 @@
 # functions.R
 
-#' Explore BIC of mclust models
-#' @details Explore the BIC values of a range of models in terms of a) the structure of the residual covariance matrix and b) the number of mixture components (or profiles)
-#' @param df data.frame with two or more columns with continuous variables
-#' @param n_profiles_range a vector with the range of the number of mixture components to explore; defaults to 1 through 9 (1:9)
-#' @param model_names mclust models to explore; defaults to constrained variance, fixed variances ("EII"), constrained variance, constrained covariance ("EEE"), and freed variance, freed covariance ("VVV"); run mclust::mclustModelNames() to see all of the possible models and their names / abbreviations
-#' @return a ggplot2 plot of the BIC values for the explored models
-#' @examples
-#' library(dplyr)
-#' df <- select(iris, -Species)
-#' explore_models_mclust(df)
-#' @export
-
-explore_models_mclust <- function(df, n_profiles_range = 1:9, model_names = c("EEI", "EEE", "VVV"), statistic = "BIC", return_table = FALSE) {
+select_create_profiles <- function(df, ...){
+    if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
+    df <- tibble::as_tibble(df)
+    df_ss <- dplyr::select(df, ...)
     
-    if (statistic == "BIC") {
-        x <- mclust::mclustBIC(df, G = n_profiles_range, modelNames = model_names)
-    } else if (statistic == "ICL") {
-        x <- mclust::mclustICL(df, G = n_profiles_range, modelNames = model_names)
-    } else {
-        stop("This statistic cannot presently be computed")
-    }
+    cases_to_keep <- stats::complete.cases(df_ss) # to use later for comparing function to index which cases to keep
     
-    y <- x %>%
-        as.data.frame.matrix() %>%
-        tibble::rownames_to_column("n_profiles") %>%
-        dplyr::rename(`Constrained variance, fixed covariance` = EEI,
-                      `Constrained variance, constrained covariance` = EEE,
-                      `Freed variance, freed covariance` = VVV)
+    # cases_to_keep <- dplyr::data_frame(row_names = 1:nrow(df_ss),
+    #                                    keep = cases_to_keep)
     
-    to_plot <- y %>%
-        tidyr::gather(`Covariance matrix structure`, val, -n_profiles) %>%
-        dplyr::mutate(`Covariance matrix structure` = as.factor(`Covariance matrix structure`),
-                      val = abs(val)) # this is to make the BIC values positive (to align with more common formula / interpretation of BIC)
+    d <- df_ss[cases_to_keep, ] # removes incomplete cases
     
-    
-    to_plot$`Covariance matrix structure` <- forcats::fct_relevel(to_plot$`Covariance matrix structure`,
-                                                                  "Constrained variance, fixed covariance",
-                                                                  "Constrained variance, constrained covariance",
-                                                                  "Freed variance, freed covariance")
-    
-    
-    if(return_table == TRUE) {
-        return(to_plot)
-    }
-    
-    ggplot2::ggplot(to_plot, ggplot2::aes(x = n_profiles, y = val, color = `Covariance matrix structure`, group = `Covariance matrix structure`)) +
-        ggplot2::geom_line() +
-        ggplot2::geom_point() +
-        ggplot2::ylab(paste0(statistic, " (smaller value is better)"))
-    
+    return(d)
 }
 
 #' Create profiles for a specific mclust model
@@ -60,20 +23,23 @@ explore_models_mclust <- function(df, n_profiles_range = 1:9, model_names = c("E
 #' @param to_return character string for whether to return a tibble or the mclust output; if a tibble is returned, the mclust output can be viewed using the extract_mclust_output() function, with the tibble as its only argument
 #' @return a ggplot2 plot of the BIC values for the explored models
 #' @importFrom magrittr '%>%'
-#' @importFrom mclust 'mclustBIC'
+#' @import mclust
 #' @examples
 #' library(dplyr)
 #' df <- select(iris, -Species)
-#' create_profiles_mclust(df, n_profiles = 3, variance_structure = "freed", covariance_structure = "freed")
+#' create_profiles(df, n_profiles = 3, variance_structure = "freed", covariance_structure = "freed")
 #' @export
 
-create_profiles_mclust <- function(df,
-                                   n_profiles,
-                                   variance_structure = "freed",
-                                   covariance_structure = "freed",
-                                   model_name = NULL,
-                                   to_return = "tibble"){
+create_profiles <- function(df,
+                            ...,
+                            n_profiles,
+                            variance_structure = "freed",
+                            covariance_structure = "freed",
+                            model_name = NULL,
+                            to_return = "tibble"){
     
+    d <- select_create_profiles(df, ...)
+    print(model_name)
     if (model_name %in% c("constrained_variance", "constrained_variance_and_covariance", "freed_variance_and_covariance")) {
         
         if (model_name == "constrained_variance") {
@@ -90,14 +56,14 @@ create_profiles_mclust <- function(df,
         
     }
     
-    x <- mclust::Mclust(df, G = n_profiles, modelNames = model_name)
+    x <- mclust::Mclust(d, G = n_profiles, modelNames = model_name)
     
     dff <- as.data.frame(dplyr::bind_cols(df, profile = x$classification)) # replace with tibble
     
     attributes(dff)$mclust_output <- x
     
     if (to_return == "tibble") {
-        return(dff)
+        return(tibble::as_tibble(dff))
     } else if (to_return == "mclust") {
         return(attributes(dff)$mclust_output)
     }
@@ -124,8 +90,8 @@ calculate_centroids_mclust <- function(x) {
 #     dplyr::mutate_at(vars(-classification), function(x) round(x, 3)) %>%
 #     dplyr::rename(profile = classification)
 
-#' Extract mclust output from the function create_profiles_mclust()
-#' @details Extract the output of the mclust output from the function create_profiles_mclust() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
+#' Extract mclust output from the function create_profiles()
+#' @details Extract the output of the mclust output from the function create_profiles() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
 #' @param x an object of class `Mclust`
 #' @export
 
@@ -133,8 +99,8 @@ extract_mclust_output <- function(x) {
     attributes(x)$mclust_output
 }
 
-#' Extract mclust classifications from the function create_profiles_mclust()
-#' @details Extract the classifications, in the form of posterior probabilties, for specific observations from the mclust output from the function create_profiles_mclust() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
+#' Extract mclust classifications from the function create_profiles()
+#' @details Extract the classifications, in the form of posterior probabilties, for specific observations from the mclust output from the function create_profiles() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
 #' @param x an object of class `Mclust`
 #' @export
 
@@ -142,8 +108,8 @@ extract_mclust_classifications <- function(x) {
     attributes(x)$mclust_output$classification
 }
 
-#' Extract mclust classifications from the function create_profiles_mclust()
-#' @details Extract the classifications, in the form of posterior probabilties, for specific observations from the mclust output from the function create_profiles_mclust() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
+#' Extract mclust classifications from the function create_profiles()
+#' @details Extract the classifications, in the form of posterior probabilties, for specific observations from the mclust output from the function create_profiles() so that posterior probabilities for specific observations, statistics related to the estimation, and other output can be viewed
 #' @param x an object of class `Mclust`
 #' @export
 

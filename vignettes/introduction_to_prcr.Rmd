@@ -19,11 +19,18 @@ vignette: |
 
 In this example using the built-in to R `mtcars` data for fuel consumption and other information for 32 automobiles, the variables `disp` (for engine displacement, in cu. in.), `qsec` (for the 1/4 mile time, in seconds), and `wt` for weight (in 1000 lbs.) are clustered with a `2` cluster solution specified. Because the variables are in very different units, the `to_scale` argument is set to `TRUE`.
 
-```{r}
-library(prcr)
+```{r, echo = F}
+devtools::load_all(".")
+```
 
+```{r, eval = F}
+library(prcr)
+```
+
+```{r}
 df <- mtcars
 
+df$wt[2] <- NA
 two_profile_solution <- create_profiles(df, 
                                         disp, hp, wt,
                                         n_profiles = 2, 

@@ -94,6 +94,7 @@ p <- function(df, ..., to_center, to_scale){
     df_wo_incomplete_cases <- df[cases_to_keep, ]
     
     prepared_data[[10]] <- df_ss_wo_incomplete_cases
+    names(prepared_data)[[10]] <- "df_with_dummies"
     
     if (to_center == TRUE & to_scale == TRUE) {
         prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
