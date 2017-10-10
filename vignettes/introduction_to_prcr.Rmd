@@ -1,7 +1,7 @@
 ---
-title: "Introduction to prcr"
+title: "Introduction to cluster analysis-based use of prcr"
 author: "Joshua Rosenberg"
-date: "5/16/2017"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document: default
   pdf_document: default
@@ -19,18 +19,21 @@ vignette: |
 
 In this example using the built-in to R `mtcars` data for fuel consumption and other information for 32 automobiles, the variables `disp` (for engine displacement, in cu. in.), `qsec` (for the 1/4 mile time, in seconds), and `wt` for weight (in 1000 lbs.) are clustered with a `2` cluster solution specified. Because the variables are in very different units, the `to_scale` argument is set to `TRUE`.
 
-```{r, echo = F}
+```{r, echo = F, eval = F}
 devtools::load_all(".")
 ```
 
-```{r, eval = F}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+```{r, eval = T}
 library(prcr)
 ```
 
-```{r}
+```{r, eval = F}
 df <- mtcars
 
-df$wt[2] <- NA
 two_profile_solution <- create_profiles(df, 
                                         disp, hp, wt,
                                         n_profiles = 2, 
@@ -45,16 +48,13 @@ plot(two_profile_solution)
 
 The output has the class `prcr` and has slots for additional information that can be extracted from it, such as the original data with the clustering assignment added, the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).
 
-```{r}
+```{r, eval = F}
 two_profile_solution$.data
-two_profile_solution$r_squared
-two_profile_solution$clustered_raw_data
-two_profile_solution$clustered_processed_data
 ```
 
 Comparison of R-squared values can be carried out as follows:
 
-```{r, message = F}
+```{r, message = F, eval = F}
 r_squared_output <- plot_r_squared(df, 
                                    disp, hp, wt,
                                    to_scale = T,
@@ -65,7 +65,7 @@ r_squared_output
 
 Cross-validation is now able to be carried out, in this example for the two-profile solution, although `n_profiles` can also be set to the character string` "iterate"` in order to explore cross-validation output for a range of profile solutions:
 
-```{r, message = F}
+```{r, message = F, eval = F}
 cross_validation_output <- cross_validate(df,
                                           disp, hp, wt,
                                           to_scale = TRUE,

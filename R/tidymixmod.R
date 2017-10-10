@@ -18,46 +18,42 @@ select_create_profiles <- function(df, ...){
 #' Create profiles for a specific mclust model
 #' @details Creates profiles (or estimates the mixture components) for a specific mclust model in terms of the specific number of mixture components and the structure of the residual covariance matrix
 #' @param df data.frame with two or more columns with continuous variables
+#' @param ... unquoted variable names separated by commas
 #' @param n_profiles the number of profiles (or mixture components) to be estimated
-#' @param model_name the mclust model to explore: "means", "means_varying_covariance", and "means_varying_covariance" specify the three most common models, in order from most to least constrained; run ?mclust::mclustModelNames() to see all of the possible models and their names / abbreviations)
+#' @param model the mclust model to explore: "means", "means_varying_covariance", and "means_varying_covariance" specify the three most common models, in order from most to least constrained; run ?mclust::mclustModelNames() to see all of the possible models and their names / abbreviations)
 #' @param to_return character string for whether to return a tibble or the mclust output; if a tibble is returned, the mclust output can be viewed using the extract_mclust_output() function, with the tibble as its only argument
-#' @return a ggplot2 plot of the BIC values for the explored models
-#' @importFrom magrittr '%>%'
 #' @import mclust
-#' @examples
-#' library(dplyr)
-#' df <- select(iris, -Species)
-#' create_profiles(df, n_profiles = 3, variance_structure = "freed", covariance_structure = "freed")
+#' @return a ggplot2 plot of the BIC values for the explored models
 #' @export
 
 create_profiles <- function(df,
                             ...,
                             n_profiles,
-                            variance_structure = "freed",
-                            covariance_structure = "freed",
-                            model_name = NULL,
+                            model = 1,
                             to_return = "tibble"){
     
     d <- select_create_profiles(df, ...)
-    print(model_name)
-    if (model_name %in% c("constrained_variance", "constrained_variance_and_covariance", "freed_variance_and_covariance")) {
-        
-        if (model_name == "constrained_variance") {
-            model_name <- "EEI"
-        } else if (model_name == "constrained_variance_and_covariance") {
-            model_name <- "EEE"
-        } else if (model_name == "freed_variance_and_covariance") {
-            model_name <- "VVV"
-        } else if (model_name %in% c("E", "V", "EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE", "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV", "X", "XII", "XXI", "XXX")) {
-            model_name <- model_name
-        } else {
-            stop("Model name is not correctly specified: use 'constrained_variance', 'constrained_variance_and_covariance', 'freed_variance_and_covariance' or one of the model names specified from ?mclust::mclustModelNames()")
-        }
-        
+
+    if (model == 1) {
+        model <- "EEI"
+    } else if (model == 2) {
+        model <- "EEE"
+    } else if (model == 3) {
+        model <- "VVV"
+    } else if (model %in% c("E", "V", "EII", "VII", "EEI", "VEI", "EVI", "VVI", "EEE", "EVE", "VEE", "VVE", "EEV", "VEV", "EVV", "VVV", "X", "XII", "XXI", "XXX")) {
+        model <- model
+    } else {
+        stop("Model name is not correctly specified: use 'constrained_variance', 'constrained_variance_and_covariance', 'freed_variance_and_covariance' or one of the model names specified from mclustModelNames() from mclust")
     }
     
-    x <- mclust::Mclust(d, G = n_profiles, modelNames = model_name)
+    model_print <- ifelse(model == "EEI", "constrained variance",
+                    ifelse(model == "EEE", "constrained variance and covariance",
+                           ifelse(model == "VVV", "freed variance and covariance", model)))
     
+    x <- mclust::Mclust(d, G = n_profiles, modelNames = model)
+    
+    message("Fit model with ", n_profiles, " profiles using the '", model_print, "' model.")
+    message("Model BIC is ", round(abs(as.vector(x$BIC)), 3))
     dff <- as.data.frame(dplyr::bind_cols(df, profile = x$classification)) # replace with tibble
     
     attributes(dff)$mclust_output <- x
@@ -67,7 +63,6 @@ create_profiles <- function(df,
     } else if (to_return == "mclust") {
         return(attributes(dff)$mclust_output)
     }
-    
 }
 
 calculate_centroids_mclust <- function(x) {
@@ -120,21 +115,22 @@ extract_mclust_classification_certainty <- function(x) {
 #' Bootstrap the likelihood-ratio test statistic for mixture components
 #' @details Bootstrap the p-values for the likelihood-ratio test statistic for the number of mixture components for an mclust model
 #' @param df data.frame with two or more columns with continuous variables
+#' @param ... additional arguments to be passed to mclustBootstrapLRT()
 #' @param model_names names of one or more models ?run mclust::mclustModelNames() to see all of the possible models and their names / abbreviations)
-#' @importFrom magrittr '%>%'
 #' @export
 
 bootstrap_LRT_mclust <- function(df, model_names, ...) {
     if (length(model_names) == 1) {
         mclust::mclustBootstrapLRT(data = df, modelName = model_names, ...)
     } else if (length(model_names) > 1) {
-        model_names %>% purrr::map(~ mclust::mclustBootstrapLRT(data = df, modelName = .))
+        purrr::map(model_names, ~ mclust::mclustBootstrapLRT(data = df, modelName = .))
     }
 }
 
 #' Extract mclust variances
 #' @details Extract the variances and covariances
 #' @param x an object of class `Mclust`
+#' @param profile_n the number of profiles
 #' @export
 
 extract_variance <- function(x, profile_n) {
@@ -152,6 +148,7 @@ extract_variance <- function(x, profile_n) {
 #' Extract mclust covariance
 #' @details Extract the covariances
 #' @param x an object of class `Mclust`
+#' @param profile_n the number of profiles
 #' @export
 
 extract_covariance <- function(x, profile_n) {

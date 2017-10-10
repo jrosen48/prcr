@@ -1,0 +1,12 @@
+---
+title: "Introduction to model-based use of cluster analysis"
+author: "Joshua Rosenberg"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+

@@ -11,9 +11,6 @@
 #' @param upper_bound the largest number of profiles in the range of number of profiles to explore; defaults to 9
 #' @param r_squared_table if TRUE, then a table, rather than a plot, is returned; defaults to FALSE
 #' @return A list containing a ggplot2 object and a tibble for the R^2 values
-#' @examples
-#' df <- mtcars
-#' plot_r_squared(df, mpg, wt, hp, qsec, to_center = TRUE, lower_bound = 2, upper_bound = 4)
 #' @export
 
 plot_r_squared <- function(df,    

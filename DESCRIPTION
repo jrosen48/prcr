@@ -22,7 +22,9 @@ Imports:
     irr,
     lpSolve,
     purrr,
-    class
+    class,
+    forcats,
+    mclust
 Suggests:
     rmarkdown,
     knitr

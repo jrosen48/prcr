@@ -3,7 +3,9 @@
 #' @details Explore the BIC values of a range of models in terms of a) the structure of the residual covariance matrix and b) the number of mixture components (or profiles)
 #' @param df data.frame with two or more columns with continuous variables
 #' @param n_profiles_range a vector with the range of the number of mixture components to explore; defaults to 1 through 9 (1:9)
-#' @param model_names mclust models to explore; defaults to constrained variance, fixed variances ("EII"), constrained variance, constrained covariance ("EEE"), and freed variance, freed covariance ("VVV"); run mclust::mclustModelNames() to see all of the possible models and their names / abbreviations
+#' @param model_names mclust models to explore; defaults to constrained variance, fixed variances ("EII"), constrained variance, constrained covariance ("EEE"), and freed variance, freed covariance ("VVV"); run mclustModelNames() from mclust to see all of the possible models and their names / abbreviations
+#' @param statistic what statistic to plot; BIC or ICL are presently available as options
+#' @param return_table logical (TRUE or FALSE) for whether to return a table of the output intsead of a plot; defaults to FALSE
 #' @return a ggplot2 plot of the BIC values for the explored models
 #' @examples
 #' library(dplyr)

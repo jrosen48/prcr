@@ -12,8 +12,6 @@
 #' @param plot_centered_data Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
 #' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
-#' @examples
-#' create_profiles(mtcars, disp, hp, wt, n_profiles = 2, to_scale = TRUE)
 #' @export 
 
 create_profiles_cluster <- function(df, 
