@@ -1,5 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+    #> Loading prcr
+
 prcr
 ====
 
@@ -8,14 +10,14 @@ prcr
 Installation
 ------------
 
-You can install prcr from github with:
+You can install the development version `prcr` from Github with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("jrosen48/prcr")
 ```
 
-You can install prcr from CRAN with:
+You can install `prcr` from CRAN with:
 
 ``` r
 install.packages("prcr")
@@ -24,38 +26,34 @@ install.packages("prcr")
 Example
 -------
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example using the built-in dataset `pisaUSA15`:
 
 ``` r
-library(dplyr)
-#> 
-#> Attaching package: 'dplyr'
-#> The following objects are masked from 'package:stats':
-#> 
-#>     filter, lag
-#> The following objects are masked from 'package:base':
-#> 
-#>     intersect, setdiff, setequal, union
 library(prcr)
+```
 
-create_profiles(iris, Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, n_profiles = 3) %>% 
-    select(-Species) %>% 
-    group_by(profile) %>%
-    summarize_all(mean)
-#> Fit model with 3 profiles using the 'constrained variance' model.
-#> Model BIC is 813.051
+``` r
+d <- pisaUSA15
+m3 <- create_profiles_cluster(d, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+#> Prepared data: Removed 354 incomplete cases
+#> Hierarchical clustering carried out on: 5358 cases
+#> K-means algorithm converged: 5 iterations
+#> Clustered data: Using a 3 cluster solution
+#> Calculated statistics: R-squared = 0.424
+summary(m3)
 #> # A tibble: 3 x 5
-#>   profile Sepal.Length Sepal.Width Petal.Length Petal.Width
-#>     <dbl>        <dbl>       <dbl>        <dbl>       <dbl>
-#> 1       1        5.006    3.428000     1.462000    0.246000
-#> 2       2        5.920    2.752727     4.323636    1.350909
-#> 3       3        6.680    3.017778     5.617778    2.073333
+#>                 Cluster broad_interest enjoyment instrumental_mot
+#>                   <chr>          <dbl>     <dbl>            <dbl>
+#> 1 Profile 1 (2458 obs.)       2.829468  2.841131         2.322010
+#> 2 Profile 2 (1598 obs.)       3.177023  3.407541         1.395599
+#> 3 Profile 3 (1302 obs.)       1.683218  1.903418         2.430748
+#> # ... with 1 more variables: self_efficacy <dbl>
 ```
 
 Vignettes
 ---------
 
-See examples of use of prcr in the [Introduction to prcr](https://jrosen48.github.io/prcr/articles/introduction_to_prcr.html) vignettes.
+See examples of use of `prcr` in the [vignettes](https://jrosen48.github.io/prcr/articles/index.html).
 
 Code of Conduct
 ---------------

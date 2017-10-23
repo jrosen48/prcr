@@ -65,12 +65,12 @@ kmeans_function <- function(data, cluster_freqs) {
     return(try_kmeans(data, start))
 }
 
-prcr <- function() {
-    structure(list(), class = "prcr")
-}
+# prcr <- function() {
+#     structure(list(), class = "prcr")
+# }
 
 p <- function(df, ..., to_center, to_scale){
-    if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
+    # if (!is.data.frame(df)) stop("df must be a data.frame (or tibble)")
     df <- tibble::as_tibble(df)
     df_ss <- dplyr::select(df, ...)
     
@@ -81,7 +81,7 @@ p <- function(df, ..., to_center, to_scale){
     
     df_ss_wo_incomplete_cases <- df_ss[cases_to_keep, ] # removes incomplete cases
     
-    prepared_data <- prcr()
+    prepared_data <- list()
     
     # if (remove_mv_outliers == TRUE) {
     #     outliers <- detect_outliers(df_ss_wo_incomplete_cases)
@@ -92,9 +92,9 @@ p <- function(df, ..., to_center, to_scale){
     # }
     
     df_wo_incomplete_cases <- df[cases_to_keep, ]
-    
-    prepared_data[[10]] <- df_ss_wo_incomplete_cases
-    names(prepared_data)[[10]] <- "df_with_dummies"
+    # 
+    # prepared_data[[10]] <- df_ss_wo_incomplete_cases
+    # names(prepared_data)[[10]] <- "df_with_dummies"
     
     if (to_center == TRUE & to_scale == TRUE) {
         prepared_data[[1]] <- dplyr::mutate_all(df_ss_wo_incomplete_cases, center_and_scale_vector)
@@ -145,77 +145,103 @@ cluster_observations <- function(prepared_data,
     clustered_data
 }
 
-calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale, plot_centered_data, plot_raw_data){
+calculate_statistics <- function(clustered_data, n_profiles, to_center, to_scale){
     clustering_stats <- clustered_data
-    clustering_stats[[10]] <- data.frame(clustering_stats[[10]], cluster = clustering_stats[[4]]$cluster)
     clustering_stats[[5]] <- clustering_stats[[4]]$betweenss / clustering_stats[[4]]$totss
     names(clustering_stats)[[5]] <- "r_squared"
-    
     clustering_stats[[6]] <- tibble::as_tibble(data.frame(clustering_stats[[1]], cluster = clustering_stats[[4]]$cluster))
     names(clustering_stats)[[6]] <- ".data"
-    
     cluster_centroids <- tibble::as_tibble(clustering_stats[[4]]$centers)
-    
     cluster_centroids$Cluster <- paste0("Profile ", 1:nrow(cluster_centroids), " (", clustering_stats[[4]]$size," obs.)")
-    
     clustering_stats[[7]] <- dplyr::select(cluster_centroids, dplyr::contains("Cluster"), dplyr::everything())
     names(clustering_stats)[[7]] <- "clustered_processed_data"
-    
     df_to_plot <- tidyr::gather_(clustering_stats[[7]], key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
-    
-    # p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
-    #     ggplot2::geom_col(position = "dodge") +
-    #     ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    #     ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
-    #     ggplot2::xlab(NULL) +
-    #     ggplot2::ylab("Value")
-    
-    # if (plot_centered_data == T) {
-    #     tmp <- sapply(clustering_stats[[6]][, -(ncol(clustering_stats[[6]]))], function(x) scale(x, center = plot_centered_data))
-    #     tmp_1 <- clustering_stats[[6]][, ncol(clustering_stats[[6]])]
-    #     df_to_plot <- data.frame(tmp, tmp_1)
-    #     df_to_plot <- dplyr::rename(df_to_plot, Cluster = cluster)
-    #     df_to_plot <- tidyr::gather_(df_to_plot, key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
-    #     df_to_plot <- dplyr::group_by(df_to_plot, df_to_plot$Cluster, df_to_plot$Variable)
-    #     df_to_plot <- dplyr::summarise(df_to_plot, Value = mean(df_to_plot$Value), n = dplyr::n())
-    #     df_to_plot$Cluster <- paste0("Profile ", df_to_plot$Cluster, " (", df_to_plot$n, " obs.)")
-    #     
-    #     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
-    #         ggplot2::geom_col(position = "dodge") +
-    #         ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    #         ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
-    #         ggplot2::xlab(NULL) +
-    #         ggplot2::ylab("Value")
-    # }
-    # 
-    # if (plot_raw_data == T) {
-    #     
-    #     message(paste0("Raw data is plotted, although to_center == ", to_center, " and to_scale == ", to_scale, "."))
-    #     
-    #     df_to_plot <- tidyr::gather_(clustering_stats[[10]], key_col = "Variable", value_col = "Value", names(clustering_stats[[7]])[names(clustering_stats[[7]]) != 'Cluster'])
-    #     df_to_plot <- dplyr::rename(df_to_plot, Cluster = cluster)
-    #     df_to_plot <- dplyr::group_by(df_to_plot, df_to_plot$Cluster, df_to_plot$Variable)
-    #     df_to_plot <- dplyr::summarise(df_to_plot, Value = mean(df_to_plot$Value), n = dplyr::n())
-    #     df_to_plot$Cluster <- paste0("Profile ", df_to_plot$Cluster, " (", df_to_plot$n, " obs.)")
-    #     
-    #     p <- ggplot2::ggplot(df_to_plot, ggplot2::aes(x = df_to_plot$Cluster, y = df_to_plot$Value, fill = df_to_plot$Variable)) +
-    #         ggplot2::geom_col(position = "dodge") +
-    #         ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    #         ggplot2::theme(text = ggplot2::element_text(angle = 45, hjust = 1)) +
-    #         ggplot2::xlab(NULL) +
-    #         ggplot2::ylab("Value")
-    #     
-    # }
-
-    # clustering_stats[[8]] <- p
-    # names(clustering_stats)[[8]] <- "ggplot_obj"
     message("Calculated statistics: R-squared = ", round(clustering_stats[[5]], 3))
-    #tmp <- as.data.frame(stats::model.matrix(~ factor(clustering_stats[[4]]$cluster) - 1))
-    #names(tmp) <- paste0("cluster_", 1:n_profiles)
-    
-    # clustering_stats[[9]] <- dplyr::bind_cols(clustering_stats[[2]], tmp)
-    # 
-    # names(clustering_stats)[[9]] <- "data_with_dummy_codes"
     clustering_stats[[2]]$cluster <- clustering_stats[[4]]$cluster
     return(clustering_stats)
 }
+
+
+#' Identifies potential outliers
+#' @details * add an argument to `create_profiles_cluster()` to remove multivariate outliers based on Hadi's (1994) procedure
+#' @param df data.frame (or tibble) with variables to be clustered; all variables must be complete cases
+#' @param return_index Boolean (TRUE or FALSE) for whether to return only the row indices of the possible multivariate outliers; if FALSE, then all of the output from the function (including the indices) is returned
+#' @return either the row indices of possible multivariate outliers or all of the output from the function, depending on the value of return_index
+#' @export
+#' 
+
+detect_outliers <- function(df, return_index = TRUE) {
+    x <- outlierHadi(as.matrix(df))
+    if (return_index == TRUE) {
+        print(sort(x$Outliers))
+        mv_outliers <- sort(x$Outliers)
+    } else {
+        print(x)
+        x
+    }
+}
+
+#' Return plot of profile centroids
+#' @details Returns ggplot2 plot of cluster centroids
+#' @param d summary data.frame output from create_profiles_cluster()
+#' @param to_center whether to center the data before plotting
+#' @param to_scale whether to scale the data before plotting
+#' @return A ggplot2 object
+#' @importFrom magrittr %>%  
+#' @import ggplot2
+#' @import dplyr
+#' @export
+
+plot_profiles <- function(d, to_center = F, to_scale = F){
+    
+    d %>% 
+        dplyr::mutate_if(is.double, scale, center = to_center, scale = to_scale) %>% 
+        group_by(cluster) %>% 
+        summarize_all(mean) %>% 
+        tidyr::gather(key, val, -cluster) %>% 
+        ggplot(aes(x = cluster, y = val, fill = key)) +
+        geom_col(position = "dodge") +
+        theme_bw() +
+        scale_fill_brewer("", type = "qual", palette=6) 
+    
+}
+
+#' Concise summary of prcr cluster solution
+#' @details Prints a concise summary of prcr cluster solution
+#' @param object A `prcr` object
+#' @param ... Additional arguments
+#' @export
+
+summary.prcr <- function(object, ...){
+    # cat(paste0(attributes(object)$n_profiles,
+    #            " cluster solution (R-squared = ", 
+    #            round(object$r_squared, 3), ")\n\n"))
+    print(object$clustered_processed_data)
+}
+
+#' Prints details of prcr cluster solution
+#' @details Prints details of of prcr cluster solution
+#' @param x A `prcr` object
+#' @param ... Additional arguments
+#' @export
+
+print.prcr <- function(x, ...){
+    print(x$.data)
+}
+
+
+#' student questionnaire data with four variables from the 2015 PISA for students in the United States
+#'
+#' @source http://www.oecd.org/pisa/data/
+#' @format Data frame with columns
+#' #' \describe{
+#'   \item{CNTSTUID}{international student ID}
+#'   \item{SCHID}{international school ID}
+#'   ...
+#' }
+#' @import tibble
+
+"pisaUSA15"
+
+# quiets concerns (notes) of R CMD check re: the vars that are evaluated using non-standard evaluation
+if (getRversion() >= "2.15.1") utils::globalVariables(c("cluster", "key", "val"))

@@ -6,7 +6,7 @@
 \usage{
 create_profiles_cluster(df, ..., n_profiles, to_center = FALSE,
   to_scale = FALSE, distance_metric = "squared_euclidean",
-  linkage = "complete", plot_centered_data = FALSE, plot_raw_data = FALSE)
+  linkage = "complete")
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}
@@ -22,10 +22,6 @@ create_profiles_cluster(df, ..., n_profiles, to_center = FALSE,
 \item{distance_metric}{Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)}
 
 \item{linkage}{Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)}
-
-\item{plot_centered_data}{Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)}
-
-\item{plot_raw_data}{Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.}
 }
 \value{
 A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
@@ -35,4 +31,11 @@ Create profiles of observed variables using two-step cluster analysis
 }
 \details{
 Function to create a specified number of profiles of observed variables using a two-step (hierarchical and k-means) cluster analysis.
+}
+\examples{
+d <- pisaUSA15
+m3 <- create_profiles_cluster(d, 
+                              broad_interest, enjoyment, instrumental_mot, self_efficacy,
+                              n_profiles = 3)
+summary(m3)
 }

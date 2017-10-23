@@ -12,20 +12,24 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, echo = F}
+devtools::load_all(".")
+```
+
 # prcr
 
 `prcr` is an `R` package for person-centered analysis. Person-centered analyses focus on clusters, or profiles, of observations, and their change over time or differences across factors. See [Bergman and El-Khouri (1999)](http://onlinelibrary.wiley.com/doi/10.1002/(SICI)1521-4036(199910)41:6%3C753::AID-BIMJ753%3E3.0.CO;2-K/abstract) for a description of the analytic approach. See [Corpus and Wormington (2014)](http://www.tandfonline.com/doi/abs/10.1080/00220973.2013.876225) for an example of person-centered analysis in psychology and education.
 
 ## Installation
 
-You can install prcr from github with:
+You can install the development version `prcr` from Github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("jrosen48/prcr")
 ```
 
-You can install prcr from CRAN with:
+You can install `prcr` from CRAN with:
 
 ```{r, eval = F}
 install.packages("prcr")
@@ -33,21 +37,21 @@ install.packages("prcr")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example using the built-in dataset `pisaUSA15`:
+
+```{r, eval = F}
+library(prcr)
+```
 
 ```{r example}
-library(dplyr)
-library(prcr)
-
-create_profiles(iris, Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, n_profiles = 3) %>% 
-    select(-Species) %>% 
-    group_by(profile) %>%
-    summarize_all(mean)
+df <- pisaUSA15
+m3 <- create_profiles_cluster(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+summary(m3)
 ```
 
 ## Vignettes
 
-See examples of use of prcr in the [vignettes](https://jrosen48.github.io/prcr/articles/index.html).
+See examples of use of `prcr` in the [vignettes](https://jrosen48.github.io/prcr/articles/index.html).
 
 ## Code of Conduct
 

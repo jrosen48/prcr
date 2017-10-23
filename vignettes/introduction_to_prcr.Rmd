@@ -6,70 +6,32 @@ output:
   html_document: default
   pdf_document: default
 vignette: |
-%\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{Introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
+---
   
-  # Example 
+# Example 
   
-  In this example using the built-in to R `mtcars` data for fuel consumption and other information for 32 automobiles, the variables `disp` (for engine displacement, in cu. in.), `qsec` (for the 1/4 mile time, in seconds), and `wt` for weight (in 1000 lbs.) are clustered with a `2` cluster solution specified. Because the variables are in very different units, the `to_scale` argument is set to `TRUE`.
+In this example using the built-in to `prcr` dataset `pisaUSA15`. Specifically, we use composite variables for broad interest, enjoyment, instrumental motivation, and self-efficacy. More information on these and other items can be found at [this link](www.oecd.org/pisa/data/2015database/Codebook_CMB.xlsx).
   
-  ```{r, echo = F, eval = F}
-  devtools::load_all(".")
-  ```
-  
-  ```{r setup, include=FALSE}
-  knitr::opts_chunk$set(cache=TRUE)
+```{r, echo = F}
+devtools::load_all(".")
 ```
 
-```{r, eval = T}
+```{r, eval = F}
 library(prcr)
 ```
 
-```{r, eval = F}
-df <- mtcars
-
-two_profile_solution <- create_profiles_cluster(df, 
-                                                disp, hp, wt,
-                                                n_profiles = 2, 
-                                                to_scale = T)
-
-summary(two_profile_solution)
-
-print(two_profile_solution)
-
-plot(two_profile_solution)
-```
-
-The output has the class `prcr` and has slots for additional information that can be extracted from it, such as the original data with the clustering assignment added, the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).
-
-```{r, eval = F}
-two_profile_solution$.data
+```{r, eval = T}
+df <- pisaUSA15
+m3 <- create_profiles_cluster(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+summary(m3)
+plot_profiles(m3$.data)
 ```
 
 Comparison of R-squared values can be carried out as follows:
 
-```{r, message = F, eval = F}
-r_squared_output <- plot_r_squared(df, 
-                                   disp, hp, wt,
-                                   to_scale = T,
-                                   r_squared_table = TRUE,
-                                   lower_bound = 2, upper_bound = 4)
-r_squared_output
+```{r, message = F, eval = T}
+estimate_r_squared(df, broad_interest, enjoyment, instrumental_mot, self_efficacy)
 ```
-
-Cross-validation is now able to be carried out, in this example for the two-profile solution, although `n_profiles` can also be set to the character string` "iterate"` in order to explore cross-validation output for a range of profile solutions:
-
-```{r, message = F, eval = F}
-cross_validation_output <- cross_validate(df,
-                                          disp, hp, wt,
-                                          to_scale = TRUE,
-                                          n_profiles = 2,
-                                          distance_metric = "squared_euclidean",
-                                          linkage = "complete", 
-                                          k = 30)
-cross_validation_output
-```
-
-Due to the very small sample size, these results are just for illustrative purposes.

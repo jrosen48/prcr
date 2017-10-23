@@ -1,7 +1,7 @@
 Package: prcr
 Type: Package
 Title: Person-Centered Analysis
-Version: 0.1.5
+Version: 0.2.0
 Authors@R: c(
     person(c("Joshua", "M"), "Rosenberg", role = c("aut", "cre"), email = "jmichaelrosenberg@gmail.com"),
     person(c("Jennifer", "A"), "Schmidt", role = "aut", email = "jaschmid@msu.edu"),
@@ -24,9 +24,12 @@ Imports:
     purrr,
     class,
     forcats,
-    mclust
+    magrittr
 Suggests:
     rmarkdown,
-    knitr
+    knitr,
+    devtools
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
+Depends:
+    R (>= 2.10)

@@ -9,12 +9,12 @@
 #' @param to_scale Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1
 #' @param distance_metric Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)
 #' @param linkage Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)
-#' @param plot_centered_data Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
-#' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
-#' @example 
+#' @examples
 #' d <- pisaUSA15
-#' m3 <- create_profiles_cluster(d, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+#' m3 <- create_profiles_cluster(d, 
+#'                               broad_interest, enjoyment, instrumental_mot, self_efficacy,
+#'                               n_profiles = 3)
 #' summary(m3)
 #' @export 
 
@@ -24,21 +24,14 @@ create_profiles_cluster <- function(df,
                                     to_center = FALSE,
                                     to_scale = FALSE,
                                     distance_metric = "squared_euclidean",
-                                    linkage = "complete",
-                                    plot_centered_data = FALSE,
-                                    plot_raw_data = FALSE) {
+                                    linkage = "complete") {
     args <- match.call()
     prepped_data <- p(df, ..., to_center = to_center, to_scale = to_scale)
     
     y <- cluster_observations(prepped_data, n_profiles, distance_metric, linkage)
     
-    if (to_center == TRUE & plot_centered_data == TRUE) {
-        message("Data is already being centered before clustering, so plot_centered_data == TRUE is ignored.")
-        plot_centered_data == FALSE
-    }
-    
     if (class(y[[4]]) == "kmeans") {
-        z <- calculate_statistics(y, n_profiles, to_center = to_center, to_scale = to_scale, plot_centered_data = plot_centered_data, plot_raw_data = plot_raw_data)
+        z <- calculate_statistics(y, n_profiles, to_center = to_center, to_scale = to_scale)
         z[[11]] <- args
         invisible(z)
     } else {
@@ -47,67 +40,4 @@ create_profiles_cluster <- function(df,
         y[[6]] <- args
         invisible(y)
     }
-}
-
-#' Identifies potential outliers
-#' @details * add an argument to `create_profiles_cluster()` to remove multivariate outliers based on Hadi's (1994) procedure
-#' @param df data.frame (or tibble) with variables to be clustered; all variables must be complete cases
-#' @param return_index Boolean (TRUE or FALSE) for whether to return only the row indices of the possible multivariate outliers; if FALSE, then all of the output from the function (including the indices) is returned
-#' @return either the row indices of possible multivariate outliers or all of the output from the function, depending on the value of return_index
-#' @export
-#' 
-
-detect_outliers <- function(df, return_index = TRUE) {
-    x <- outlierHadi(as.matrix(df))
-    if (return_index == TRUE) {
-        print(sort(x$Outliers))
-        mv_outliers <- sort(x$Outliers)
-    } else {
-        print(x)
-        x
-    }
-}
-
-#' Return plot of cluster centroids
-#' @details Returns ggplot2 plot of cluster centroids
-#' @param d summary data.frame output from create_profiles_cluster()
-#' @return A ggplot2 object
-#' @importFrom magrittr %>%  
-#' @import ggplot2
-#' @export
-
-plot_clusters <- function(d, to_center = F, to_scale = F){
-    
-    d %>% 
-        mutate_if(is.double, scale, center = to_center, scale = to_scale)
-        tidyr::gather(key, val, -Cluster) %>% 
-        ggplot2::ggplot(aes(x = Cluster, y = val, fill = key)) +
-        geom_col(position = "dodge") +
-        theme_bw() +
-        scale_fill_brewer("", type = "qual", palette=6) 
-        
-}
-
-#' Concise summary of prcr cluster solution
-#' @details Prints a concise summary of prcr cluster solution
-#' @param object A `prcr` object
-#' @param ... Additional arguments
-#' @export
-
-summary.prcr <- function(object, ...){
-    # cat(paste0(attributes(object)$n_profiles,
-    #            " cluster solution (R-squared = ", 
-    #            round(object$r_squared, 3), ")\n\n"))
-    print(object$clustered_processed_data)
-}
-
-#' Prints details of prcr cluster solution
-#' @details Prints details of of prcr cluster solution
-#' @param x A `prcr` object
-#' @param ... Additional arguments
-#' @export
-
-print.prcr <- function(x, ...){
-    cat("data")
-    print(x$.data)
 }
