@@ -36,12 +36,18 @@ install.packages("prcr")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
+library(dplyr)
+library(prcr)
 
+create_profiles(iris, Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, n_profiles = 3) %>% 
+    select(-Species) %>% 
+    group_by(profile) %>%
+    summarize_all(mean)
 ```
 
 ## Vignettes
 
-See examples of use of prcr in the [Introduction to prcr](https://jrosen48.github.io/prcr/articles/introduction_to_prcr.html) vignettes.
+See examples of use of prcr in the [vignettes](https://jrosen48.github.io/prcr/articles/index.html).
 
 ## Code of Conduct
 

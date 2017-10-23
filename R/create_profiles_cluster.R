@@ -12,6 +12,10 @@
 #' @param plot_centered_data Boolean (TRUE or FALSE) for whether to center the data before plotting (should not be used if to_center = T; only if to_center = F, in cases in which raw data is used to create profiles but centered profiles are desired for visualization purposes)
 #' @param plot_raw_data Boolean (TRUE or FALSE) for whether to plot the raw data, regardless of whether the data are centered or scaled before clustering.
 #' @return A list containing the prepared data, the output from the hierarchical and k-means cluster analysis, the r-squared value, raw clustered data, processed clustered data of cluster centroids, and a ggplot object.
+#' @example 
+#' d <- pisaUSA15
+#' m3 <- create_profiles_cluster(d, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+#' summary(m3)
 #' @export 
 
 create_profiles_cluster <- function(df, 
@@ -46,7 +50,7 @@ create_profiles_cluster <- function(df,
 }
 
 #' Identifies potential outliers
-#' @details * add an argument to `create_profiles()` to remove multivariate outliers based on Hadi's (1994) procedure
+#' @details * add an argument to `create_profiles_cluster()` to remove multivariate outliers based on Hadi's (1994) procedure
 #' @param df data.frame (or tibble) with variables to be clustered; all variables must be complete cases
 #' @param return_index Boolean (TRUE or FALSE) for whether to return only the row indices of the possible multivariate outliers; if FALSE, then all of the output from the function (including the indices) is returned
 #' @return either the row indices of possible multivariate outliers or all of the output from the function, depending on the value of return_index
@@ -66,13 +70,22 @@ detect_outliers <- function(df, return_index = TRUE) {
 
 #' Return plot of cluster centroids
 #' @details Returns ggplot2 plot of cluster centroids
-#' @param x A `prcr` object
-#' @param ... Additional arguments
+#' @param d summary data.frame output from create_profiles_cluster()
 #' @return A ggplot2 object
+#' @importFrom magrittr %>%  
+#' @import ggplot2
 #' @export
 
-plot.prcr <- function(x, ...){
-    print(x$ggplot_obj)
+plot_clusters <- function(d, to_center = F, to_scale = F){
+    
+    d %>% 
+        mutate_if(is.double, scale, center = to_center, scale = to_scale)
+        tidyr::gather(key, val, -Cluster) %>% 
+        ggplot2::ggplot(aes(x = Cluster, y = val, fill = key)) +
+        geom_col(position = "dodge") +
+        theme_bw() +
+        scale_fill_brewer("", type = "qual", palette=6) 
+        
 }
 
 #' Concise summary of prcr cluster solution
@@ -82,10 +95,9 @@ plot.prcr <- function(x, ...){
 #' @export
 
 summary.prcr <- function(object, ...){
-    cat(paste0(attributes(object)$n_profiles,
-               " cluster solution (R-squared = ", 
-               round(object$r_squared, 3), ")\n\n"))
-    cat("Profile n and means:\n\n")
+    # cat(paste0(attributes(object)$n_profiles,
+    #            " cluster solution (R-squared = ", 
+    #            round(object$r_squared, 3), ")\n\n"))
     print(object$clustered_processed_data)
 }
 
@@ -96,6 +108,6 @@ summary.prcr <- function(object, ...){
 #' @export
 
 print.prcr <- function(x, ...){
-    cat("$clustered_processed_data\n\n")
-    print(x$clustered_processed_data)
+    cat("data")
+    print(x$.data)
 }

@@ -26,6 +26,32 @@ Example
 
 This is a basic example which shows you how to solve a common problem:
 
+``` r
+library(dplyr)
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+library(prcr)
+
+create_profiles(iris, Sepal.Length, Sepal.Width, Petal.Length, Petal.Width, n_profiles = 3) %>% 
+    select(-Species) %>% 
+    group_by(profile) %>%
+    summarize_all(mean)
+#> Fit model with 3 profiles using the 'constrained variance' model.
+#> Model BIC is 813.051
+#> # A tibble: 3 x 5
+#>   profile Sepal.Length Sepal.Width Petal.Length Petal.Width
+#>     <dbl>        <dbl>       <dbl>        <dbl>       <dbl>
+#> 1       1        5.006    3.428000     1.462000    0.246000
+#> 2       2        5.920    2.752727     4.323636    1.350909
+#> 3       3        6.680    3.017778     5.617778    2.073333
+```
+
 Vignettes
 ---------
 

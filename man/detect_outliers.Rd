@@ -18,5 +18,5 @@ either the row indices of possible multivariate outliers or all of the output fr
 Identifies potential outliers
 }
 \details{
-* add an argument to `create_profiles()` to remove multivariate outliers based on Hadi's (1994) procedure
+* add an argument to `create_profiles_cluster()` to remove multivariate outliers based on Hadi's (1994) procedure
 }
