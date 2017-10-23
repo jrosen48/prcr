@@ -1,7 +1,5 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-    #> Loading prcr
-
 prcr
 ====
 
@@ -10,14 +8,14 @@ prcr
 Installation
 ------------
 
-You can install the development version `prcr` from Github with:
+You can install the development version of `prcr` (v. `0.2.0` from Github with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("jrosen48/prcr")
 ```
 
-You can install `prcr` from CRAN with:
+You can install `prcr` from CRAN (v. `0.1.5`) with:
 
 ``` r
 install.packages("prcr")
@@ -28,13 +26,15 @@ Example
 
 This is a basic example using the built-in dataset `pisaUSA15`:
 
+    #> Loading prcr
+
 ``` r
 library(prcr)
 ```
 
 ``` r
-d <- pisaUSA15
-m3 <- create_profiles_cluster(d, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
+df <- pisaUSA15
+m3 <- create_profiles_cluster(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
 #> Prepared data: Removed 354 incomplete cases
 #> Hierarchical clustering carried out on: 5358 cases
 #> K-means algorithm converged: 5 iterations

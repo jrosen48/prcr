@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Identifies potential outliers — detect_outliers • prcr</title>
+<title>Estimates R^2 (r-squared) values for a range of number of profiles — estimate_r_squared • prcr</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -80,35 +80,65 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Identifies potential outliers</h1>
+    <h1>Estimates R^2 (r-squared) values for a range of number of profiles</h1>
     </div>
 
     
-    <p>Identifies potential outliers</p>
+    <p>Estimates R^2 (r-squared) values for a range of number of profiles</p>
     
 
-    <pre class="usage"><span class='fu'>detect_outliers</span>(<span class='no'>df</span>, <span class='kw'>return_index</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>estimate_r_squared</span>(<span class='no'>df</span>, <span class='no'>...</span>, <span class='kw'>to_center</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_scale</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>distance_metric</span> <span class='kw'>=</span> <span class='st'>"squared_euclidean"</span>, <span class='kw'>linkage</span> <span class='kw'>=</span> <span class='st'>"complete"</span>,
+  <span class='kw'>lower_bound</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>upper_bound</span> <span class='kw'>=</span> <span class='fl'>9</span>, <span class='kw'>r_squared_table</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p>data.frame (or tibble) with variables to be clustered; all variables must be complete cases</p></td>
+      <td><p>with two or more columns with continuous variables</p></td>
     </tr>
     <tr>
-      <th>return_index</th>
-      <td><p>Boolean (TRUE or FALSE) for whether to return only the row indices of the possible multivariate outliers; if FALSE, then all of the output from the function (including the indices) is returned</p></td>
+      <th>...</th>
+      <td><p>unquoted variable names separated by commas</p></td>
+    </tr>
+    <tr>
+      <th>to_center</th>
+      <td><p>(TRUE or FALSE) for whether to center the raw data with M = 0</p></td>
+    </tr>
+    <tr>
+      <th>to_scale</th>
+      <td><p>Boolean (TRUE or FALSE) for whether to scale the raw data with SD = 1</p></td>
+    </tr>
+    <tr>
+      <th>distance_metric</th>
+      <td><p>Distance metric to use for hierarchical clustering; "squared_euclidean" is default but more options are available (see ?hclust)</p></td>
+    </tr>
+    <tr>
+      <th>linkage</th>
+      <td><p>Linkage method to use for hierarchical clustering; "complete" is default but more options are available (see ?dist)</p></td>
+    </tr>
+    <tr>
+      <th>lower_bound</th>
+      <td><p>the smallest number of profiles in the range of number of profiles to explore; defaults to 2</p></td>
+    </tr>
+    <tr>
+      <th>upper_bound</th>
+      <td><p>the largest number of profiles in the range of number of profiles to explore; defaults to 9</p></td>
+    </tr>
+    <tr>
+      <th>r_squared_table</th>
+      <td><p>if TRUE (default), then a table, rather than a plot, is returned; defaults to FALSE</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>either the row indices of possible multivariate outliers or all of the output from the function, depending on the value of return_index</p>
+    <p>A list containing a ggplot2 object and a tibble for the R^2 values</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>* add an argument to `create_profiles_cluster()` to remove multivariate outliers based on Hadi's (1994) procedure</p>
+    <p>Returns ggplot2 plot of cluster centroids</p>
     
 
   </div>

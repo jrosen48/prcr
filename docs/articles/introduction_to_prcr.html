@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Introduction to prcr • prcr</title>
+<title>Introduction to cluster analysis-based use of prcr • prcr</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
@@ -57,131 +57,49 @@
       </header><div class="row">
   <div class="col-md-9">
     <div class="page-header toc-ignore">
-      <h1>Introduction to prcr</h1>
+      <h1>Introduction to cluster analysis-based use of prcr</h1>
                         <h4 class="author">Joshua Rosenberg</h4>
             
-            <h4 class="date">5/16/2017</h4>
+            <h4 class="date">23 October, 2017</h4>
           </div>
 
     
     
 <div class="contents">
-<div id="prcr" class="section level1">
-<h1 class="hasAnchor">
-<a href="#prcr" class="anchor"></a>prcr</h1>
-<p><code>prcr</code> is an <code>R</code> package for person-centered analysis. Person-centered analyses focus on clusters, or profiles, of observations, and their change over time or differences across factors. See <a href="http://onlinelibrary.wiley.com/doi/10.1002/(SICI)1521-4036(199910)41:6%3C753::AID-BIMJ753%3E3.0.CO;2-K/abstract">Bergman and El-Khouri (1999)</a> for a description of the analytic approach. See <a href="http://www.tandfonline.com/doi/abs/10.1080/00220973.2013.876225">Corpus and Wormington (2014)</a> for an example of person-centered analysis in psychology and education.</p>
-</div>
 <div id="example" class="section level1">
 <h1 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h1>
-<p>In this example using the built-in to R <code>mtcars</code> data for fuel consumption and other information for 32 automobiles, the variables <code>disp</code> (for engine displacement, in cu. in.), <code>qsec</code> (for the 1/4 mile time, in seconds), and <code>wt</code> for weight (in 1000 lbs.) are clustered with a <code>2</code> cluster solution specified. Because the variables are in very different units, the <code>to_scale</code> argument is set to <code>TRUE</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(prcr)
-
-df &lt;-<span class="st"> </span>mtcars
-
-two_profile_solution &lt;-<span class="st"> </span><span class="kw"><a href="../reference/create_profiles.html">create_profiles</a></span>(df, 
-                                        disp, hp, wt,
-                                        <span class="dt">n_profiles =</span> <span class="dv">2</span>, 
-                                        <span class="dt">to_scale =</span> T)</code></pre></div>
-<pre><code>## Prepared data: Removed 0 incomplete cases</code></pre>
-<pre><code>## Hierarchical clustering carried out on: 32 cases</code></pre>
-<pre><code>## K-means algorithm converged: 1 iteration</code></pre>
-<pre><code>## Clustered data: Using a 2 cluster solution</code></pre>
-<pre><code>## Calculated statistics: R-squared = 0.654</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(two_profile_solution)</code></pre></div>
-<pre><code>## 2 cluster solution (R-squared = 0.654)
-## 
-## Profile n and means:
-## 
-## # A tibble: 2 x 4
-##               Cluster     disp       hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
-## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">print</span>(two_profile_solution)</code></pre></div>
-<pre><code>## $clustered_processed_data
-## 
-## # A tibble: 2 x 4
-##               Cluster     disp       hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
-## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(two_profile_solution)</code></pre></div>
-<p><img src="introduction_to_prcr_files/figure-html/unnamed-chunk-1-1.png" width="672"></p>
-<p>The output has the class <code>prcr</code> and has slots for additional information that can be extracted from it, such as the original data with the clustering assignment added, the r-squared (for comparing the relative fit of different cluster solutions) raw clustered data (i.e., for conducting statistical tests to determine whether the cluster centroids are different from one another and for use in additional analyses) and the processed data (i.e., for creating different plots of the cluster centroids).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>.data</code></pre></div>
-<pre><code>## # A tibble: 32 x 12
-##      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
-##    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-##  1  21.0     6 160.0   110  3.90 2.620 16.46     0     1     4     4
-##  2  21.0     6 160.0   110  3.90 2.875 17.02     0     1     4     4
-##  3  22.8     4 108.0    93  3.85 2.320 18.61     1     1     4     1
-##  4  21.4     6 258.0   110  3.08 3.215 19.44     1     0     3     1
-##  5  18.7     8 360.0   175  3.15 3.440 17.02     0     0     3     2
-##  6  18.1     6 225.0   105  2.76 3.460 20.22     1     0     3     1
-##  7  14.3     8 360.0   245  3.21 3.570 15.84     0     0     3     4
-##  8  24.4     4 146.7    62  3.69 3.190 20.00     1     0     4     2
-##  9  22.8     4 140.8    95  3.92 3.150 22.90     1     0     4     2
-## 10  19.2     6 167.6   123  3.92 3.440 18.30     1     0     4     4
-## # ... with 22 more rows, and 1 more variables: cluster &lt;int&gt;</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>r_squared</code></pre></div>
-<pre><code>## [1] 0.6544283</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>clustered_raw_data</code></pre></div>
-<pre><code>## # A tibble: 32 x 4
-##         disp        hp       wt cluster
-##        &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;   &lt;int&gt;
-##  1 1.2909608 1.6043669 2.677684       1
-##  2 1.2909608 1.6043669 2.938298       1
-##  3 0.8713986 1.3564193 2.371079       1
-##  4 2.0816744 1.6043669 3.285784       1
-##  5 2.9046619 2.5524020 3.515738       2
-##  6 1.8154137 1.5314412 3.536178       1
-##  7 2.9046619 3.5733627 3.648600       2
-##  8 1.1836497 0.9042796 3.260234       1
-##  9 1.1360455 1.3855896 3.219353       1
-## 10 1.3522815 1.7939739 3.515738       1
-## # ... with 22 more rows</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">two_profile_solution<span class="op">$</span>clustered_processed_data</code></pre></div>
-<pre><code>## # A tibble: 2 x 4
-##               Cluster     disp       hp       wt
-##                 &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
-## 1 Profile 1 (18 obs.) 1.093596 1.430155 2.666499
-## 2 Profile 2 (14 obs.) 2.848989 3.051423 4.087264</code></pre>
+<p>In this example using the built-in to <code>prcr</code> dataset <code>pisaUSA15</code>. Specifically, we use composite variables for broad interest, enjoyment, instrumental motivation, and self-efficacy. More information on these and other items can be found at <a href="www.oecd.org/pisa/data/2015database/Codebook_CMB.xlsx">this link</a>.</p>
+<pre><code>## Loading prcr</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(prcr)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span>pisaUSA15
+m3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/create_profiles_cluster.html">create_profiles_cluster</a></span>(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, <span class="dt">n_profiles =</span> <span class="dv">3</span>)</code></pre></div>
+<pre><code>## Prepared data: Removed 354 incomplete cases</code></pre>
+<pre><code>## Hierarchical clustering carried out on: 5358 cases</code></pre>
+<pre><code>## K-means algorithm converged: 5 iterations</code></pre>
+<pre><code>## Clustered data: Using a 3 cluster solution</code></pre>
+<pre><code>## Calculated statistics: R-squared = 0.424</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(m3)</code></pre></div>
+<pre><code>## # A tibble: 3 x 5
+##                 Cluster broad_interest enjoyment instrumental_mot
+##                   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;
+## 1 Profile 1 (2458 obs.)       2.829468  2.841131         2.322010
+## 2 Profile 2 (1598 obs.)       3.177023  3.407541         1.395599
+## 3 Profile 3 (1302 obs.)       1.683218  1.903418         2.430748
+## # ... with 1 more variables: self_efficacy &lt;dbl&gt;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/plot_profiles.html">plot_profiles</a></span>(m3<span class="op">$</span>.data)</code></pre></div>
+<p><img src="introduction_to_prcr_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
 <p>Comparison of R-squared values can be carried out as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">r_squared_output &lt;-<span class="st"> </span><span class="kw"><a href="../reference/plot_r_squared.html">plot_r_squared</a></span>(df, 
-                                   disp, hp, wt,
-                                   <span class="dt">to_scale =</span> T,
-                                   <span class="dt">r_squared_table =</span> <span class="ot">TRUE</span>,
-                                   <span class="dt">lower_bound =</span> <span class="dv">2</span>, <span class="dt">upper_bound =</span> <span class="dv">4</span>)
-r_squared_output</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/estimate_r_squared.html">estimate_r_squared</a></span>(df, broad_interest, enjoyment, instrumental_mot, self_efficacy)</code></pre></div>
 <pre><code>##   cluster r_squared_value
-## 1       2           0.654
-## 2       3           0.750
-## 3       4           0.833</code></pre>
-<p>Cross-validation is now able to be carried out, in this example for the two-profile solution, although <code>n_profiles</code> can also be set to the character string<code>"iterate"</code> in order to explore cross-validation output for a range of profile solutions:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cross_validation_output &lt;-<span class="st"> </span><span class="kw"><a href="../reference/cross_validate.html">cross_validate</a></span>(df,
-                                          disp, hp, wt,
-                                          <span class="dt">to_scale =</span> <span class="ot">TRUE</span>,
-                                          <span class="dt">n_profiles =</span> <span class="dv">2</span>,
-                                          <span class="dt">distance_metric =</span> <span class="st">"squared_euclidean"</span>,
-                                          <span class="dt">linkage =</span> <span class="st">"complete"</span>, 
-                                          <span class="dt">k =</span> <span class="dv">30</span>)
-cross_validation_output</code></pre></div>
-<pre><code>## # A tibble: 30 x 3
-##    k_iteration kappa percentage_agree
-##          &lt;int&gt; &lt;dbl&gt;            &lt;dbl&gt;
-##  1           1 -0.05                0
-##  2           2    NA               NA
-##  3           3 -0.05                0
-##  4           4    NA               NA
-##  5           5 -0.06                0
-##  6           6 -0.04                0
-##  7           7 -0.04                0
-##  8           8 -0.04                0
-##  9           9 -0.03                0
-## 10          10 -0.03                0
-## # ... with 20 more rows</code></pre>
-<p>Due to the very small sample size, these results are just for illustrative purposes.</p>
+## 1       2           0.318
+## 2       3           0.424
+## 3       4           0.488
+## 4       5           0.541
+## 5       6           0.579
+## 6       7           0.606
+## 7       8           0.629
+## 8       9           0.650</code></pre>
 </div>
 </div>
   </div>
@@ -191,8 +109,7 @@ cross_validation_output</code></pre></div>
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#prcr">prcr</a></li>
-      <li><a href="#example">Example</a></li>
+<li><a href="#example">Example</a></li>
       </ul>
 </div>
       </div>

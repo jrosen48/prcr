@@ -92,13 +92,13 @@
 <li>
 <p>add a function, <code><a href="../reference/detect_outliers.html">detect_outliers()</a></code> to detect multivariate outliers based on Hadi’s (1994) procedure (thanks to Rebecca Steingut for this contribution)</p>
 <ul>
-<li>Note that this will (in this version) be carried out separate from the <code><a href="../reference/create_profiles.html">create_profiles()</a></code> function</li>
+<li>Note that this will (in this version) be carried out separate from the <code>create_profiles()</code> function</li>
 </ul>
 </li>
-<li><p>add <code>plot_raw_data</code> and <code>plot_centered_data</code> as arguments (that can be specified as <code>TRUE</code> but default to <code>FALSE</code>) <code><a href="../reference/create_profiles.html">create_profiles()</a></code> to change plot of profile centroids (thanks again to Rebecca for input that led to making this addition)</p></li>
-<li><p>add of a new function, <code><a href="../reference/cross_validate.html">cross_validate()</a></code>, to perform double split-half cross-validation</p></li>
+<li><p>add <code>plot_raw_data</code> and <code>plot_centered_data</code> as arguments (that can be specified as <code>TRUE</code> but default to <code>FALSE</code>) <code>create_profiles()</code> to change plot of profile centroids (thanks again to Rebecca for input that led to making this addition)</p></li>
+<li><p>add of a new function, <code>cross_validate()</code>, to perform double split-half cross-validation</p></li>
 <li><p>make minor changes to how centering and scaling of data is carried out</p></li>
-<li><p>change <code><a href="../reference/create_profiles.html">create_profiles()</a></code>, to now return a <code>.data</code> slot, so the original data can be used for subsequent analyses</p></li>
+<li><p>change <code>create_profiles()</code>, to now return a <code>.data</code> slot, so the original data can be used for subsequent analyses</p></li>
 </ul>
 </div>
     <div id="prcr-0-1-4" class="section level1">
@@ -106,15 +106,15 @@
 <a href="#prcr-0-1-4" class="anchor"></a>prcr 0.1.4</h1>
 <ul>
 <li><p>Fixed error in create_profiles() that returned only the cluster assignment for <code>.data</code>, rather than the original <code>data.frame</code> with the addition of the cluster assignment</p></li>
-<li><p>Added function <code><a href="../reference/plot_r_squared.html">plot_r_squared()</a></code> to plot R^2 (r-squared) values for a range of number of profiles and updated vignette to include use of <code><a href="../reference/plot_r_squared.html">plot_r_squared()</a></code> function</p></li>
+<li><p>Added function <code>plot_r_squared()</code> to plot R^2 (r-squared) values for a range of number of profiles and updated vignette to include use of <code>plot_r_squared()</code> function</p></li>
 </ul>
 </div>
     <div id="prcr-0-1-3" class="section level1">
 <h1 class="hasAnchor">
 <a href="#prcr-0-1-3" class="anchor"></a>prcr 0.1.3</h1>
 <ul>
-<li><p>Added new interface for main (<code><a href="../reference/create_profiles.html">create_profiles()</a></code>) function so that variables to create profiles must be specified, rather than every variable in the data frame being used to create profiles being used. This change means that the <code>data.frame</code> does not need to be subset before using this package, and also that it is easier to use cluster assignments in subsequent analyses because the original data frame with either a variable for the cluster assignments or dummy-coded variables for each cluster are returned.</p></li>
-<li><p>Changed <code>n_clusters</code> argument in <code><a href="../reference/create_profiles.html">create_profiles()</a></code> to <code>n_profiles</code></p></li>
+<li><p>Added new interface for main (<code>create_profiles()</code>) function so that variables to create profiles must be specified, rather than every variable in the data frame being used to create profiles being used. This change means that the <code>data.frame</code> does not need to be subset before using this package, and also that it is easier to use cluster assignments in subsequent analyses because the original data frame with either a variable for the cluster assignments or dummy-coded variables for each cluster are returned.</p></li>
+<li><p>Changed <code>n_clusters</code> argument in <code>create_profiles()</code> to <code>n_profiles</code></p></li>
 </ul>
 </div>
     <div id="prcr-0-1-2" class="section level1">
