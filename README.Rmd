@@ -35,11 +35,11 @@ install.packages("prcr")
 
 This is a basic example using the built-in dataset `pisaUSA15`:
 
-```{r, echo = F}
+```{r, echo = F, eval = F}
 devtools::load_all(".")
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 library(prcr)
 ```
 

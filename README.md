@@ -26,8 +26,6 @@ Example
 
 This is a basic example using the built-in dataset `pisaUSA15`:
 
-    #> Loading prcr
-
 ``` r
 library(prcr)
 ```
