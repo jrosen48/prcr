@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 ## Installation
 
-You can install the development version of `prcr` (v. `0.2.0` from Github with:
+You can install the development version of `prcr` (v. `0.2.0`) from Github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")

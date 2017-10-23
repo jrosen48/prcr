@@ -8,7 +8,7 @@ prcr
 Installation
 ------------
 
-You can install the development version of `prcr` (v. `0.2.0` from Github with:
+You can install the development version of `prcr` (v. `0.2.0`) from Github with:
 
 ``` r
 # install.packages("devtools")
