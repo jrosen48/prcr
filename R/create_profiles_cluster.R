@@ -32,8 +32,8 @@ create_profiles_cluster <- function(df,
     
     if (class(y[[4]]) == "kmeans") {
         z <- calculate_statistics(y, n_profiles, to_center = to_center, to_scale = to_scale)
-        z[[11]] <- args
-        invisible(z)
+        z[[8]] <- args
+        invisible(z[[6]])
     } else {
         y[[5]] <- NA
         names(y)[[5]] <- "r_squared"
