@@ -69,9 +69,10 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install the development version of <code>prcr</code> (v. <code>0.2.0</code> from Github with:</p>
+<p>You can install the development version of <code>prcr</code> (v. <code>0.2.0</code>) from Github with:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># install.packages("devtools")</span>
 devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">"jrosen48/prcr"</span>)</code></pre></div>
+<p>This version takes a “data-first” approach different from the object-oriented approach used in the version on CRAN. Because of this, <strong>Please note that there presently exists a significant gap in the user interface between the CRAN version available through <code>install.packages("prcr")</code> and the in-development version available through GitHub.</strong> This should be addressed shortly in the next CRAN update.</p>
 <p>You can install <code>prcr</code> from CRAN (v. <code>0.1.5</code>) with:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"prcr"</span>)</code></pre></div>
 </div>
@@ -79,7 +80,6 @@ devtools<span class="op">::</span><span class="kw">install_github</span>(<span c
 <h2 class="hasAnchor">
 <a href="#example" class="anchor"></a>Example</h2>
 <p>This is a basic example using the built-in dataset <code>pisaUSA15</code>:</p>
-<pre><code>#&gt; Loading prcr</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(prcr)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span>pisaUSA15
 m3 &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_profiles_cluster.html">create_profiles_cluster</a></span>(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, <span class="dt">n_profiles =</span> <span class="dv">3</span>)
@@ -88,14 +88,11 @@ m3 &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_prof
 <span class="co">#&gt; K-means algorithm converged: 5 iterations</span>
 <span class="co">#&gt; Clustered data: Using a 3 cluster solution</span>
 <span class="co">#&gt; Calculated statistics: R-squared = 0.424</span>
-<span class="kw">summary</span>(m3)
-<span class="co">#&gt; # A tibble: 3 x 5</span>
-<span class="co">#&gt;                 Cluster broad_interest enjoyment instrumental_mot</span>
-<span class="co">#&gt;                   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 Profile 1 (2458 obs.)       2.829468  2.841131         2.322010</span>
-<span class="co">#&gt; 2 Profile 2 (1598 obs.)       3.177023  3.407541         1.395599</span>
-<span class="co">#&gt; 3 Profile 3 (1302 obs.)       1.683218  1.903418         2.430748</span>
-<span class="co">#&gt; # ... with 1 more variables: self_efficacy &lt;dbl&gt;</span></code></pre></div>
+<span class="kw"><a href="reference/plot_profiles.html">plot_profiles</a></span>(m3, <span class="dt">to_center =</span> T)
+<span class="co">#&gt; Warning: attributes are not identical across measure variables;</span>
+<span class="co">#&gt; they will be dropped</span></code></pre></div>
+<p><img src="README-example-1.png" width="672"></p>
+<p>Other functions include those for carrying out comparing r-squared values and perfomring cross-validation. These are documented in both the manual and vignette for the CRAN release and their versions in the in-development version will be documented prior to the CRAN release.</p>
 </div>
 <div id="vignettes" class="section level2">
 <h2 class="hasAnchor">
@@ -105,10 +102,12 @@ m3 &lt;-<span class="st"> </span><span class="kw"><a href="reference/create_prof
 <div id="code-of-conduct" class="section level2">
 <h2 class="hasAnchor">
 <a href="#code-of-conduct" class="anchor"></a>Code of Conduct</h2>
-<p>Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms below. This Code of Conduct is adapted from the Contributor Covenant (<a href="http:contributor-covenant.org" class="uri">http:contributor-covenant.org</a>), version 1.0.0, available at <a href="http://contributor-covenant.org/version/1/0/0/" class="uri">http://contributor-covenant.org/version/1/0/0/</a></p>
-<blockquote>
-<p>As contributors and maintainers of this project, we pledge to respect all people who contribute through reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities. We are committed to making participation in this project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, or religion. Examples of unacceptable behavior by participants include the use of sexual language or imagery, derogatory comments or personal attacks, trolling, public or private harassment, insults, or other unprofessional conduct. Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct. Project maintainers who do not follow the Code of Conduct may be removed from the project team. Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by opening an issue or contacting one or more of the project maintainers.</p>
-</blockquote>
+<p>Please note that this project is released with a Contributor Code of Conduct available <a href="http://contributor-covenant.org/version/1/0/0/">here</a></p>
+</div>
+<div id="latent-profile-analyis-lpa" class="section level2">
+<h2 class="hasAnchor">
+<a href="#latent-profile-analyis-lpa" class="anchor"></a>Latent Profile Analyis (LPA)?</h2>
+<p>This package is being developed along with its sister project, <code>tidyLPA</code>, which makes it easy to carry out Latent Profile Analysis by providing an interface to the MCLUST package. More information about <code>tidyLPA</code> is available <a href="https://github.com/jrosen48/tidyLPA">here</a>.</p>
 </div>
 </div>
 </div>

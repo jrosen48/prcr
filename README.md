@@ -15,6 +15,8 @@ You can install the development version of `prcr` (v. `0.2.0`) from Github with:
 devtools::install_github("jrosen48/prcr")
 ```
 
+This version takes a "data-first" approach different from the object-oriented approach used in the version on CRAN. Because of this, **Please note that there presently exists a significant gap in the user interface between the CRAN version available through `install.packages("prcr")` and the in-development version available through GitHub.** This should be addressed shortly in the next CRAN update.
+
 You can install `prcr` from CRAN (v. `0.1.5`) with:
 
 ``` r
@@ -38,15 +40,14 @@ m3 <- create_profiles_cluster(df, broad_interest, enjoyment, instrumental_mot, s
 #> K-means algorithm converged: 5 iterations
 #> Clustered data: Using a 3 cluster solution
 #> Calculated statistics: R-squared = 0.424
-summary(m3)
-#> # A tibble: 3 x 5
-#>                 Cluster broad_interest enjoyment instrumental_mot
-#>                   <chr>          <dbl>     <dbl>            <dbl>
-#> 1 Profile 1 (2458 obs.)       2.829468  2.841131         2.322010
-#> 2 Profile 2 (1598 obs.)       3.177023  3.407541         1.395599
-#> 3 Profile 3 (1302 obs.)       1.683218  1.903418         2.430748
-#> # ... with 1 more variables: self_efficacy <dbl>
+plot_profiles(m3, to_center = T)
+#> Warning: attributes are not identical across measure variables;
+#> they will be dropped
 ```
+
+![](README-example-1.png)
+
+Other functions include those for carrying out comparing r-squared values and perfomring cross-validation. These are documented in both the manual and vignette for the CRAN release and their versions in the in-development version will be documented prior to the CRAN release.
 
 Vignettes
 ---------
@@ -56,6 +57,9 @@ See examples of use of `prcr` in the [vignettes](https://jrosen48.github.io/prcr
 Code of Conduct
 ---------------
 
-Please note that this project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its terms below. This Code of Conduct is adapted from the Contributor Covenant (<http:contributor-covenant.org>), version 1.0.0, available at <http://contributor-covenant.org/version/1/0/0/>
+Please note that this project is released with a Contributor Code of Conduct available [here](http://contributor-covenant.org/version/1/0/0/)
 
-> As contributors and maintainers of this project, we pledge to respect all people who contribute through reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities. We are committed to making participation in this project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, or religion. Examples of unacceptable behavior by participants include the use of sexual language or imagery, derogatory comments or personal attacks, trolling, public or private harassment, insults, or other unprofessional conduct. Project maintainers have the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct. Project maintainers who do not follow the Code of Conduct may be removed from the project team. Instances of abusive, harassing, or otherwise unacceptable behavior may be reported by opening an issue or contacting one or more of the project maintainers.
+Latent Profile Analyis (LPA)?
+-----------------------------
+
+This package is being developed along with its sister project, `tidyLPA`, which makes it easy to carry out Latent Profile Analysis by providing an interface to the MCLUST package. More information about `tidyLPA` is available [here](https://github.com/jrosen48/tidyLPA).

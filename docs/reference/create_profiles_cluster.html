@@ -137,12 +137,20 @@
     <pre class="examples"><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='no'>pisaUSA15</span>
 <span class='no'>m3</span> <span class='kw'>&lt;-</span> <span class='fu'>create_profiles_cluster</span>(<span class='no'>d</span>,
                               <span class='no'>broad_interest</span>, <span class='no'>enjoyment</span>, <span class='no'>instrumental_mot</span>, <span class='no'>self_efficacy</span>,
-                              <span class='kw'>n_profiles</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Prepared data: Removed 354 incomplete cases</span></div><div class='output co'>#&gt; <span class='message'>Hierarchical clustering carried out on: 5358 cases</span></div><div class='output co'>#&gt; <span class='message'>K-means algorithm converged: 5 iterations</span></div><div class='output co'>#&gt; <span class='message'>Clustered data: Using a 3 cluster solution</span></div><div class='output co'>#&gt; <span class='message'>Calculated statistics: R-squared = 0.424</span></div><div class='input'><span class='fu'>summary</span>(<span class='no'>m3</span>)</div><div class='output co'>#&gt; # A tibble: 3 x 5
-#&gt;                 Cluster broad_interest enjoyment instrumental_mot self_efficacy
-#&gt;                   &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;            &lt;dbl&gt;         &lt;dbl&gt;
-#&gt; 1 Profile 1 (2458 obs.)       2.829468  2.841131         2.322010      2.219372
-#&gt; 2 Profile 2 (1598 obs.)       3.177023  3.407541         1.395599      1.691776
-#&gt; 3 Profile 3 (1302 obs.)       1.683218  1.903418         2.430748      2.516520</div></pre>
+                              <span class='kw'>n_profiles</span> <span class='kw'>=</span> <span class='fl'>3</span>)</div><div class='output co'>#&gt; <span class='message'>Prepared data: Removed 354 incomplete cases</span></div><div class='output co'>#&gt; <span class='message'>Hierarchical clustering carried out on: 5358 cases</span></div><div class='output co'>#&gt; <span class='message'>K-means algorithm converged: 5 iterations</span></div><div class='output co'>#&gt; <span class='message'>Clustered data: Using a 3 cluster solution</span></div><div class='output co'>#&gt; <span class='message'>Calculated statistics: R-squared = 0.424</span></div><div class='input'><span class='fu'>summary</span>(<span class='no'>m3</span>)</div><div class='output co'>#&gt;  broad_interest    enjoyment     instrumental_mot self_efficacy  
+#&gt;  Min.   :1.000   Min.   :1.000   Min.   :1.000    Min.   :1.000  
+#&gt;  1st Qu.:2.200   1st Qu.:2.400   1st Qu.:1.500    1st Qu.:1.625  
+#&gt;  Median :2.800   Median :3.000   Median :2.000    Median :2.000  
+#&gt;  Mean   :2.655   Mean   :2.782   Mean   :2.072    Mean   :2.134  
+#&gt;  3rd Qu.:3.200   3rd Qu.:3.000   3rd Qu.:2.500    3rd Qu.:2.500  
+#&gt;  Max.   :5.000   Max.   :4.000   Max.   :4.000    Max.   :4.000  
+#&gt;     cluster     
+#&gt;  Min.   :1.000  
+#&gt;  1st Qu.:1.000  
+#&gt;  Median :2.000  
+#&gt;  Mean   :1.784  
+#&gt;  3rd Qu.:2.000  
+#&gt;  Max.   :3.000  </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

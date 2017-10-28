@@ -1,0 +1,35 @@
+---
+title: "prcr and tidyLPA"
+author: "Joshua Rosenberg"
+date: "10/24/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=F, warning = F)
+```
+
+```{r}
+library(prcr)
+library(tidyLPA)
+```
+
+# prcr example
+
+```{r}
+d <- pisaUSA15
+m3_prcr <- create_profiles_cluster(d, 
+                                   broad_interest, enjoyment, self_efficacy,
+                                   n_profiles = 3)
+plot_profiles(m3_prcr, to_center = TRUE)
+```
+
+# tidyLPA example
+
+```{r}
+m3_lpa <- create_profiles_mclust(d, 
+                             broad_interest, enjoyment, self_efficacy,
+                             n_profiles = 3)
+
+plot_profiles_mclust(m3_lpa, to_center = TRUE)
+```

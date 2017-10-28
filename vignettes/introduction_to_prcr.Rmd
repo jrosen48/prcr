@@ -1,5 +1,5 @@
 ---
-title: "Introduction to cluster analysis-based use of prcr"
+title: "Introduction to use of prcr for carrying a out two-step cluster analysis"
 author: "Joshua Rosenberg"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -26,12 +26,7 @@ library(prcr)
 ```{r, eval = T}
 df <- pisaUSA15
 m3 <- create_profiles_cluster(df, broad_interest, enjoyment, instrumental_mot, self_efficacy, n_profiles = 3)
-summary(m3)
-plot_profiles(m3$.data)
+plot_profiles(m3, to_center = TRUE)
 ```
 
-Comparison of R-squared values can be carried out as follows:
-
-```{r, message = F, eval = T}
-estimate_r_squared(df, broad_interest, enjoyment, instrumental_mot, self_efficacy)
-```
+Other functions include those for carrying out comparing r-squared values and perfomring cross-validation. These are documented in the CRAN release and their versions in the in-development version will be documented prior to the CRAN release.
