@@ -1,3 +1,11 @@
+# prcr 0.2.1
+
+* address issue in vignette - warning from R CMD check
+
+# prcr 0.2.0
+
+* major updates
+
 # prcr 0.1.5
 
 * add a function, `detect_outliers()` to detect multivariate outliers based on Hadi's (1994) procedure (thanks to Rebecca Steingut for this contribution) 

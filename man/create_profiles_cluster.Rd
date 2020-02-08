@@ -4,9 +4,15 @@
 \alias{create_profiles_cluster}
 \title{Create profiles of observed variables using two-step cluster analysis}
 \usage{
-create_profiles_cluster(df, ..., n_profiles, to_center = FALSE,
-  to_scale = FALSE, distance_metric = "squared_euclidean",
-  linkage = "complete")
+create_profiles_cluster(
+  df,
+  ...,
+  n_profiles,
+  to_center = FALSE,
+  to_scale = FALSE,
+  distance_metric = "squared_euclidean",
+  linkage = "complete"
+)
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}

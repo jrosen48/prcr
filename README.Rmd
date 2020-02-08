@@ -25,8 +25,6 @@ You can install the development version of `prcr` (v. `0.2.0`) from Github with:
 devtools::install_github("jrosen48/prcr")
 ```
 
-This version takes a "data-first" approach different from the object-oriented approach used in the version on CRAN. Because of this, **Please note that there presently exists a significant gap in the user interface between the CRAN version available through `install.packages("prcr")` and the in-development version available through GitHub.** This should be addressed shortly in the next CRAN update.
-
 You can install `prcr` from CRAN (v. `0.1.5`) with:
 
 ```{r, eval = F}

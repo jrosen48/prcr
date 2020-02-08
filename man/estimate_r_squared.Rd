@@ -4,9 +4,17 @@
 \alias{estimate_r_squared}
 \title{Estimates R^2 (r-squared) values for a range of number of profiles}
 \usage{
-estimate_r_squared(df, ..., to_center = FALSE, to_scale = FALSE,
-  distance_metric = "squared_euclidean", linkage = "complete",
-  lower_bound = 2, upper_bound = 9, r_squared_table = TRUE)
+estimate_r_squared(
+  df,
+  ...,
+  to_center = FALSE,
+  to_scale = FALSE,
+  distance_metric = "squared_euclidean",
+  linkage = "complete",
+  lower_bound = 2,
+  upper_bound = 9,
+  r_squared_table = TRUE
+)
 }
 \arguments{
 \item{df}{with two or more columns with continuous variables}
