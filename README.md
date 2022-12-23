@@ -59,7 +59,7 @@ Code of Conduct
 
 Please note that this project is released with a Contributor Code of Conduct available [here](http://contributor-covenant.org/version/1/0/0/)
 
-Latent Profile Analyis (LPA)?
+Latent Profile Analysis (LPA)?
 -----------------------------
 
 This package is being developed along with its sister project, `tidyLPA`, which makes it easy to carry out Latent Profile Analysis by providing an interface to the MCLUST package. More information about `tidyLPA` is available [here](https://github.com/jrosen48/tidyLPA).
